@@ -11,6 +11,7 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 - Sistema robusto para logar ações, especialmente quando for salvar páginas. É necessário manter um
   o 'chain of evidence'.
+  - Adicionar o usuário atual no log
 - Definir grupos distintos de tipos de usuário, inicialmente: Garimpeiro e Moderador.
 - Integração com o archive.org em tipo de conteúdo ou entidade específica.
 - Entidade de Conteúdo específica para arquivamento de páginas da Web
