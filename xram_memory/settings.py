@@ -40,6 +40,8 @@ class Common(Configuration):
         'xram_memory.users',
         'xram_memory.archived_news',
         'xram_memory.news_fetcher',
+
+        'django_rq',
     ]
 
     MIDDLEWARE = [
@@ -116,6 +118,16 @@ class Common(Configuration):
 
     AUTH_USER_MODEL = 'users.User'
 
+    RQ_QUEUES = {
+        'default': {
+            'HOST': 'localhost',
+            'PORT': 6379,
+            'DB': 0,
+            'DEFAULT_TIMEOUT': 360,
+            'ASYNC': False
+        },
+    }
+
 
 class Development(Common):
     """
@@ -156,6 +168,7 @@ class Development(Common):
             },
         },
     }
+
 
 class Staging(Common):
     """
