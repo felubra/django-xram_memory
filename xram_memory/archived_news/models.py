@@ -4,14 +4,29 @@ from django.db import models
 
 
 class ArchivedNews(models.Model):
+
+    STATUS_NEW = 1
+    STATUS_QUEUED = 2
+    STATUS_PROCESSED = 3
+    STATUS_PUBLISHED = 4
+    STATUS_HIDDEN = 5
+
+    STATUS_CHOICES = (
+        (STATUS_NEW, 'Novo'),
+        (STATUS_QUEUED, 'Em fila para processamento'),
+        (STATUS_PROCESSED, 'Processado'),
+        (STATUS_PUBLISHED, 'Publicado'),
+        (STATUS_HIDDEN, 'Escondido'),
+    )
+
     url = models.URLField(
         max_length=255, help_text="Endereço da página da notícia", unique=True,
         verbose_name="Endereço")
     title = models.CharField(max_length=255, blank=True,
                              help_text="Título", verbose_name="Título")
 
-    downloaded = models.BooleanField(
-        default=False, verbose_name="Baixado?", editable=False)
+    status = models.PositiveIntegerField(
+        default=STATUS_NEW, verbose_name="Baixado?", editable=False, choices=STATUS_CHOICES)
 
     authors = models.TextField(
         blank=True, verbose_name="Autores", editable=False)

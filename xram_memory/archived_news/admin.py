@@ -9,7 +9,7 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
         'id',
         'url',
         'title',
-        'downloaded',
+        'status',
         'authors',
         'images',
         'text',
@@ -17,4 +17,3 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
         'summary',
         'keywords',
     )
-    list_filter = ('downloaded',)
