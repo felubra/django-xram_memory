@@ -10,6 +10,7 @@ class ArchivedNews(models.Model):
     STATUS_PROCESSED = 3
     STATUS_PUBLISHED = 4
     STATUS_HIDDEN = 5
+    STATUS_ERROR = 5
 
     STATUS_CHOICES = (
         (STATUS_NEW, 'Novo'),
@@ -17,6 +18,7 @@ class ArchivedNews(models.Model):
         (STATUS_PROCESSED, 'Processado'),
         (STATUS_PUBLISHED, 'Publicado'),
         (STATUS_HIDDEN, 'Escondido'),
+        (STATUS_ERROR, 'Erro'),
     )
 
     url = models.URLField(
