@@ -132,6 +132,29 @@ class Development(Common):
         'debug_toolbar.middleware.DebugToolbarMiddleware'
     ]
 
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            '': {
+                'filters': ['require_debug_true'],
+                'level': 'DEBUG',
+            },
+            '': {
+                'handlers': ['console'],
+                'level': 'INFO',
+            },
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+            },
+        },
+    }
 
 class Staging(Common):
     """
