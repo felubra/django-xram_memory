@@ -128,6 +128,8 @@ class Common(Configuration):
         },
     }
 
+    NEWS_FETCHER_STATIC_DIR = os.path.join(BASE_DIR, 'saved_pages')
+
 
 class Development(Common):
     """
@@ -154,10 +156,6 @@ class Development(Common):
             },
         },
         'loggers': {
-            '': {
-                'filters': ['require_debug_true'],
-                'level': 'DEBUG',
-            },
             '': {
                 'handlers': ['console'],
                 'level': 'INFO',
