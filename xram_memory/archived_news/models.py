@@ -6,21 +6,34 @@ from django.db import models
 class ArchivedNews(models.Model):
 
     STATUS_NEW = 100
-    STATUS_QUEUED = 200
-    STATUS_PROCESSED = 300
+    # Em fila
+    STATUS_QUEUED_BASIC_INFO = 200
+    STATUS_QUEUED_PAGE_CAPTURE = 201
+    # Processado
+    STATUS_PROCESSED_BASIC_INFO = 300
+    STATUS_PROCESSED_PAGE_CAPTURE = 301
+    # Publicado
     STATUS_PUBLISHED = 400
     STATUS_PUBLISHED_HIDDEN = 401
+    # Erros
     STATUS_ERROR_NO_PROCESS = 500
     STATUS_ERROR_NO_CAPTURE = 501
 
     STATUS_CHOICES = (
         (STATUS_NEW, 'Novo'),
-        (STATUS_QUEUED, 'Em fila para processamento'),
-        (STATUS_PROCESSED, 'Processado'),
+
+        (STATUS_QUEUED_BASIC_INFO, 'Em fila para buscar informações básicas'),
+        (STATUS_QUEUED_PAGE_CAPTURE, 'Em fila para capturar a página'),
+
+
+        (STATUS_PROCESSED_BASIC_INFO, 'Processado com informações básicas'),
+        (STATUS_PROCESSED_PAGE_CAPTURE, 'Processado com captura de página'),
+
         (STATUS_PUBLISHED, 'Publicado'),
-        (STATUS_PUBLISHED_HIDDEN, 'Escondido'),
-        (STATUS_ERROR_NO_PROCESS, 'Erro no processamento'),
-        (STATUS_ERROR_NO_CAPTURE, 'Erro na captura')
+        (STATUS_PUBLISHED_HIDDEN, 'Publicado, mas escondido'),
+
+        (STATUS_ERROR_NO_PROCESS, 'Erro no processamento básico'),
+        (STATUS_ERROR_NO_CAPTURE, 'Erro na captura de págin')
     )
 
     url = models.URLField(
