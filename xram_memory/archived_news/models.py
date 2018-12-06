@@ -63,3 +63,26 @@ class ArchivedNews(models.Model):
     class Meta:
         verbose_name = "Archived News"
         verbose_name_plural = "Archived News"
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def has_error(self):
+        return str(self.status)[0] == '5'
+
+    @property
+    def is_published(self):
+        return str(self.status)[0] == '4'
+
+    @property
+    def is_processed(self):
+        return str(self.status)[0] == '3'
+
+    @property
+    def is_queued(self):
+        return str(self.status)[0] == '2'
+
+    @property
+    def is_new(self):
+        return self.status == ArchivedNews.STATUS_NEW
