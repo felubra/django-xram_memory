@@ -33,7 +33,7 @@ class ArchivedNews(models.Model):
         (STATUS_PUBLISHED_HIDDEN, 'Publicado, mas escondido'),
 
         (STATUS_ERROR_NO_PROCESS, 'Erro no processamento básico'),
-        (STATUS_ERROR_NO_CAPTURE, 'Erro na captura de págin')
+        (STATUS_ERROR_NO_CAPTURE, 'Erro na captura de página')
     )
 
     url = models.URLField(
