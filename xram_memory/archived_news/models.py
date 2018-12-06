@@ -46,3 +46,7 @@ class ArchivedNews(models.Model):
         blank=True, verbose_name="Resumo do artigo", editable=False)
     keywords = models.TextField(
         blank=True, verbose_name="palavras-chave", editable=False)
+
+    class Meta:
+        verbose_name = "Archived News"
+        verbose_name_plural = "Archived News"
