@@ -20,6 +20,7 @@ def add_news_archive_to_queue(sender, **kwargs):
                 )
             )
             process_news.delay(archived_news)
+                save_news_as_pdf.delay(archived_news)
             # adicione a notícia na fila para  baixar
             # altere o status para 'agendado'
             # salve o modelo
