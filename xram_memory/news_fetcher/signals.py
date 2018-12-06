@@ -18,8 +18,7 @@ def add_news_archive_to_queue(sender, **kwargs):
         if hasattr(archived_news, '_dirty'):
             return
 
-        if (archived_news.status == ArchivedNews.STATUS_NEW or
-                archived_news.status == ArchivedNews.STATUS_ERROR):
+        if (archived_news.is_new or archived_news.has_error):
             logger.info(
                 'Notícia com o id {} e status "{}" inserida na fila para processamento.'.format(
                     archived_news.id, archived_news.get_status_display()
@@ -28,11 +27,13 @@ def add_news_archive_to_queue(sender, **kwargs):
             try:
                 # @todo verificar se o serviço de filas está funcionando (se existe conexão com o redis)
                 # e logar um aviso caso contrário
-                # Adicione uma flag ao objeto para evitar que esse hadler execute infinitamente,
+
+                # Adicione uma flag ao objeto para evitar que esse handler execute infinitamente,
                 # já que algumas das funções abaixo podem chamar o save()
                 archived_news._dirty = True
 
                 process_news.delay(archived_news)
+
                 save_news_as_pdf.delay(archived_news)
                 # adicione a notícia na fila para  baixar
                 # altere o status para 'agendado'
