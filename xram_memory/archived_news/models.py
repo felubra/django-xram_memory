@@ -6,6 +6,10 @@ saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
 
 
 class ArchivedNews(models.Model):
+    """
+    Guarda uma notíca arquivada, enviada tanto manualmente ou obtida automaticamente pelo sistema do 
+    site.
+    """
 
     STATUS_NEW = 100
     # Em fila
