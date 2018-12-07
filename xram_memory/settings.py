@@ -127,8 +127,16 @@ class Common(Configuration):
             'ASYNC': False
         },
     }
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-    NEWS_FETCHER_STATIC_DIR = os.path.join(BASE_DIR, 'saved_pages')
+    NEWS_FETCHER_SAVED_DIR_ROOT = os.path.join(
+        MEDIA_ROOT, 'saved_news_pages')
+    NEWS_FETCHER_SAVED_DIR_PDF = os.path.join(
+        NEWS_FETCHER_SAVED_DIR_ROOT, 'pdf')
+    NEWS_FETCHER_SAVED_DIR_PDF = os.path.join(
+        NEWS_FETCHER_SAVED_DIR_ROOT, 'image')
+    NEWS_FETCHER_SAVED_DIR_PDF = os.path.join(
+        NEWS_FETCHER_SAVED_DIR_ROOT, 'html')
 
 
 class Development(Common):
