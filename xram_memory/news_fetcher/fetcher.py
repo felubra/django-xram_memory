@@ -21,6 +21,11 @@ def process_news(archived_news):
 
         archived_news.status = ArchivedNews.STATUS_QUEUED_BASIC_INFO
         archived_news.save()
+        logger.info(
+            'Notícia com o id {} e status "{}" inserida na fila para processamento básico.'.format(
+                archived_news.id, archived_news.get_status_display()
+            )
+        )
 
         article = Article(archived_news.url)
         article.download()
@@ -68,6 +73,11 @@ def save_news_as_pdf(archived_news):
 
         archived_news.status = ArchivedNews.STATUS_QUEUED_PAGE_CAPTURE
         archived_news.save()
+        logger.info(
+            'Notícia com o id {} e status "{}" inserida na fila para captura de página.'.format(
+                archived_news.id, archived_news.get_status_display()
+            )
+        )
 
         uniq_filename = str(datetime.datetime.now().date(
         )) + '_' + str(datetime.datetime.now().time()).replace(':', '.') + '.pdf'

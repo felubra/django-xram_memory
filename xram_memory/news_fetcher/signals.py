@@ -19,11 +19,6 @@ def add_news_archive_to_queue(sender, **kwargs):
             return
 
         if (archived_news.is_new or archived_news.has_error):
-            logger.info(
-                'Notícia com o id {} e status "{}" inserida na fila para processamento.'.format(
-                    archived_news.id, archived_news.get_status_display()
-                )
-            )
             try:
                 # @todo verificar se o serviço de filas está funcionando (se existe conexão com o redis)
                 # e logar um aviso caso contrário
