@@ -12,7 +12,7 @@ from timeit import default_timer
 
 
 logger = logging.getLogger(__name__)
-saved_pages_dir = settings.NEWS_FETCHER_STATIC_DIR
+saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
 
 
 @job
@@ -35,8 +35,9 @@ def process_news(archived_news):
         archived_news.title = article.title
         archived_news.authors = ",".join(article.authors)
         archived_news.keywords = ",".join(article.keywords)
-        archived_news.images = ",".join(article.images)
-        archived_news.top_image = article.top_image
+        archived_news.images = ",".join(
+            article.images)  # @todo, baixar cada uma
+        archived_news.top_image = article.top_image  # @todo baixar
         archived_news.text = article.text
         archived_news.summary = article.summary
 
@@ -68,9 +69,10 @@ def process_news(archived_news):
 def save_news_as_pdf(archived_news):
     try:
 
-        if not saved_pages_dir:
+        # @todo checar se o diretório existe, se existem permissões para salvar etc
+        if not saved_pdf_dir:
             raise ValueError(
-                'O caminho para onde salvar as páginas não foi definido (constante de configuração NEWS_FETCHER_STATIC_DIR).')
+                'O caminho para onde salvar as páginas não foi definido (constante de configuração NEWS_FETCHER_SAVED_DIR_PDF).')
 
         archived_news.status = ArchivedNews.STATUS_QUEUED_PAGE_CAPTURE
         archived_news.save()
@@ -84,7 +86,7 @@ def save_news_as_pdf(archived_news):
         )) + '_' + str(datetime.datetime.now().time()).replace(':', '.') + '.pdf'
 
         archived_news_pdf_path = str(
-            Path(saved_pages_dir, uniq_filename))
+            Path(saved_pdf_dir, uniq_filename))
 
         # @todo usar um decorador para medir o tempo e logar
         tic = default_timer()
