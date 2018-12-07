@@ -15,7 +15,9 @@ def add_news_archive_to_queue(sender, **kwargs):
         archived_news = kwargs['instance']
         if not archived_news:
             return
-        if hasattr(archived_news, '_dirty'):
+        if archived_news.manual_insertion:
+            return
+        if hasattr(archived_news, '_job_processing'):
             return
 
         if (archived_news.is_new or archived_news.has_error):
@@ -25,7 +27,7 @@ def add_news_archive_to_queue(sender, **kwargs):
 
                 # Adicione uma flag ao objeto para evitar que esse handler execute infinitamente,
                 # já que algumas das funções abaixo podem chamar o save()
-                archived_news._dirty = True
+                archived_news._job_processing = True
 
                 process_news.delay(archived_news)
 
@@ -34,6 +36,6 @@ def add_news_archive_to_queue(sender, **kwargs):
                 # altere o status para 'agendado'
                 # salve o modelo
             finally:
-                del archived_news._dirty
+                del archived_news._job_processing
     except:
         pass
