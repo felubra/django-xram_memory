@@ -36,6 +36,7 @@ def process_news(archived_news):
         archived_news.authors = ",".join(article.authors)
         archived_news.keywords = ",".join(article.keywords)
         archived_news.images = ",".join(article.images)
+        archived_news.top_image = article.top_image
         archived_news.text = article.text
         archived_news.summary = article.summary
 
