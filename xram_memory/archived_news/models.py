@@ -1,6 +1,8 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
+saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
 
 
 class ArchivedNews(models.Model):
@@ -42,23 +44,32 @@ class ArchivedNews(models.Model):
     title = models.CharField(max_length=255, blank=True,
                              help_text="Título", verbose_name="Título")
 
+    # Define se os campos abaixo serão editados diretamente pelo usuário
+    manual_insertion = models.BooleanField(default=False)
+
     status = models.PositiveIntegerField(
         default=STATUS_NEW, verbose_name="Status", editable=False, choices=STATUS_CHOICES)
 
     authors = models.TextField(
-        blank=True, verbose_name="Autores", editable=False)
+        blank=True, verbose_name="Autores")
 
     images = models.TextField(
-        blank=True, verbose_name="Imagens", editable=False)
+        blank=True, editable=False, verbose_name="Imagens")
+
     text = models.TextField(
-        blank=True, verbose_name="Texto da notícia", editable=False)
-    top_image = models.FilePathField(
-        blank=True, verbose_name="Imagem principal", editable=False)
+        blank=True, verbose_name="Texto da notícia")
+
+    top_image = models.ImageField(
+        blank=True, verbose_name="Imagem principal")
 
     summary = models.TextField(
-        blank=True, verbose_name="Resumo do artigo", editable=False)
+        blank=True, verbose_name="Resumo da notícia")
     keywords = models.TextField(
-        blank=True, verbose_name="palavras-chave", editable=False)
+        blank=True, verbose_name="palavras-chave")
+
+    page_pdf_file = models.FileField(upload_to=saved_pdf_dir,
+                                     verbose_name="Arquivo da notícia em PDF",
+                                     blank=True)
 
     class Meta:
         verbose_name = "Archived News"
@@ -86,3 +97,19 @@ class ArchivedNews(models.Model):
     @property
     def is_new(self):
         return self.status == ArchivedNews.STATUS_NEW
+
+    def _set_manual_insertion(self):
+        # Ignore chamadas a esta função indiretamente invocadas quando dentro de um trabalho de
+        # processamento
+        if hasattr(self, '_job_processing'):
+            return
+
+        # Se o modelo é novo, mas tem os campos preenchidos, force a flag para inserção manual
+        if self.pk is None and (self.authors or self.images or self.text or self.top_image or
+                                self.summary or self.keywords or self.page_pdf_file.name or
+                                self.title):
+            self.manual_insertion = True
+
+    def save(self, *args, **kwargs):
+        self._set_manual_insertion()
+        super().save(*args, **kwargs)
