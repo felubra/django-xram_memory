@@ -10,7 +10,6 @@ import datetime
 import pdfkit
 from timeit import default_timer
 
-
 logger = logging.getLogger(__name__)
 saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
 
@@ -34,7 +33,8 @@ def process_news(archived_news):
 
         archived_news.title = article.title
         archived_news.authors = ",".join(article.authors)
-        archived_news.keywords = ",".join(article.keywords)
+
+        archived_news._keywords = article.keywords
         archived_news.images = ",".join(
             article.images)  # @todo, baixar cada uma
         archived_news.top_image = article.top_image  # @todo baixar
