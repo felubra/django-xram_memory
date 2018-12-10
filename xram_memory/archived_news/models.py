@@ -89,8 +89,8 @@ class ArchivedNews(models.Model):
 
     summary = models.TextField(
         blank=True, verbose_name="Resumo da notícia")
-    keywords = models.TextField(
-        blank=True, verbose_name="palavras-chave")
+
+    keywords = models.ManyToManyField(Keyword, blank=True)
 
     page_pdf_file = models.FileField(upload_to=saved_pdf_dir,
                                      verbose_name="Arquivo da notícia em PDF",
@@ -122,19 +122,3 @@ class ArchivedNews(models.Model):
     @property
     def is_new(self):
         return self.status == ArchivedNews.STATUS_NEW
-
-    def _set_manual_insertion(self):
-        # Ignore chamadas a esta função indiretamente invocadas quando dentro de um trabalho de
-        # processamento
-        if hasattr(self, '_job_processing'):
-            return
-
-        # Se o modelo é novo, mas tem os campos preenchidos, force a flag para inserção manual
-        if self.pk is None and (self.authors or self.images or self.text or self.top_image or
-                                self.summary or self.keywords or self.page_pdf_file.name or
-                                self.title):
-            self.manual_insertion = True
-
-    def save(self, *args, **kwargs):
-        self._set_manual_insertion()
-        super().save(*args, **kwargs)
