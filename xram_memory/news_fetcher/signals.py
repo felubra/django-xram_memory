@@ -15,6 +15,7 @@ def add_news_archive_to_queue(sender, **kwargs):
         archived_news = kwargs['instance']
         if not archived_news:
             return
+        # Se o usuário optou por uma inserção manual, não faça o processamento automático
         if archived_news.manual_insertion:
             return
         if hasattr(archived_news, '_job_processing'):
