@@ -39,6 +39,7 @@ class ArchivedNews(models.Model):
     # Processado
     STATUS_PROCESSED_BASIC_INFO = 300
     STATUS_PROCESSED_PAGE_CAPTURE = 301
+    STATUS_PROCESSED_ARCHIVED_NEWS_FETCHED = 302
     # Publicado
     STATUS_PUBLISHED = 400
     STATUS_PUBLISHED_HIDDEN = 401
@@ -55,6 +56,8 @@ class ArchivedNews(models.Model):
 
         (STATUS_PROCESSED_BASIC_INFO, 'Processado com informações básicas'),
         (STATUS_PROCESSED_PAGE_CAPTURE, 'Processado com captura de página'),
+        (STATUS_PROCESSED_ARCHIVED_NEWS_FETCHED,
+         'Processado com informações da página arquivada no Internet Archive'),
 
         (STATUS_PUBLISHED, 'Publicado'),
         (STATUS_PUBLISHED_HIDDEN, 'Publicado, mas escondido'),
@@ -64,8 +67,13 @@ class ArchivedNews(models.Model):
     )
 
     url = models.URLField(
-        max_length=255, help_text="Endereço da página da notícia", unique=True,
-        verbose_name="Endereço")
+        max_length=255, help_text="Endereço da página da notícia",
+        verbose_name="Endereço", unique=True, null=True)
+
+    archived_news_url = models.URLField(
+        max_length=255, help_text="Endereço da notícia arquivada no Internet Archive",
+        verbose_name="URL no Internet Archive", unique=True, null=True)
+
     title = models.CharField(max_length=255, blank=True,
                              help_text="Título", verbose_name="Título")
 
@@ -96,6 +104,14 @@ class ArchivedNews(models.Model):
                                      verbose_name="Arquivo da notícia em PDF",
                                      blank=True)
 
+    # Flags
+    force_basic_processing = models.BooleanField(
+        "Pegar novamente informações sobre a página", default=False)
+    force_archive_org_processing = models.BooleanField(
+        "Buscar novamente no Archive.org", default=False)
+    force_pdf_capture = models.BooleanField(
+        "Recapturar a página em formato PDF", default=False)
+
     class Meta:
         verbose_name = "Archived News"
         verbose_name_plural = "Archived News"
@@ -106,6 +122,10 @@ class ArchivedNews(models.Model):
     @property
     def has_error(self):
         return str(self.status)[0] == '5'
+
+    @property
+    def needs_reprocessing(self):
+        return self.force_basic_processing or self.force_archive_org_processing or self.force_pdf_capture
 
     @property
     def is_published(self):
