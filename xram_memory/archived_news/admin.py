@@ -53,11 +53,15 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
     )
     fieldsets = (
         ('Informações básicas', {
-            'fields': ('url', 'title')
+            'fields': ('url', 'archived_news_url', 'title')
         }),
 
         ('Informações adicionais', {
             'fields': ('manual_insertion', 'authors', 'text', 'top_image', 'summary', 'keywords', 'page_pdf_file'),
+        }),
+
+        ('Avançado', {
+            'fields': ('force_basic_processing', 'force_archive_org_processing', 'force_pdf_capture'),
         }),
     )
 
