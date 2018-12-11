@@ -9,11 +9,51 @@ from pathlib import Path
 import datetime
 import pdfkit
 from timeit import default_timer
+import requests
 import os
 
 logger = logging.getLogger(__name__)
 saved_pdf_dir = os.path.join(
     settings.MEDIA_ROOT, settings.NEWS_FETCHER_SAVED_DIR_PDF)
+
+
+@job
+def archive_org_fetcher(ArchivedNews):
+    pass
+
+
+@job
+def verify_if_in_archive_org(archived_news):
+    try:
+
+        response = requests.get(
+            "https://archive.org/wayback/available?url={}".format(archived_news.url))
+        response.raise_for_status()
+        response = response.json()
+        if (response["archived_snapshots"] and response["archived_snapshots"]["closest"] and
+                response["archived_snapshots"]["closest"]["available"]):
+            closest_archive = response["archived_snapshots"]["closest"]
+            archived_news.archived_news_url = closest_archive["url"]
+
+    except Exception as err:
+
+        logger.error(
+            'Falha ao tentar localizar uma versão arquivada no Internet Archive para a Notícia com o id {} e status "{}": {}'.format(
+                archived_news.id, archived_news.get_status_display(), str(err)
+            )
+        )
+
+    else:
+
+        archived_news.force_archive_org_processing = False
+        status_before = archived_news.get_status_display()
+        archived_news.status = ArchivedNews.STATUS_PROCESSED_ARCHIVED_NEWS_FETCHED
+        archived_news.save()
+        logger.info(
+            'Sucesso ao pegar informações da Notícia com o id {} e status "{} no Internet Archive".'.format(
+                archived_news.id, status_before
+            )
+        )
 
 
 @job
