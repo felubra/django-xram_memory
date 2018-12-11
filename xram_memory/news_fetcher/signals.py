@@ -15,13 +15,11 @@ def add_news_archive_to_queue(sender, **kwargs):
         archived_news = kwargs['instance']
         if not archived_news:
             return
-        # Se o usuário optou por uma inserção manual, não faça o processamento automático
-        if archived_news.manual_insertion:
-            return
+
         if hasattr(archived_news, '_job_processing'):
             return
 
-        if (archived_news.is_new or archived_news.needs_reprocessing):
+        if archived_news.needs_reprocessing:
             try:
                 # @todo verificar se o serviço de filas está funcionando (se existe conexão com o redis)
                 # e logar um aviso caso contrário
@@ -30,13 +28,13 @@ def add_news_archive_to_queue(sender, **kwargs):
                 # já que algumas das funções abaixo podem chamar o save()
                 archived_news._job_processing = True
 
-                if archived_news.is_new or archived_news.force_basic_processing:
+                if archived_news.force_basic_processing:
                     process_news.delay(archived_news)
 
-                if archived_news.is_new or archived_news.force_archive_org_processing:
+                if archived_news.force_archive_org_processing:
                     verify_if_in_archive_org.delay(archived_news)
 
-                if archived_news.is_new or archived_news.force_pdf_capture:
+                if archived_news.force_pdf_capture:
                     save_news_as_pdf.delay(archived_news)
                 # adicione a notícia na fila para  baixar
                 # altere o status para 'agendado'
