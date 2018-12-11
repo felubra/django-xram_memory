@@ -67,27 +67,27 @@ class ArchivedNews(models.Model):
     )
 
     url = models.URLField(
-        max_length=255, help_text="Endereço da página da notícia",
-        verbose_name="Endereço", unique=True, null=True)
+        max_length=255, help_text="Endereço original da notícia",
+        verbose_name="Endereço", unique=True, null=True, blank=True)
 
     archived_news_url = models.URLField(
-        max_length=255, help_text="Endereço da notícia arquivada no Internet Archive",
-        verbose_name="URL no Internet Archive", unique=True, null=True)
+        max_length=255, help_text="Endereço da notícia no <a href='https://archive.org/'>Archive.org</a>",
+        verbose_name="Endereço no Internet Archive", unique=True, null=True, blank=True)
 
     title = models.CharField(max_length=255, blank=True,
-                             help_text="Título", verbose_name="Título")
+                             help_text="Título da notícia", verbose_name="Título")
 
     status = models.PositiveIntegerField(
         default=STATUS_NEW, verbose_name="Status", editable=False, choices=STATUS_CHOICES)
 
     authors = models.TextField(
-        blank=True, verbose_name="Autores")
+        blank=True, verbose_name="Autores", help_text='Nomes dos autores, separados por vírgula')
 
     images = models.TextField(
-        blank=True, editable=False, verbose_name="Imagens")
+        blank=True, editable=False, verbose_name="Imagens", help_text="Imagens associadas a esta notícia")
 
     text = models.TextField(
-        blank=True, verbose_name="Texto da notícia")
+        blank=True, verbose_name="Texto da notícia", help_text="Texto integral da notícia")
 
     top_image = models.ImageField(
         blank=True, verbose_name="Imagem principal")
@@ -95,19 +95,23 @@ class ArchivedNews(models.Model):
     summary = models.TextField(
         blank=True, verbose_name="Resumo da notícia")
 
-    keywords = models.ManyToManyField(Keyword, blank=True)
+    keywords = models.ManyToManyField(
+        Keyword, blank=True, verbose_name="Palavras-chave")
 
     page_pdf_file = models.FileField(upload_to=saved_pdf_dir,
-                                     verbose_name="Arquivo da notícia em PDF",
+                                     verbose_name="Captura da notícia em PDF",
                                      blank=True)
 
     # Flags
     force_basic_processing = models.BooleanField(
-        "Pegar novamente informações sobre a página", default=False)
+        "Buscar automaticamente informações sobre a notícia", default=True,
+        help_text="Marque se deseja incluir essa notícia para processamento automático.")
     force_archive_org_processing = models.BooleanField(
-        "Buscar novamente no Archive.org", default=False)
+        "Buscar informações no Archive.org", default=True,
+        help_text="Marque se deseja buscar uma versão arquivada desta notícia no <a href='https://archive.org/'>Archive.org</a>.")
     force_pdf_capture = models.BooleanField(
-        "Recapturar a página em formato PDF", default=False)
+        "Capturar a notícia em formato PDF", default=True,
+        help_text="Marque se deseja capturar essa notícia em formato PDF.")
 
     class Meta:
         verbose_name = "Archived News"
