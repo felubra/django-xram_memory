@@ -28,7 +28,7 @@ class Keyword(models.Model):
 
 class ArchivedNews(models.Model):
     """
-    Guarda uma notíca arquivada, enviada tanto manualmente ou obtida automaticamente pelo sistema do 
+    Guarda uma notíca arquivada, enviada tanto manualmente ou obtida automaticamente pelo sistema do
     site.
     """
 
@@ -126,6 +126,19 @@ class ArchivedNews(models.Model):
     @property
     def needs_reprocessing(self):
         return self.force_basic_processing or self.force_archive_org_processing or self.force_pdf_capture
+
+    @property
+    def has_basic_info(self):
+        return (bool(self.text) or bool(self.summary) or bool(self.authors) or bool(self.keywords) or
+                bool(self.top_image) or bool(self.images))
+
+    @property
+    def has_pdf_capture(self):
+        return bool(self.page_pdf_file)
+
+    @property
+    def has_web_archive(self):
+        return bool(self.archived_news_url)
 
     @property
     def is_published(self):
