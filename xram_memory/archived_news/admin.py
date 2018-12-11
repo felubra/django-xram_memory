@@ -18,22 +18,58 @@ class KeywordAdmin(admin.ModelAdmin):
 
 
 class ArchivedNewsAdminForm(forms.ModelForm):
+    INSERTION_AUTOMATIC = 0
+    INSERTION_MANUAL = 1
+
+    INSERTION_MODES = (
+        (INSERTION_AUTOMATIC, "Inserção automática"),
+        (INSERTION_MANUAL, "Inserção manual"),
+    )
+
+    insertion_mode = forms.ChoiceField(required=True,
+                                       widget=forms.RadioSelect, choices=INSERTION_MODES, label="Modo de inserção")
+
+    def __init__(self, *args, **kwargs):
+        super(ArchivedNewsAdminForm, self).__init__(*args, **kwargs)
+        self.initial['insertion_mode'] = self.INSERTION_AUTOMATIC
+        if not self.instance.pk is None:
+            self.fields['force_basic_processing'].label = "Reinserir na fila para processamento automático"
+            self.fields['force_basic_processing'].help_text = "Marque se deseja reinserir essa notícia para processamento automático.<br/><strong>NOTA:</strong> isso sobrescreverá qualquer informação anterior."
+
+            self.fields['force_archive_org_processing'].label = "Reinserir na fila para buscar informações no Archive.org"
+            self.fields['force_archive_org_processing'].help_text += "<br/><strong>NOTA:</strong> isso sobrescreverá qualquer informação anterior."
+
+            self.fields['force_pdf_capture'].label = "Gerar uma nova captura de página"
+            self.fields['force_pdf_capture'].help_text += "<br/><strong>NOTA:</strong> isso substituirá a captura de página anterior."
+
     def clean(self):
         cleaned_data = super(ArchivedNewsAdminForm, self).clean()
 
         title = cleaned_data.get('title', '')
         url = cleaned_data.get('url', '')
         archived_news_url = cleaned_data.get('archived_news_url', '')
-        manual_insertion = cleaned_data.get('manual_insertion', False)
+        insertion_mode = cleaned_data.get(
+            'insertion_mode', self.INSERTION_AUTOMATIC)
 
-        # Se alguns dos campos acima foram alterandos numa notícia prestes a ser inserida, o título deve ser definido
-        if (self.instance.pk is None
-                and (manual_insertion or
-                     any(field in ARCHIVED_NEWS_MANUAL_INSERTION_TRIGGER_FIELDS for field in self.changed_data))
-                and not title):
-            self.add_error(
-                'title', 'Você precisa dar um título para a notícia')
+        force_pdf_capture = cleaned_data.get('force_pdf_capture', False)
+        force_archive_org_processing = cleaned_data.get(
+            'force_archive_org_processing', False)
+        force_basic_processing = cleaned_data.get(
+            'force_basic_processing', False)
 
+        manual_insert = insertion_mode == self.INSERTION_MANUAL or not (
+            force_pdf_capture or force_archive_org_processing or force_basic_processing)
+
+        # Se alguns dos campos acima foram alterados numa notícia prestes a ser inserida, o título deve ser definido
+        if self.instance.pk is None:
+            if manual_insert and not title:
+                self.add_error(
+                    'title', 'Você precisa dar um título para a notícia')
+        else:
+            # Não exija o campo insertion_mode se estivermos editando um modelo
+            self.errors.pop("insertion_mode", None)
+
+        # A notícia deve conter ao menos uma url, seja a original ou seja a arquivada
         if not (url or archived_news_url):
             self.add_error(
                 'url', 'Preencha este campo')
@@ -51,19 +87,35 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
         'title',
         'status',
     )
-    fieldsets = (
+    INSERT_FIELDSETS = (
         ('Informações básicas', {
-            'fields': ('url', 'archived_news_url', 'title')
+            'fields': ('url', 'archived_news_url')
+        }),
+        ('Modo de inserção', {
+            'fields': ('insertion_mode', 'force_basic_processing', 'force_archive_org_processing', 'force_pdf_capture'),
+        }),
+        ('Informações adicionais', {
+            'fields': ('title', 'authors', 'text', 'top_image', 'summary', 'keywords', 'page_pdf_file'),
+        }),
+    )
+    EDIT_FIELDSETS = (
+        ('Informações básicas', {
+            'fields': ('url', 'archived_news_url')
         }),
 
         ('Informações adicionais', {
-            'fields': ('manual_insertion', 'authors', 'text', 'top_image', 'summary', 'keywords', 'page_pdf_file'),
+            'fields': ('title', 'authors', 'text', 'top_image', 'summary', 'keywords', 'page_pdf_file'),
         }),
-
         ('Avançado', {
             'fields': ('force_basic_processing', 'force_archive_org_processing', 'force_pdf_capture'),
         }),
     )
+
+    def get_fieldsets(self, request, obj):
+        if obj is None:
+            return self.INSERT_FIELDSETS
+        else:
+            return self.EDIT_FIELDSETS
 
     def _save_keywords_from_the_fetcher(self, instance):
         """
