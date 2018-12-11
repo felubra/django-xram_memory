@@ -77,9 +77,6 @@ class ArchivedNews(models.Model):
     title = models.CharField(max_length=255, blank=True,
                              help_text="Título", verbose_name="Título")
 
-    # Define se os campos abaixo serão editados diretamente pelo usuário
-    manual_insertion = models.BooleanField(default=False)
-
     status = models.PositiveIntegerField(
         default=STATUS_NEW, verbose_name="Status", editable=False, choices=STATUS_CHOICES)
 
