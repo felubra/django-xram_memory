@@ -129,14 +129,10 @@ class Common(Configuration):
     }
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-    NEWS_FETCHER_SAVED_DIR_ROOT = os.path.join(
-        MEDIA_ROOT, 'saved_news_pages')
-    NEWS_FETCHER_SAVED_DIR_PDF = os.path.join(
-        NEWS_FETCHER_SAVED_DIR_ROOT, 'pdf')
-    NEWS_FETCHER_SAVED_DIR_PDF = os.path.join(
-        NEWS_FETCHER_SAVED_DIR_ROOT, 'image')
-    NEWS_FETCHER_SAVED_DIR_PDF = os.path.join(
-        NEWS_FETCHER_SAVED_DIR_ROOT, 'html')
+    NEWS_FETCHER_SAVED_DIR_ROOT = 'saved_news_pages/'
+    NEWS_FETCHER_SAVED_DIR_PDF = 'saved_news_pages/pdf/'
+    NEWS_FETCHER_SAVED_DIR_IMAGE = 'saved_news_pages/image/'
+    NEWS_FETCHER_SAVED_DIR_HTML = 'saved_news_pages/html/'
 
 
 class Development(Common):

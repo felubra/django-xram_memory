@@ -9,9 +9,11 @@ from pathlib import Path
 import datetime
 import pdfkit
 from timeit import default_timer
+import os
 
 logger = logging.getLogger(__name__)
-saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
+saved_pdf_dir = os.path.join(
+    settings.MEDIA_ROOT, settings.NEWS_FETCHER_SAVED_DIR_PDF)
 
 
 @job
