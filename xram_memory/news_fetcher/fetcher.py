@@ -97,6 +97,7 @@ def process_news(archived_news):
 
     else:
 
+        archived_news.force_basic_processing = False
         status_before = archived_news.get_status_display()
         archived_news.status = ArchivedNews.STATUS_PROCESSED_BASIC_INFO
         archived_news.save()
@@ -124,8 +125,10 @@ def save_news_as_pdf(archived_news):
             )
         )
 
-        uniq_filename = str(datetime.datetime.now().date(
-        )) + '_' + str(datetime.datetime.now().time()).replace(':', '.') + '.pdf'
+        uniq_filename = (
+            str(datetime.datetime.now().date()) + '_' +
+            str(datetime.datetime.now().time()).replace(':', '.') + '.pdf'
+        )
 
         archived_news_pdf_path = str(
             Path(saved_pdf_dir, uniq_filename))
@@ -137,6 +140,8 @@ def save_news_as_pdf(archived_news):
             'disable-javascript': None,
         })
         toc = default_timer()
+
+        archived_news.page_pdf_file.name = archived_news_pdf_path
 
     except Exception as err:
 
@@ -152,6 +157,7 @@ def save_news_as_pdf(archived_news):
 
     else:
 
+        archived_news.force_pdf_capture = False
         archived_news.status = ArchivedNews.STATUS_PROCESSED_PAGE_CAPTURE
         archived_news.save()
         logger.info(
