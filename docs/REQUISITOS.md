@@ -34,6 +34,7 @@
 - Toda alteração criará uma revisão, sem possibilidade de se evitar isso - isso inclui todas as vezes que o CRON rodar e pegar uma nova versão da notícia.
 - Alguns veículos exigem que o usuário seja assinante para ter acesso à notícia. O sistema deverá logar com um usuário configurado para ter acesso às notícias, para então requisitar salvar a página da notícia corretamente.
 - Fazer um validador para o campo URL para testar basicamente se a URL existe e se temos acesso à ela.
+- Tentar recuperar a notícia do Archive.ORG ao invés de ir até o site.
 
 ## Publicação
 
