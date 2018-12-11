@@ -4,6 +4,7 @@ from .models import ArchivedNews, Keyword
 from django.db.utils import IntegrityError
 from django.template.defaultfilters import slugify
 from django import forms
+from django.forms import ValidationError
 
 ARCHIVED_NEWS_MANUAL_INSERTION_TRIGGER_FIELDS = ('authors', 'images', 'text', 'top_image' or
                                                  'summary', 'keywords', 'page_pdf_file',
@@ -19,14 +20,27 @@ class KeywordAdmin(admin.ModelAdmin):
 class ArchivedNewsAdminForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super(ArchivedNewsAdminForm, self).clean()
+
         title = cleaned_data.get('title', '')
+        url = cleaned_data.get('url', '')
+        archived_news_url = cleaned_data.get('archived_news_url', '')
+        manual_insertion = cleaned_data.get('manual_insertion', False)
+
         # Se alguns dos campos acima foram alterandos numa notícia prestes a ser inserida, o título deve ser definido
         if (self.instance.pk is None
-                and (self.instance.manual_insertion or
+                and (manual_insertion or
                      any(field in ARCHIVED_NEWS_MANUAL_INSERTION_TRIGGER_FIELDS for field in self.changed_data))
                 and not title):
             self.add_error(
                 'title', 'Você precisa dar um título para a notícia')
+
+        if not (url or archived_news_url):
+            self.add_error(
+                'url', 'Preencha este campo')
+            self.add_error(
+                'archived_news_url', 'Preencha este campo')
+            raise ValidationError(
+                "Você precisa definir ao menos um endereço para a notícia")
 
 
 @admin.register(ArchivedNews)
