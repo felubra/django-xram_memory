@@ -92,3 +92,4 @@ db.sqlite3
 .vscode
 saved_pages
 media/
+.idea
