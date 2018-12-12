@@ -8,6 +8,7 @@ Werkzeug = "==0.14.1"
 autopep8 = "*"
 pylint = "*"
 pdir2 = "*"
+rope = "*"
 
 [packages]
 dj-database-url = "==0.5.0"
@@ -23,3 +24,4 @@ django-rq = "*"
 rq = "*"
 pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",ref = "master"}
 requests = "*"
+redis = "*"
