@@ -1,5 +1,6 @@
 from django.test import TestCase
-from .models import ArchivedNews
+from .models import ArchivedNews, Keyword
+from django.template.defaultfilters import slugify
 
 # Create your tests here.
 
@@ -20,3 +21,12 @@ class ArchivedNewsTestCase(TestCase):
         self.assertEqual(self.archived_news.is_processed, False)
         self.assertEqual(self.archived_news.is_queued, False)
         self.assertEqual(self.archived_news.is_new, True)
+
+
+class KeywordTestCase(TestCase):
+    def setUp(self):
+        self.keyword = Keyword.objects.create(name="Abacate é uma fruta")
+
+    def test_keyword_slug(self):
+        '''Teste que a slug está sendo criada depois de o modelo ser salvo'''
+        self.assertEqual(self.keyword.slug, slugify("Abacate é uma fruta"))
