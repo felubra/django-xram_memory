@@ -132,8 +132,13 @@ class ArchivedNews(models.Model):
 
     @property
     def has_basic_info(self):
-        return (bool(self.text) or bool(self.summary) or bool(self.authors) or bool(self.keywords) or
-                bool(self.top_image) or bool(self.images))
+        # Não verifique o campo keywords se o modelo não estiver sido salvo para evitar uma exceção ValueError
+        if self.pk is None:
+            return (bool(self.text) or bool(self.summary) or bool(self.authors) or
+                    bool(self.top_image) or bool(self.images))
+        else:
+            return (bool(self.text) or bool(self.summary) or bool(self.authors) or bool(self.keywords) or
+                    bool(self.top_image) or bool(self.images))
 
     @property
     def has_pdf_capture(self):
