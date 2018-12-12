@@ -46,6 +46,7 @@ class ArchivedNews(models.Model):
     # Erros
     STATUS_ERROR_NO_PROCESS = 500
     STATUS_ERROR_NO_CAPTURE = 501
+    STATUS_ERROR_NO_QUEUE = 502
 
     STATUS_CHOICES = (
         (STATUS_NEW, 'Novo'),
@@ -63,7 +64,8 @@ class ArchivedNews(models.Model):
         (STATUS_PUBLISHED_HIDDEN, 'Publicado, mas escondido'),
 
         (STATUS_ERROR_NO_PROCESS, 'Erro no processamento básico'),
-        (STATUS_ERROR_NO_CAPTURE, 'Erro na captura de página')
+        (STATUS_ERROR_NO_CAPTURE, 'Erro na captura de página'),
+        (STATUS_ERROR_NO_QUEUE, 'Erro no processamento automático'),
     )
 
     url = models.URLField(
