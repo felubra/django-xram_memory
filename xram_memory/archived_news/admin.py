@@ -6,10 +6,6 @@ from django.template.defaultfilters import slugify
 from django import forms
 from django.forms import ValidationError
 
-ARCHIVED_NEWS_MANUAL_INSERTION_TRIGGER_FIELDS = ('authors', 'images', 'text', 'top_image' or
-                                                 'summary', 'keywords', 'page_pdf_file',
-                                                 'title')
-
 
 @admin.register(Keyword)
 class KeywordAdmin(admin.ModelAdmin):
@@ -26,7 +22,7 @@ class ArchivedNewsAdminForm(forms.ModelForm):
         (INSERTION_MANUAL, "Inserção manual"),
     )
 
-    insertion_mode = forms.ChoiceField(required=True,
+    insertion_mode = forms.ChoiceField(required=False,
                                        widget=forms.RadioSelect, choices=INSERTION_MODES, label="Modo de inserção")
 
     def __init__(self, *args, **kwargs):
@@ -65,9 +61,6 @@ class ArchivedNewsAdminForm(forms.ModelForm):
             if manual_insert and not title:
                 self.add_error(
                     'title', 'Você precisa dar um título para a notícia')
-        else:
-            # Não exija o campo insertion_mode se estivermos editando um modelo
-            self.errors.pop("insertion_mode", None)
 
         # A notícia deve conter ao menos uma url, seja a original ou seja a arquivada
         if not (url or archived_news_url):
@@ -81,12 +74,8 @@ class ArchivedNewsAdminForm(forms.ModelForm):
 
 @admin.register(ArchivedNews)
 class ArchivedNewsAdmin(admin.ModelAdmin):
-    form = ArchivedNewsAdminForm
-    list_display = (
-        'id',
-        'title',
-        'status',
-    )
+    MANUAL_INSERTION_TRIGGER_FIELDS = ('authors', 'images', 'text', 'top_image', 'summary', 'keywords', 'page_pdf_file',
+                                       'title')
     INSERT_FIELDSETS = (
         ('Informações básicas', {
             'fields': ('url', 'archived_news_url')
@@ -110,6 +99,12 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
             'fields': ('force_basic_processing', 'force_archive_org_processing', 'force_pdf_capture'),
         }),
     )
+    form = ArchivedNewsAdminForm
+    list_display = (
+        'id',
+        'title',
+        'status',
+    )
 
     def get_fieldsets(self, request, obj):
         if obj is None:
@@ -132,7 +127,7 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
                     instance.keywords.add(db_keyword)
 
     def save_model(self, request, obj, form, change):
-        if change == False and any(field in ARCHIVED_NEWS_MANUAL_INSERTION_TRIGGER_FIELDS for field in form.changed_data):
+        if change == False and any(field in self.MANUAL_INSERTION_TRIGGER_FIELDS for field in form.changed_data):
             obj.manual_insertion = True
 
         super().save_model(request, obj, form, change)
