@@ -1,3 +1,17 @@
+# Requisitos Gerais
+
+- Sistema robusto para logar ações, especialmente quando for salvar páginas. É necessário manter um
+  o 'chain of evidence'.
+  - Adicionar o usuário atual no log
+- Definir grupos distintos de tipos de usuário, inicialmente: Garimpeiro e Moderador.
+- Integração com o archive.org em tipo de conteúdo ou entidade específica.
+- Entidade de Conteúdo específica para arquivamento de páginas da Web
+  - A entidade deve salvar as páginas em HTML, PDF e imagens
+- Taxonomia para classificação do conteúdo
+- Tema
+- Views com filtros utilizando taxonomia
+- Indexação do conteúdo e mecanismo de busca
+
 # Requisitos de Entidade
 
 ## Archived News (notícia arquivada)
