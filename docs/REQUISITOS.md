@@ -35,6 +35,7 @@
 - Alguns veículos exigem que o usuário seja assinante para ter acesso à notícia. O sistema deverá logar com um usuário configurado para ter acesso às notícias, para então requisitar salvar a página da notícia corretamente.
 - Fazer um validador para o campo URL para testar basicamente se a URL existe e se temos acesso à ela.
 - Tentar recuperar a notícia do Archive.ORG ao invés de ir até o site.
+- Serviço de filas agendadas para tratar notícias com status de erro.
 
 ## Publicação
 
