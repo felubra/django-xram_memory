@@ -93,3 +93,6 @@ db.sqlite3
 saved_pages
 media/
 .idea
+
+# ignore arquivos estáticos coletados pelo Django
+staticfiles/
