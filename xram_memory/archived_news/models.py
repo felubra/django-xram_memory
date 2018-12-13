@@ -1,12 +1,25 @@
 from django.db import models
 from django.conf import settings
 from django.template.defaultfilters import slugify
+from ..users.models import User
 
 # Create your models here.
 saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
 
 
-class Keyword(models.Model):
+class TraceableModel(models.Model):
+    created_by = models.ForeignKey(
+        to=User, on_delete=models.PROTECT, related_name='%(class)s_creator', null=True, editable=False)
+    modified_by = models.ForeignKey(
+        to=User, on_delete=models.PROTECT, related_name='%(class)s_last_modifier', null=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Keyword(TraceableModel):
     """
     Um simples modelo para salvar uma palavra-chave
     """
@@ -26,7 +39,7 @@ class Keyword(models.Model):
         super().save(*args, **kwargs)
 
 
-class ArchivedNews(models.Model):
+class ArchivedNews(TraceableModel):
     """
     Guarda uma notíca arquivada, enviada tanto manualmente ou obtida automaticamente pelo sistema do
     site.
