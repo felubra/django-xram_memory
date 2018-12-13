@@ -5,6 +5,8 @@ from django.db.utils import IntegrityError
 from django.template.defaultfilters import slugify
 from django import forms
 from django.forms import ValidationError
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
+from django.contrib.contenttypes.models import ContentType
 
 
 @admin.register(Keyword)
@@ -112,7 +114,7 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
         else:
             return self.EDIT_FIELDSETS
 
-    def _save_keywords_from_the_fetcher(self, instance):
+    def _save_keywords_from_the_fetcher(self, instance, user):
         """
         Crie e inclua palavas-chave extraídas pelo fetcher.
         """
@@ -120,9 +122,26 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
             # @todo remover palavras sem importância
             for keyword in instance._keywords:
                 try:
-                    db_keyword, _ = Keyword.objects.get_or_create(name=keyword)
-                except IntegrityError:
-                    db_keyword, _ = Keyword.objects.get(slug=slugify(keyword))
+                    # tente achar a palavra-chave pelo nome
+                    db_keyword = Keyword.objects.get(name=keyword)
+                except Keyword.DoesNotExist:
+                    # caso não consiga, tente achar pela slug
+                    try:
+                        db_keyword = Keyword.objects.get(
+                            slug=slugify(keyword))
+                    # caso não ache, crie uma palavra-chave utilizando o usuário atual
+                    except Keyword.DoesNotExist:
+                        db_keyword = Keyword.objects.create(
+                            name=keyword, slug=slugify(keyword), created_by=user)
+                        # @todo: tratar casos de edição e adição separadamente
+                        LogEntry.objects.log_action(
+                            user_id=db_keyword.created_by_id,
+                            content_type_id=ContentType.objects.get_for_model(
+                                db_keyword).pk,
+                            object_id=db_keyword.id,
+                            object_repr=repr(db_keyword),
+                            action_flag=ADDITION,
+                            change_message="Palavra-chave inserida indiretamente.")
                 if db_keyword:
                     instance.keywords.add(db_keyword)
 
@@ -140,4 +159,4 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
         super(ArchivedNewsAdmin, self).save_related(
             request, form, formsets, change)
         instance = form.instance
-        self._save_keywords_from_the_fetcher(instance)
+        self._save_keywords_from_the_fetcher(instance, request.user)
