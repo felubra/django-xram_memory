@@ -6,6 +6,7 @@ from django.contrib.admin.options import ModelAdmin
 from .admin import ArchivedNewsAdmin
 from ..users.models import User
 from django.urls import reverse
+from django.db import transaction
 
 
 # Create your tests here.
@@ -74,7 +75,8 @@ class ArchivedNewsAdminFormTestCase(TestCase):
     # @todo
     def test_fields_for_existing_item(self):
         '''Testa a presença/ausência e os valores dos campos quando em modo de edição'''
-        self.automatic_archived_news.save()
+        with transaction.atomic():
+            self.automatic_archived_news.save()
         #archived_news_admin = ArchivedNewsAdmin(ArchivedNews, self.site)
         # Crie um cliente para entrar na interface administrativa
         c = Client()
