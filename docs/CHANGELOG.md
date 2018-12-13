@@ -58,6 +58,10 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
   - Coleção
 
 ### Modificado
+- O campo de palavras-chave no formulário de inserção/edição da Notícia Arquivada deve permitir a digitação direta das
+  palavras-chave e deve ter uma interface melhor.
+- O formulário de inserção da notícia arquivada deve ter manipuladores em javascript para restringir os campos quando o
+  modo de inserção for alterado.
 
 ### Obsoleto
 
