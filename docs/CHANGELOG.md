@@ -11,24 +11,18 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 ### Adicionado
 
 #### Tipos de conteúdo
-- Notícia arquivada
 - Documento
 - Imagem
 - Coleção: conjunto curado dos tipos de conteúdo acima
 
 #### Auditoria
-- Use a classe LogEntry do Django para manter um histórico de alterações
-- Logue todas as ações realizadas para o STDOUT
 - Faça um relatório da captura da notícia em PDF
 - Faça um perfil de Auditor
 
 #### Captura
-- Capture a notícia em formato PDF
 - Capture a notícia em formato HTML
 - Capture a notícia em formato de Imagem
 
-#### Integração com o Archive.org
-- Busque a URL da notícia, se houver arquivo dela
 
 #### Perfis de acesso:
 - Visitante:
@@ -72,3 +66,21 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 ### Corrigido
 
 ### Segurança
+
+## 0.0.0 - 2018-12-13
+### Adicionado
+
+#### Tipos de conteúdo
+- Notícia arquivada
+
+#### Auditoria
+- Use a classe `LogEntry` do Django para manter um histórico de alterações
+- Logue as seguintes ações realizadas para o STDOUT:
+  - Jobs: `verify_if_in_archive_org`, `process_news` e `save_news_as_pdf`
+  - Falhas de conexão com o Redis e trabalhos falhos
+
+#### Captura
+- Capture a notícia em formato PDF
+
+#### Integração com o Archive.org
+- Busque uma versão da notícia arquivada no Archive.org
