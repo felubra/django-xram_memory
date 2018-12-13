@@ -11,6 +11,8 @@ import pdfkit
 from timeit import default_timer
 import requests
 import os
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
+from django.contrib.contenttypes.models import ContentType
 
 logger = logging.getLogger(__name__)
 saved_pdf_dir = os.path.join(
@@ -49,6 +51,15 @@ def verify_if_in_archive_org(archived_news):
         status_before = archived_news.get_status_display()
         archived_news.status = ArchivedNews.STATUS_PROCESSED_ARCHIVED_NEWS_FETCHED
         archived_news.save()
+        # @todo: tratar casos de edição e adição separadamente
+        LogEntry.objects.log_action(
+            user_id=archived_news.modified_by_id,
+            content_type_id=ContentType.objects.get_for_model(
+                archived_news).pk,
+            object_id=archived_news.id,
+            object_repr=repr(archived_news),
+            action_flag=CHANGE,
+            change_message="Adicionada versão encontrada no Archive.org.")
         logger.info(
             'Sucesso ao pegar informações da Notícia com o id {} e status "{} no Internet Archive".'.format(
                 archived_news.id, status_before
@@ -101,6 +112,15 @@ def process_news(archived_news):
         status_before = archived_news.get_status_display()
         archived_news.status = ArchivedNews.STATUS_PROCESSED_BASIC_INFO
         archived_news.save()
+        # @todo: tratar casos de edição e adição separadamente
+        LogEntry.objects.log_action(
+            user_id=archived_news.modified_by_id,
+            content_type_id=ContentType.objects.get_for_model(
+                archived_news).pk,
+            object_id=archived_news.id,
+            object_repr=repr(archived_news),
+            action_flag=CHANGE,
+            change_message="Adicionadas informações básicas da notícia obtidas automaticamente.")
         logger.info(
             'Sucesso ao processar Notícia com o id {} e status "{}".'.format(
                 archived_news.id, status_before
@@ -160,6 +180,15 @@ def save_news_as_pdf(archived_news):
         archived_news.force_pdf_capture = False
         archived_news.status = ArchivedNews.STATUS_PROCESSED_PAGE_CAPTURE
         archived_news.save()
+        # @todo: tratar casos de edição e adição separadamente
+        LogEntry.objects.log_action(
+            user_id=archived_news.modified_by_id,
+            content_type_id=ContentType.objects.get_for_model(
+                archived_news).pk,
+            object_id=archived_news.id,
+            object_repr=repr(archived_news),
+            action_flag=CHANGE,
+            change_message="Adicionada captura de página.")
         logger.info(
             'Notícia com o id {} salva em formato PDF "{}" em {}s.'.format(
                 archived_news.id, archived_news_pdf_path, toc - tic
