@@ -22,12 +22,6 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 - Faça um relatório da captura da notícia em PDF
 - Faça um perfil de Auditor
 
-#### Auditoria
-- Use a classe LogEntry do Django para manter um histórico de alterações
-- Logue todas as ações realizadas para o STDOUT
-- Faça um histórico de captura da notícia em PDF
-- Faça um perfil de Auditor
-
 #### Captura
 - Capture a notícia em formato PDF
 - Capture a notícia em formato HTML
