@@ -121,7 +121,7 @@ class ArchivedNews(TraceableModel):
                                      verbose_name="Captura da notícia em PDF",
                                      blank=True)
 
-    # Flags
+    # Flags @todo removê-las e usar apenas no controller
     force_basic_processing = models.BooleanField(
         "Buscar automaticamente informações sobre a notícia", default=True,
         help_text="Marque se deseja incluir essa notícia para processamento automático.")
@@ -131,6 +131,8 @@ class ArchivedNews(TraceableModel):
     force_pdf_capture = models.BooleanField(
         "Capturar a notícia em formato PDF", default=True,
         help_text="Marque se deseja capturar essa notícia em formato PDF.")
+
+    # @todo: Adicionar mais campos de data da notícia
 
     class Meta:
         verbose_name = "Archived News"
@@ -185,10 +187,16 @@ class ArchivedNews(TraceableModel):
     def indexing(self):
         try:
             obj = ArchivedNewsIndex(
-                meta={'id': self.id},
-                title=self.title,
+                meta={'id': self.pk},
                 url=self.url,
-                summary=self.summary
+                archived_news_url=self.archived_news_url,
+                title=self.title,
+                summary=self.summary,
+                text=self.text,
+                authors=self.authors,
+                keywords=self.keywords,
+                created_at=self.created_at,
+                modified_at=self.modified_at,
             )
             obj.save()
         except Exception as e:
