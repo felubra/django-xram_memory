@@ -25,3 +25,4 @@ rq = "*"
 pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",ref = "master"}
 requests = "*"
 redis = "*"
+elasticsearch-dsl = "*"
