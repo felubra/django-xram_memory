@@ -42,7 +42,8 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
   - Tem acesso aos logs e relatórios relacionados à extração da notícia
 
 #### Views
-- Busca geral no site
+- Busca geral no site (facetada)
+  - Utilize o ElasticSearch
   - Busca simples, estilo Google
   - Busca avançada
 - Página de resultados, com filtros
