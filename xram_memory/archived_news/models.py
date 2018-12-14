@@ -2,8 +2,12 @@ from django.db import models
 from django.conf import settings
 from django.template.defaultfilters import slugify
 from ..users.models import User
+from .search import ArchivedNewsIndex
+from elasticsearch.exceptions import ConnectionError
+import logging
 
 # Create your models here.
+logger = logging.getLogger(__name__)
 saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
 
 
@@ -176,3 +180,26 @@ class ArchivedNews(TraceableModel):
     @property
     def is_new(self):
         return self.status == ArchivedNews.STATUS_NEW
+    # Add indexing method to BlogPost
+
+    def indexing(self):
+        try:
+            obj = ArchivedNewsIndex(
+                meta={'id': self.id},
+                title=self.title,
+                url=self.url,
+                summary=self.summary
+            )
+            obj.save()
+        except Exception as e:
+            logger.error(
+                "Não foi possível indexar a notícia {}, porque o servidor do Elastic Search não está disponível no momento: {}".format(
+                    self.pk, e)
+            )
+        else:
+            logger.info(
+                "Notícia com o id {} indexada.".format(
+                    self.pk)
+            )
+        finally:
+            return obj.to_dict(include_meta=True)
