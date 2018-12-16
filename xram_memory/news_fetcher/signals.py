@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=ArchivedNews)
 def add_news_archive_to_queue(sender, **kwargs):
     try:
-        archived_news = kwargs['instance']
+        archived_news: ArchivedNews = kwargs['instance']
         if not archived_news:
             return
 

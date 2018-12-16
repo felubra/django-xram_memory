@@ -25,7 +25,7 @@ def archive_org_fetcher(ArchivedNews):
 
 
 @job
-def verify_if_in_archive_org(archived_news):
+def verify_if_in_archive_org(archived_news: ArchivedNews):
     try:
 
         response = requests.get(
@@ -68,7 +68,7 @@ def verify_if_in_archive_org(archived_news):
 
 
 @job
-def process_news(archived_news):
+def process_news(archived_news: ArchivedNews):
     try:
 
         archived_news.status = ArchivedNews.STATUS_QUEUED_BASIC_INFO
@@ -129,7 +129,7 @@ def process_news(archived_news):
 
 
 @job
-def save_news_as_pdf(archived_news):
+def save_news_as_pdf(archived_news: ArchivedNews):
     try:
 
         # @todo checar se o diretório existe, se existem permissões para salvar etc

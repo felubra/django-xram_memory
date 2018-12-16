@@ -7,6 +7,7 @@ from .admin import ArchivedNewsAdmin
 from ..users.models import User
 from django.urls import reverse
 from django.db import transaction
+from django.template.response import TemplateResponse
 
 
 # Create your tests here.
@@ -84,6 +85,6 @@ class ArchivedNewsAdminFormTestCase(TestCase):
         c.login(**self.user_info)
         archived_news_change_url = reverse(
             "admin:archived_news_archivednews_change", args=[self.automatic_archived_news.pk])
-        response = c.get(archived_news_change_url)
+        response: TemplateResponse = c.get(archived_news_change_url)
         admin_form = response.context_data['adminform']
         pass
