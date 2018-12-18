@@ -11,7 +11,7 @@ from xram_memory.documents.models import ArchivedNewsPDFCapture
 from ..forms import ArchivedNewsPDFCaptureStackedInlineForm, ArchivedNewsAdminForm
 
 
-class ArchivedNewsPDFCaptureInline(admin.StackedInline):
+class ArchivedNewsPDFCaptureInline(admin.TabularInline):
     model = ArchivedNewsPDFCapture
     form = ArchivedNewsPDFCaptureStackedInlineForm
 
