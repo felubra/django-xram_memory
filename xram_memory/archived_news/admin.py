@@ -1,13 +1,13 @@
+from django import forms
 from django.contrib import admin
-
-from .models import ArchivedNews, Keyword
 from django.db.utils import IntegrityError
 from django.template.defaultfilters import slugify
-from django import forms
 from django.forms import ValidationError
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
+from .models import ArchivedNews
+from ..taxonomy.models import Keyword
 
 @admin.register(Keyword)
 class KeywordAdmin(admin.ModelAdmin):

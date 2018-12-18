@@ -1,19 +1,22 @@
+import os
+import datetime
 import logging
+
+import pdfkit
+import requests
+
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from ..archived_news.models import ArchivedNews
+
 from newspaper import Article
 from django_rq import job
 from pathlib import Path
-import datetime
-import pdfkit
 from timeit import default_timer
-import requests
-import os
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
+from ..archived_news.models import ArchivedNews
 logger = logging.getLogger(__name__)
 saved_pdf_dir = os.path.join(
     settings.MEDIA_ROOT, settings.NEWS_FETCHER_SAVED_DIR_PDF)

@@ -40,6 +40,7 @@ class Common(Configuration):
         'xram_memory.users',
         'xram_memory.archived_news',
         'xram_memory.news_fetcher',
+        'xram_memory.taxonomy',
 
         'django_rq',
     ]

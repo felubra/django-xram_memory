@@ -1,42 +1,9 @@
 from django.db import models
-from django.conf import settings
-from django.template.defaultfilters import slugify
+
+from ..taxonomy.models import Keyword
 from ..users.models import User
-
+from ..abstract_models import TraceableModel
 # Create your models here.
-saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
-
-
-class TraceableModel(models.Model):
-    created_by = models.ForeignKey(
-        to=User, on_delete=models.PROTECT, related_name='%(class)s_creator', null=True, editable=False)
-    modified_by = models.ForeignKey(
-        to=User, on_delete=models.PROTECT, related_name='%(class)s_last_modifier', null=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-
-class Keyword(TraceableModel):
-    """
-    Um simples modelo para salvar uma palavra-chave
-    """
-    slug = models.SlugField(max_length=60, unique=True,
-                            editable=False, default='')
-    name = models.CharField(max_length=60)
-
-    class Meta:
-        verbose_name = "Palavra-chave"
-        verbose_name_plural = "Palavras-chave"
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
 
 
 class ArchivedNews(TraceableModel):
