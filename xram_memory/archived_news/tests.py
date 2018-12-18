@@ -1,4 +1,4 @@
-from django.test import TestCase, Client
+from django.test import TestCase, Client, TransactionTestCase
 from .models import ArchivedNews, Keyword
 from django.template.defaultfilters import slugify
 from django.contrib.admin.sites import AdminSite
@@ -8,9 +8,12 @@ from ..users.models import User
 from django.urls import reverse
 from django.db import transaction
 from django.template.response import TemplateResponse
+import logging
 
+logger = logging.getLogger(__name__)
 
 # Create your tests here.
+
 
 class MockRequest:
     pass
@@ -25,7 +28,7 @@ request = MockRequest()
 request.user = MockSuperUser()
 
 
-class ArchivedNewsTestCase(TestCase):
+class ArchivedNewsTestCase(TransactionTestCase):
     def setUp(self):
         self.archived_news = ArchivedNews(
             url="https://politica.estadao.com.br/noticias/geral,em-diplomacao-bolsonaro-diz-que-a-soberania-do-voto-popular-e-inquebrantavel,70002640605")
@@ -43,16 +46,19 @@ class ArchivedNewsTestCase(TestCase):
         self.assertEqual(self.archived_news.is_new, True)
 
 
-class KeywordTestCase(TestCase):
+class KeywordTestCase(TransactionTestCase):
     def setUp(self):
-        self.keyword = Keyword.objects.create(name="Abacate é uma fruta")
+        with transaction.atomic():
+            self.keyword = Keyword.objects.create(name="Abacate é uma fruta")
 
     def test_keyword_slug(self):
         '''Teste que a slug está sendo criada depois de o modelo ser salvo'''
         self.assertEqual(self.keyword.slug, slugify("Abacate é uma fruta"))
 
 
-class ArchivedNewsAdminFormTestCase(TestCase):
+class ArchivedNewsAdminFormTestCase(TransactionTestCase):
+    serialized_rollback = True
+
     def setUp(self):
         self.automatic_archived_news = ArchivedNews(
             url="https://politica.estadao.com.br/noticias/geral,em-diplomacao-bolsonaro-diz-que-a-soberania-do-voto-popular-e-inquebrantavel,70002640605")
@@ -76,8 +82,8 @@ class ArchivedNewsAdminFormTestCase(TestCase):
     # @todo
     def test_fields_for_existing_item(self):
         '''Testa a presença/ausência e os valores dos campos quando em modo de edição'''
-        with transaction.atomic():
-            self.automatic_archived_news.save()
+        logger.info('test_fields_for_existing_item')
+        self.automatic_archived_news.save()
         #archived_news_admin = ArchivedNewsAdmin(ArchivedNews, self.site)
         # Crie um cliente para entrar na interface administrativa
         c = Client()
@@ -86,5 +92,6 @@ class ArchivedNewsAdminFormTestCase(TestCase):
         archived_news_change_url = reverse(
             "admin:archived_news_archivednews_change", args=[self.automatic_archived_news.pk])
         response: TemplateResponse = c.get(archived_news_change_url)
+        self.assertEqual(response.status_code, 200)
+
         admin_form = response.context_data['adminform']
-        pass
