@@ -17,6 +17,8 @@ from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
 from ..archived_news.models import ArchivedNews
+from ..documents.models import ArchivedNewsPDFCapture
+
 logger = logging.getLogger(__name__)
 saved_pdf_dir = os.path.join(
     settings.MEDIA_ROOT, settings.NEWS_FETCHER_SAVED_DIR_PDF)
@@ -164,7 +166,8 @@ def save_news_as_pdf(archived_news: ArchivedNews):
         })
         toc = default_timer()
 
-        archived_news.page_pdf_file.name = archived_news_pdf_path
+        pdf_capture = ArchivedNewsPDFCapture.objects.create(
+            url_of_capture=archived_news.url, pdf_file=archived_news_pdf_path, archived_news=archived_news)
 
     except Exception as err:
 

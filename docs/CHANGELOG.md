@@ -69,7 +69,7 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
   palavras-chave e deve ter uma interface melhor.
 - O formulário de inserção da notícia arquivada deve ter manipuladores em javascript para restringir os campos quando o
   modo de inserção for alterado.
-- Transforme a captura de página de uma notícia arquivada numa instância do tipo de conteúdo documento.
+- [OK] Transforme a captura de página de uma notícia arquivada numa instância do tipo de conteúdo documento.
   - Permita várias capturas de página por notícia arquivada
 - Transforme as imagens capturadas na notícia em instâncias do tipo de conteúdo documento.
 

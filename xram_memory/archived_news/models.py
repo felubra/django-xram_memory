@@ -80,10 +80,6 @@ class ArchivedNews(TraceableModel):
     keywords = models.ManyToManyField(
         Keyword, blank=True, verbose_name="Palavras-chave")
 
-    page_pdf_file = models.FileField(upload_to=saved_pdf_dir,
-                                     verbose_name="Captura da notícia em PDF",
-                                     blank=True)
-
     # Flags
     force_basic_processing = models.BooleanField(
         "Buscar automaticamente informações sobre a notícia", default=True,
@@ -122,7 +118,10 @@ class ArchivedNews(TraceableModel):
 
     @property
     def has_pdf_capture(self):
-        return bool(self.page_pdf_file)
+        if self.pk is None:
+            return False
+        else:
+            return bool(self.pdf_captures.count() > 0)
 
     @property
     def has_web_archive(self):
