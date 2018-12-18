@@ -8,7 +8,7 @@ from ..abstract_models import TraceableModel
 
 class ArchivedNews(TraceableModel):
     """
-    Guarda uma notíca arquivada, enviada tanto manualmente ou obtida automaticamente pelo sistema do
+    Guarda uma notícia arquivada, enviada tanto manualmente ou obtida automaticamente pelo sistema do
     site.
     """
 

@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 
 
 from xram_memory.archived_news.models import ArchivedNews, Keyword
