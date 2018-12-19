@@ -41,6 +41,10 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 - Ícones para indicar a presença de capturas, ao invés de descrição textual do status
 - Link para a notícia no título
 
+###### Página individual de edição/adição
+- Fazer uma classe para fazer um método comum de salvamento sobre os modelos do tipo `TraceableModel`
+  - Esse método deve definir os usuários dos campos `created_by` e `modified_by`
+
 #### Views
 
 #### Página de busca geral no site
@@ -64,7 +68,11 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 ### MODIFICADO
 
-### Modificado
+#### Workflow
+- Considere deixar para a fila de processamento apenas a captura de página
+  - Ao menos o processamento básico seria feito sincronicamente
+    - Ao menos o título da notícia seria populado sincronicamente
+- Se o servidor do redis estiver offline, os processamentos deverão ser executados sincronicamente
 
 #### Views
 ##### Interface administrativa
