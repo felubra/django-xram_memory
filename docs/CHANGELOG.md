@@ -9,7 +9,7 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 - Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 
-### Adicionado
+### ADICIONADO
 
 #### Tipos de conteúdo
 
@@ -62,6 +62,8 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
   - Imagem
   - Coleção
 
+### MODIFICADO
+
 ### Modificado
 
 #### Views
@@ -85,13 +87,13 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 ### Obsoleto
 
-### Removido
+### REMOVIDO
 - Não persista flags de modelo, utilize apenas o controller para definir, quando for salvar o modelo qual o
   processamento deve ser feito ou não.
 
-### Corrigido
+### CORRIGIDO
 
-### Segurança
+### SEGURANÇA
 
 ## 0.0.0 - 2018-12-13
 
