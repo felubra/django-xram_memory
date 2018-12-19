@@ -22,15 +22,19 @@ class ArchivedNewsAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ArchivedNewsAdminForm, self).__init__(*args, **kwargs)
         self.initial['insertion_mode'] = self.INSERTION_AUTOMATIC
-        if not self.instance.pk is None:
+        if self.instance.pk:
+            # remova o campo insertion_mode se o formulário for de edição
+            self.fields.pop('insertion_mode')
+
+            # reescreva a descrição dos campos para o cenário de edição
             self.fields['force_basic_processing'].label = "Reinserir na fila para processamento automático"
             self.fields['force_basic_processing'].help_text = "Marque se deseja reinserir essa notícia para processamento automático.<br/><strong>NOTA:</strong> isso sobrescreverá qualquer informação anterior."
 
             self.fields['force_archive_org_processing'].label = "Reinserir na fila para buscar informações no Archive.org"
             self.fields['force_archive_org_processing'].help_text += "<br/><strong>NOTA:</strong> isso sobrescreverá qualquer informação anterior."
 
-            self.fields['force_pdf_capture'].label = "Gerar uma nova captura de página"
-            self.fields['force_pdf_capture'].help_text += "<br/><strong>NOTA:</strong> isso substituirá a captura de página anterior."
+            self.fields['force_pdf_capture'].label = "Fazer uma nova captura de página"
+            self.fields['force_pdf_capture'].help_text = "Isso adicionará uma nova captura de página para esta notícia."
 
     def clean(self):
         cleaned_data = super(ArchivedNewsAdminForm, self).clean()
