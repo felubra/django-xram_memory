@@ -93,7 +93,7 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if change == False and any(field in self.MANUAL_INSERTION_TRIGGER_FIELDS for field in form.changed_data):
             obj.manual_insertion = True
-        # @todo migrar para um sinal?
+
         if not change:
             obj.created_by = request.user
         obj.modified_by = request.user
