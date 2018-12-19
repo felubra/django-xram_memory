@@ -166,8 +166,17 @@ def save_news_as_pdf(archived_news: ArchivedNews):
         })
         toc = default_timer()
 
-        pdf_capture = ArchivedNewsPDFCapture.objects.create(
-            url_of_capture=archived_news.url, pdf_file=archived_news_pdf_path, archived_news=archived_news)
+        pdf_capture = ArchivedNewsPDFCapture.objects.create(url_of_capture=archived_news.url,
+                                                            pdf_file=archived_news_pdf_path,
+                                                            archived_news=archived_news)
+        LogEntry.objects.log_action(
+            user_id=archived_news.modified_by_id,
+            content_type_id=ContentType.objects.get_for_model(
+                pdf_capture).pk,
+            object_id=pdf_capture.id,
+            object_repr=repr(pdf_capture),
+            action_flag=ADDITION,
+            change_message="Adicionado um documento de captura para a notícia arquivada com o id {}.".format(archived_news.pk))
 
     except Exception as err:
 
@@ -194,7 +203,7 @@ def save_news_as_pdf(archived_news: ArchivedNews):
             object_id=archived_news.id,
             object_repr=repr(archived_news),
             action_flag=CHANGE,
-            change_message="Adicionada captura de página.")
+            change_message="Adicionado documento de captura de página com o ID {}".format(archived_news.id))
         logger.info(
             'Notícia com o id {} salva em formato PDF "{}" em {}s.'.format(
                 archived_news.id, archived_news_pdf_path, toc - tic
