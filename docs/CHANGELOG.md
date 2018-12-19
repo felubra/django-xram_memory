@@ -7,7 +7,7 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 ## [Não publicado]
 
-- Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
+Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 
 ### ADICIONADO
 
@@ -79,7 +79,6 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 ###### Notícia Arquivada
 ####### Página individual de edição/adição
 - Não salvar as flags no modelo, usá-las apenas no controller (formulário)
-- Atualizar texto descritivo na área `avançado`
 - O campo de palavras-chave no formulário de inserção/edição da Notícia Arquivada deve permitir a digitação direta das
   palavras-chave e deve ter uma interface melhor.
 - O formulário de inserção da notícia arquivada deve ter manipuladores em javascript para restringir os campos quando o
@@ -87,11 +86,10 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 #### Tipos de conteúdo
 ##### Notícia arquivada
-- Permita várias capturas de página por notícia arquivada
+
 
 #### Captura
-- [OK] Transforme a captura de página de uma notícia arquivada numa instância do tipo de conteúdo documento.
-- Permita várias capturas de página por notícia arquivada
+
 
 ### Obsoleto
 
@@ -102,6 +100,30 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 ### CORRIGIDO
 
 ### SEGURANÇA
+
+## 0.1.0 - 2018-12-19
+
+### ADICIONADO
+- App dedicado para taxonomia
+- Algumas anotações de tipo em variáveis
+- App dedicado para documentos
+  - Interface administrativa básica
+- Uso da biblioteca `pylint-django`
+- Classe `TraceableModel` com informações do usuário e timestamps para criação/modificação
+
+- Meta: novos requisitos e changelog atualizado
+
+## MODIFICADO
+- Permita várias capturas de página por notícia arquivada
+- Reorganização do changelog
+- Toda mídia é um documento (classe `Document`)
+  - Campo para captura em PDF agora é um relacionamento com o modelo `ArchivedNewsPDFCapture`
+- Todos os modelos descendem de `TraceableModel`
+- Reorganização dos arquivos para a interface de administração do app `archived_news`
+- Classes das suítes dos testes deve herdar de `TransactionTestCase`
+  - A suíte de testes `ArchivedNewsAdminFormTestCase` deve ser serial
+- Alterações na interface do formulário de inclusão/edição de notícia arquivada
+- Término do teste `test_fields_for_existing_item` para notícias arquivadas
 
 ## 0.0.0 - 2018-12-13
 
