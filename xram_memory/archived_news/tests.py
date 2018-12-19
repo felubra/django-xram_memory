@@ -70,28 +70,36 @@ class ArchivedNewsAdminFormTestCase(TransactionTestCase):
         }
         self.user = User.objects.create_superuser(**self.user_info)
         self.client = Client()
+        self.client.login(**self.user_info)
 
     def test_fields_for_new_item(self):
         '''Testa a presença/ausência e os valores dos campos quando em modo de inserção'''
-        archived_news_admin = ArchivedNewsAdmin(ArchivedNews, self.site)
-        base_fields = archived_news_admin.get_form(request).base_fields
-
-        # Verifica que o nosso campo 'virtual' 'insertion_mode' está presente no formulário
-        self.assertIn('insertion_mode', base_fields)
-
-    # @todo
-    def test_fields_for_existing_item(self):
-        '''Testa a presença/ausência e os valores dos campos quando em modo de edição'''
-        logger.info('test_fields_for_existing_item')
-        self.automatic_archived_news.save()
-        #archived_news_admin = ArchivedNewsAdmin(ArchivedNews, self.site)
-        # Crie um cliente para entrar na interface administrativa
-        c = Client()
-        # Faça login com o nosso usuário super administrador criado
-        c.login(**self.user_info)
-        archived_news_change_url = reverse(
-            "admin:archived_news_archivednews_change", args=[self.automatic_archived_news.pk])
-        response: TemplateResponse = c.get(archived_news_change_url)
+        response: TemplateResponse = self.client.get(reverse(
+            "admin:archived_news_archivednews_add"))
         self.assertEqual(response.status_code, 200)
 
         admin_form = response.context_data['adminform']
+        # Deverão existir três grupos de campos...
+        self.assertEqual(len(admin_form.fieldsets), 3)
+        # Um desses precisa se chamar 'Avançado'
+        self.assertIn('Modo de inserção', [
+                      item[0] for item in admin_form.fieldsets])
+        # O campo abaixo não deverá estar presente quando esse formulário for usado para edição
+        self.assertIn('insertion_mode', admin_form.form.fields)
+
+    def test_fields_for_existing_item(self):
+        '''Testa a presença/ausência e os valores dos campos quando em modo de edição'''
+        self.automatic_archived_news.save()
+
+        response: TemplateResponse = self.client.get(reverse(
+            "admin:archived_news_archivednews_change", args=[self.automatic_archived_news.pk]))
+        self.assertEqual(response.status_code, 200)
+
+        admin_form = response.context_data['adminform']
+        # Deverão existir três grupos de campos...
+        self.assertEqual(len(admin_form.fieldsets), 3)
+        # Um desses precisa se chamar 'Avançado'
+        self.assertIn('Avançado', [
+                      item[0] for item in admin_form.fieldsets])
+        # O campo abaixo não deverá estar presente quando esse formulário for usado para edição
+        self.assertNotIn('insertion_mode', admin_form.form.fields)
