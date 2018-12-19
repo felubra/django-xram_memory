@@ -27,7 +27,7 @@ class ArchivedNewsPDFCapture(Document):
     '''
     url_of_capture = models.URLField(
         max_length=255, help_text="Endereço original da notícia que gerou essa captura",
-        verbose_name="Endereço", unique=True, null=True, blank=True, editable=False)
+        verbose_name="Endereço", null=True, blank=True, editable=False)
     pdf_file = models.FileField(upload_to=saved_pdf_dir,
                                 verbose_name="Captura da notícia em PDF",
                                 blank=True)
