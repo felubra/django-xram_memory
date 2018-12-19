@@ -15,7 +15,7 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 - Documento
 - Imagem
-- Coleção: conjunto curado dos tipos de conteúdo acima
+- Coleção: conjunto curado de notícias arquivadas e/ou documentos
 
 #### Auditoria
 
@@ -26,38 +26,37 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 - Capture a notícia em formato HTML
 - Capture a notícia em formato de Imagem
+- Todas as capturas são instâncias de documentos
 
 #### Perfis de acesso:
 
-- Visitante:
-  - Pesquisa de notícias arquivadas
-  - Vê o resumo da notícia arquivada e uma imagem ilustrativa
-  - Tem acesso ao link original
-- Membro:
-  - Tem as permissões do Visitante
-  - Tem acesso integral à notícia arquivada publicada, incluindo versão outros formatos
-- Garimpador: poderá inserir novas notícias arquivadas
-  - Pode editar uma notícia arquivada, mas não solicitar versão atualizada dela
-- Moderador: poderá publicar notícias arquivadas
-- Editor: poderá fazer as ações tanto do Garimpador como do Moderador
-  - Pode solicitar nova versão de notícias arquivadas
-- Auditor:
-  - Acessa integralmente uma notícia arquivada, sem poder alterá-la
-  - Tem acesso aos logs e relatórios relacionados à extração da notícia
+- Adicionar os perfis visitante, membro, garimpador, moderador, editor e auditor (mais informações no arquivo de
+  requisitos)
 
 #### Views
 
-- Busca geral no site (facetada)
-  - Utilize o ElasticSearch
-  - Busca simples, estilo Google
-  - Busca avançada
-- Página de resultados, com filtros
-- Lista de imagens/documentos/notícias com filtros
-- Páginas básicas
+#### Interface administrativa
+##### Notícia Arquivada
+###### Lista geral
+- Ícones para indicar a presença de capturas, ao invés de descrição textual do status
+- Link para a notícia no título
+
+#### Views
+
+#### Página de busca geral no site
+- Faça uma busca multi-facetada
+- Utilize o ElasticSearch
+- Busca com interface simples, estilo Google
+- Link para página de busca avançada, com critérios
+
+#### Página de resultados
+- Filtros para limitar os resultados de acordo com critérios
+
+#### Páginas básicas
   - Inicial
   - Sobre
   - Contato
-- Páginas individuais
+#### Páginas individuais
   - Notícia arquivada
   - Documento
   - Imagem
@@ -65,17 +64,30 @@ e este projeto adere ao [Versionamento semântico](https://semver.org/spec/v2.0.
 
 ### Modificado
 
+#### Views
+##### Interface administrativa
+###### Notícia Arquivada
+####### Página individual de edição/adição
+- Não salvar as flags no modelo, usá-las apenas no controller (formulário)
+- Atualizar texto descritivo na área `avançado`
 - O campo de palavras-chave no formulário de inserção/edição da Notícia Arquivada deve permitir a digitação direta das
   palavras-chave e deve ter uma interface melhor.
 - O formulário de inserção da notícia arquivada deve ter manipuladores em javascript para restringir os campos quando o
   modo de inserção for alterado.
+
+#### Tipos de conteúdo
+##### Notícia arquivada
+- Permita várias capturas de página por notícia arquivada
+
+#### Captura
 - [OK] Transforme a captura de página de uma notícia arquivada numa instância do tipo de conteúdo documento.
-  - Permita várias capturas de página por notícia arquivada
-- Transforme as imagens capturadas na notícia em instâncias do tipo de conteúdo documento.
+- Permita várias capturas de página por notícia arquivada
 
 ### Obsoleto
 
 ### Removido
+- Não persista flags de modelo, utilize apenas o controller para definir, quando for salvar o modelo qual o
+  processamento deve ser feito ou não.
 
 ### Corrigido
 
