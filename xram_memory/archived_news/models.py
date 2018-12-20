@@ -124,7 +124,7 @@ class ArchivedNews(TraceableModel):
             return bool(self.pdf_captures.count() > 0)
 
     @property
-    def has_web_archive(self):
+    def has_web_archive_url(self):
         return bool(self.archived_news_url)
 
     @property

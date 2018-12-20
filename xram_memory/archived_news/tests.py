@@ -39,7 +39,7 @@ class ArchivedNewsTestCase(TransactionTestCase):
         self.assertEqual(self.archived_news.needs_reprocessing, True)
         self.assertEqual(self.archived_news.has_basic_info, False)
         self.assertEqual(self.archived_news.has_pdf_capture, False)
-        self.assertEqual(self.archived_news.has_web_archive, False)
+        self.assertEqual(self.archived_news.has_web_archive_url, False)
         self.assertEqual(self.archived_news.is_published, False)
         self.assertEqual(self.archived_news.is_processed, False)
         self.assertEqual(self.archived_news.is_queued, False)
