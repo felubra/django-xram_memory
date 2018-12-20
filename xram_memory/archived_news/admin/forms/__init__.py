@@ -20,6 +20,9 @@ class ArchivedNewsAdminForm(forms.ModelForm):
                                        widget=forms.RadioSelect, choices=INSERTION_MODES, label="Modo de inserção")
 
     def __init__(self, *args, **kwargs):
+        '''
+        Defina um campo personalizado (inserção manual) e altere a descrição dos campos de acordo se adição/edição.
+        '''
         super(ArchivedNewsAdminForm, self).__init__(*args, **kwargs)
         self.initial['insertion_mode'] = self.INSERTION_AUTOMATIC
         if self.instance.pk:
@@ -51,10 +54,11 @@ class ArchivedNewsAdminForm(forms.ModelForm):
         force_basic_processing = cleaned_data.get(
             'force_basic_processing', False)
 
+        # A inserção manual é algo que o usuário escolheu ou se não marcou nenhum checkbox para processamento automático
         manual_insert = insertion_mode == self.INSERTION_MANUAL or not (
             force_pdf_capture or force_archive_org_processing or force_basic_processing)
 
-        # Se alguns dos campos acima foram alterados numa notícia prestes a ser inserida, o título deve ser definido
+        # Em casos de inserção manual, o título deve ser definido
         if self.instance.pk is None:
             if manual_insert and not title:
                 self.add_error(

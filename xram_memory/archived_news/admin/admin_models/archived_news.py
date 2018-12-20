@@ -54,6 +54,9 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
     ]
 
     def get_fieldsets(self, request, obj):
+        '''
+        Use um conjunto diferente de fieldsets para adição e edição
+        '''
         if obj is None:
             return self.INSERT_FIELDSETS
         else:
@@ -87,15 +90,19 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
                             object_repr=repr(db_keyword),
                             action_flag=ADDITION,
                             change_message="Palavra-chave inserida indiretamente.")
+                # Vincule a palavra-chave a esta notícia arquivada
                 if db_keyword:
                     instance.keywords.add(db_keyword)
 
     def save_model(self, request, obj, form, change):
-        if change == False and any(field in self.MANUAL_INSERTION_TRIGGER_FIELDS for field in form.changed_data):
-            obj.manual_insertion = True
-
+        # Se estivermos a criar (não editar) um novo registro, determine com base nos campos ou na escolha do usuário se
+        # se trata de inserção manual
         if not change:
+            if any(field in self.MANUAL_INSERTION_TRIGGER_FIELDS for field in form.changed_data):
+                obj.manual_insertion = True
+            # adicione um usuário criador, quando estivermos criando
             obj.created_by = request.user
+        # em todas situações, adicione um usuário modificador
         obj.modified_by = request.user
 
         super().save_model(request, obj, form, change)
@@ -103,5 +110,6 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
     def save_related(self, request, form, formsets, change):
         super(ArchivedNewsAdmin, self).save_related(
             request, form, formsets, change)
+
         instance = form.instance
         self._save_keywords_from_the_fetcher(instance, request.user)
