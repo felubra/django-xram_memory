@@ -1,6 +1,7 @@
-from .users.models import User
+from django.contrib import admin
 from django.db import models
 
+from .users.models import User
 # Modelos abstratos, usados como pai para alguns modelos de outros apps
 
 
@@ -11,6 +12,19 @@ class TraceableModel(models.Model):
         to=User, on_delete=models.PROTECT, related_name='%(class)s_last_modifier', null=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class TraceableAdminModel(admin.ModelAdmin):
+    def save_model(self, request, obj, form, change):
+        if not change and isinstance(obj, TraceableModel):
+            # adicione um usuário criador, quando estivermos criando
+            obj.created_by = request.user
+        # em todas situações, adicione um usuário modificador
+        obj.modified_by = request.user
+        super().save_model(request, obj, form, change)
 
     class Meta:
         abstract = True

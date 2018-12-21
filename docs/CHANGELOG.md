@@ -15,6 +15,7 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
   - Documento
   - Imagem
   - Coleção: conjunto curado de notícias arquivadas e/ou documentos
+  - Veículo da notícia
 
 - Processos de auditoria
   - Faça um relatório da captura da notícia em PDF
@@ -32,9 +33,9 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 
 - Interface administrativa
   - Notícia Arquivada: Ícones para indicar a presença de capturas, ao invés de descrição textual do status
-  - Notícia Arquivada: Link para a notícia no título
-  - Notícia Arquivada: fazer uma classe para fazer um método comum de salvamento sobre os modelos do tipo `TraceableModel`
-    - Esse método deve definir os usuários dos campos `created_by` e `modified_by`
+  - [OK] Notícia Arquivada: Link para a notícia no título
+  - [OK] Notícia Arquivada: fazer uma classe para fazer um método comum de salvamento sobre os modelos do tipo `TraceableModel`
+    - [OK] Esse método deve definir os usuários dos campos `created_by` e `modified_by`
   - Notícia Arquivada: desativar sinais e agendar jobs diretamente da interface administrativa no método `save_model`
 
 - Busca de conteúdos

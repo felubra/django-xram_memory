@@ -7,6 +7,7 @@ from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 
 from xram_memory.archived_news.models import ArchivedNews, Keyword
 from xram_memory.documents.models import ArchivedNewsPDFCapture
+from xram_memory.base_models import TraceableAdminModel
 
 from ..forms import ArchivedNewsPDFCaptureStackedInlineForm, ArchivedNewsAdminForm
 
@@ -17,7 +18,7 @@ class ArchivedNewsPDFCaptureInline(admin.TabularInline):
 
 
 @admin.register(ArchivedNews)
-class ArchivedNewsAdmin(admin.ModelAdmin):
+class ArchivedNewsAdmin(TraceableAdminModel):
     MANUAL_INSERTION_TRIGGER_FIELDS = ('authors', 'images', 'text', 'top_image', 'summary', 'keywords', 'page_pdf_file',
                                        'title')
     INSERT_FIELDSETS = (
@@ -49,6 +50,7 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
         'title',
         'status',
     )
+    list_display_links = ('title', 'id',)
     inlines = [
         ArchivedNewsPDFCaptureInline,
     ]
@@ -100,11 +102,6 @@ class ArchivedNewsAdmin(admin.ModelAdmin):
         if not change:
             if any(field in self.MANUAL_INSERTION_TRIGGER_FIELDS for field in form.changed_data):
                 obj.manual_insertion = True
-            # adicione um usuário criador, quando estivermos criando
-            obj.created_by = request.user
-        # em todas situações, adicione um usuário modificador
-        obj.modified_by = request.user
-
         super().save_model(request, obj, form, change)
 
     def save_related(self, request, form, formsets, change):
