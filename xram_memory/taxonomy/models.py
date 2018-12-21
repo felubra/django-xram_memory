@@ -1,7 +1,7 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 
-from ..abstract_models import TraceableModel
+from ..base_models import TraceableModel
 
 # Create your models here.
 

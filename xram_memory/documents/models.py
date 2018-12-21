@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from os.path import basename
 
-from ..abstract_models import TraceableModel
+from ..base_models import TraceableModel
 from ..archived_news.models import ArchivedNews
 
 # Create your models here.

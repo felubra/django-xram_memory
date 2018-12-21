@@ -2,7 +2,7 @@ from django.db import models
 
 from ..taxonomy.models import Keyword
 from ..users.models import User
-from ..abstract_models import TraceableModel
+from ..base_models import TraceableModel
 # Create your models here.
 
 
