@@ -20,6 +20,9 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 - Processos de auditoria
   - Faça um relatório da captura da notícia em PDF
   - Faça um perfil de Auditor
+  - Mecanismo de logging robusto
+    - App dedicado para isso
+    - Considerar integração com o Graylog
 
 - Captura automática
   - Todas as capturas devem ser instâncias de documentos
@@ -47,15 +50,16 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
     - Resultados
       - Filtros para limitar os resultados de acordo com critérios
 
-- Páginas básicas
-  - Inicial
-  - Sobre
-  - Contato
-- Páginas individuais
-  - Notícia arquivada
-  - Documento
-  - Imagem
-  - Coleção
+- Páginas
+  - Páginas básicas
+    - Inicial
+    - Sobre
+    - Contato
+  - Páginas individuais
+    - Notícia arquivada
+    - Documento
+    - Imagem
+    - Coleção
 
 ### MODIFICADO
 
