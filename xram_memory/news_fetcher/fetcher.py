@@ -10,6 +10,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
 from newspaper import Article
+from goose3 import Goose
 from django_rq import job
 from pathlib import Path
 from timeit import default_timer
@@ -72,6 +73,36 @@ def verify_if_in_archive_org(archived_news: ArchivedNews):
         )
 
 
+def _extract_using_newspaper(url, raw_html=None):
+    try:
+        newspaper_article = Article(url)
+
+        if raw_html:
+            newspaper_article.download(input_html=raw_html)
+        else:
+            newspaper_article.download()
+        newspaper_article.parse()
+        newspaper_article.nlp()
+
+        return newspaper_article
+    except:
+        return None
+
+
+def _extract_using_goose3(url, raw_html=None):
+    try:
+        goose = Goose({'enable_image_fetching': True})
+
+        if raw_html:
+            goose_article = goose.extract(raw_html=raw_html, url=url)
+        else:
+            goose_article = goose.extract(url=url)
+
+        return goose_article
+    except:
+        return None
+
+
 @job
 def process_news(archived_news: ArchivedNews):
     try:
@@ -83,22 +114,32 @@ def process_news(archived_news: ArchivedNews):
                 archived_news.id, archived_news.get_status_display()
             )
         )
+        # Tente extrair primeiro usando o newspaper3k e reutilize seu html, se possível
+        newspaper_article = _extract_using_newspaper(archived_news.url)
+        if newspaper_article:
+            goose_article = _extract_using_goose3(
+                archived_news.url, newspaper_article.html)
+        else:
+            goose_article = _extract_using_goose3(archived_news.url)
 
-        article = Article(archived_news.url)
-        article.download()
-        article.parse()
-        article.nlp()
+        if newspaper_article is None and goose_article is None:
+            raise(Exception(
+                'Não foi possível extrair o artigo, pois nenhum dos extratores funcionou.'))
 
-        archived_news.title = article.title
-        archived_news.authors = ",".join(article.authors)
+        archived_news.title = newspaper_article.title if newspaper_article.title else goose_article.title
+        archived_news.authors = newspaper_article.authors if newspaper_article.authors else goose_article.authors
 
-        archived_news._keywords = article.keywords
+        archived_news._keywords = newspaper_article.keywords if newspaper_article.keywords else goose_article.tags
+
+        archived_news.images = newspaper_article.images
+        archived_news.top_image = newspaper_article.top_image if newspaper_article.top_image else goose_article.top_image.src
+        archived_news.text = newspaper_article.text if newspaper_article.text else goose_article.cleaned_text
+        archived_news.summary = newspaper_article.summary
+        archived_news.published_date = newspaper_article.publish_date if newspaper_article.publish_date else goose_article.publish_date
+
+        archived_news.authors = ",".join(archived_news.authors)
         archived_news.images = ",".join(
-            article.images)  # @todo, baixar cada uma
-        archived_news.top_image = article.top_image  # @todo baixar
-        archived_news.text = article.text
-        archived_news.summary = article.summary
-        archived_news.published_date = article.publish_date
+            archived_news.images)  # @todo, baixar cada uma
 
     except Exception as err:
 
@@ -113,7 +154,6 @@ def process_news(archived_news: ArchivedNews):
             )
 
     else:
-
         archived_news.force_basic_processing = False
         status_before = archived_news.get_status_display()
         archived_news.status = ArchivedNews.STATUS_PROCESSED_BASIC_INFO
