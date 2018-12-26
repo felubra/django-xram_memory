@@ -12,10 +12,24 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 ### ADICIONADO
 
 - Tipos de conteúdo
+  - Notícia arquivada
+    - published_date: data de publicação, pegar de `published_date` ou de `meta_data.date`
   - Documento
   - Imagem
   - Coleção: conjunto curado de notícias arquivadas e/ou documentos
-  - Veículo da notícia
+  - Site da notícia
+    - Campos:
+      - Endereço base
+      - Descrição
+      - Título
+        ```python
+        import lxml.html
+        t = lxml.html.parse(url)
+        print t.find(".//title").text
+        ```
+      - Imagem
+      - Brand (veículo) (relacionamento)
+  - Veículo de notícia
 
 - Processos de auditoria
   - Faça um relatório da captura da notícia em PDF
