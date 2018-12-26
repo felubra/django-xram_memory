@@ -88,16 +88,21 @@ def process_news(archived_news: ArchivedNews):
         article.download()
         article.parse()
         article.nlp()
+        updateable_fields = ('title', 'authors', 'keywords',
+                             'images', 'top_image', 'text', 'summary',)
+        multiple_value_fields = ('images', 'authors', 'keywords',)
 
-        archived_news.title = article.title
-        archived_news.authors = ",".join(article.authors)
-
-        archived_news._keywords = article.keywords
-        archived_news.images = ",".join(
-            article.images)  # @todo, baixar cada uma
-        archived_news.top_image = article.top_image  # @todo baixar
-        archived_news.text = article.text
-        archived_news.summary = article.summary
+        # @todo: baixar images e top_image
+        for field in updateable_fields:
+            value = getattr(article, field, None)
+            if value:
+                if field in multiple_value_fields:
+                    if field == 'keywords':
+                        setattr(archived_news, '_keywords', ",".join(value))
+                    else:
+                        setattr(archived_news, field, ",".join(value))
+                else:
+                    setattr(archived_news, field, value)
 
     except Exception as err:
 
