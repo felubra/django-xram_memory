@@ -1,7 +1,5 @@
 import os
 import datetime
-import logging
-
 import pdfkit
 import requests
 
@@ -18,8 +16,10 @@ from django.contrib.contenttypes.models import ContentType
 
 from ..archived_news.models import ArchivedNews
 from ..documents.models import ArchivedNewsPDFCapture
+from .signals import (basic_info_started, basic_info_acquired, basic_info_failed,
+                      internet_archive_started, internet_archive_acquired, internet_archive_failed,
+                      pdf_capture_started, pdf_capture_acquired, pdf_capture_failed)
 
-logger = logging.getLogger(__name__)
 saved_pdf_dir = os.path.join(
     settings.MEDIA_ROOT, settings.NEWS_FETCHER_SAVED_DIR_PDF)
 
@@ -32,6 +32,9 @@ def archive_org_fetcher(ArchivedNews):
 @job
 def verify_if_in_archive_org(archived_news: ArchivedNews):
     try:
+
+        internet_archive_started.send_robust(
+            sender=None, archived_news=archived_news)
 
         tic = default_timer()
         response = requests.get(
@@ -46,16 +49,15 @@ def verify_if_in_archive_org(archived_news: ArchivedNews):
 
     except Exception as err:
 
-        logger.error(
-            'Falha ao tentar localizar uma versão arquivada no Internet Archive para a Notícia com o id {} e status "{}": {}'.format(
-                archived_news.id, archived_news.get_status_display(), str(err)
-            )
-        )
+        internet_archive_failed.send_robust(
+            sender=None, archived_news=archived_news, error_message=str(err))
 
     else:
 
+        internet_archive_acquired.send_robust(
+            sender=None, archived_news=archived_news, time_took=toc - tic)
+
         archived_news.force_archive_org_processing = False
-        status_before = archived_news.get_status_display()
         archived_news.status = ArchivedNews.STATUS_PROCESSED_ARCHIVED_NEWS_FETCHED
         archived_news.save()
         # @todo: tratar casos de edição e adição separadamente
@@ -67,24 +69,17 @@ def verify_if_in_archive_org(archived_news: ArchivedNews):
             object_repr=repr(archived_news),
             action_flag=CHANGE,
             change_message="Adicionada versão encontrada no Archive.org.")
-        logger.info(
-            'Sucesso ao pegar informações da Notícia com o id {} e status "{} no Internet Archive".'.format(
-                archived_news.id, status_before
-            )
-        )
 
 
 @job
 def process_news(archived_news: ArchivedNews):
     try:
 
+        basic_info_started.send_robust(
+            sender=None, archived_news=archived_news)
+
         archived_news.status = ArchivedNews.STATUS_QUEUED_BASIC_INFO
         archived_news.save()
-        logger.info(
-            'Notícia com o id {} e status "{}" inserida na fila para processamento básico.'.format(
-                archived_news.id, archived_news.get_status_display()
-            )
-        )
 
         tic = default_timer()
         article = Article(archived_news.url)
@@ -114,18 +109,19 @@ def process_news(archived_news: ArchivedNews):
             archived_news.status = ArchivedNews.STATUS_ERROR_NO_PROCESS
             archived_news.save()
         finally:
-            logger.error(
-                'Falha ao processar Notícia com o id {} e status "{}": {}'.format(
-                    archived_news.id, archived_news.get_status_display(), str(err)
-                )
-            )
+            basic_info_failed.send_robust(
+                sender=None, archived_news=archived_news, error_message=str(err))
 
     else:
+
+        basic_info_acquired.send_robust(
+            sender=None, archived_news=archived_news, time_took=toc-tic)
 
         archived_news.force_basic_processing = False
         status_before = archived_news.get_status_display()
         archived_news.status = ArchivedNews.STATUS_PROCESSED_BASIC_INFO
         archived_news.save()
+
         # @todo: tratar casos de edição e adição separadamente
         LogEntry.objects.log_action(
             user_id=archived_news.modified_by_id,
@@ -135,11 +131,6 @@ def process_news(archived_news: ArchivedNews):
             object_repr=repr(archived_news),
             action_flag=CHANGE,
             change_message="Adicionadas informações básicas da notícia obtidas automaticamente.")
-        logger.info(
-            'Sucesso ao processar Notícia com o id {} e status "{}".'.format(
-                archived_news.id, status_before
-            )
-        )
 
 
 @job
@@ -151,13 +142,11 @@ def save_news_as_pdf(archived_news: ArchivedNews):
             raise ValueError(
                 'O caminho para onde salvar as páginas não foi definido (constante de configuração NEWS_FETCHER_SAVED_DIR_PDF).')
 
+        pdf_capture_started.send_robust(
+            sender=None, archived_news=archived_news)
+
         archived_news.status = ArchivedNews.STATUS_QUEUED_PAGE_CAPTURE
         archived_news.save()
-        logger.info(
-            'Notícia com o id {} e status "{}" inserida na fila para captura de página.'.format(
-                archived_news.id, archived_news.get_status_display()
-            )
-        )
 
         uniq_filename = (
             str(datetime.datetime.now().date()) + '_' +
@@ -193,13 +182,13 @@ def save_news_as_pdf(archived_news: ArchivedNews):
             archived_news.status = ArchivedNews.STATUS_ERROR_NO_CAPTURE
             archived_news.save()
         finally:
-            logger.error(
-                'Falha ao tentar salvar a Notícia em formato PDF com o id {} e status "{}".'.format(
-                    archived_news.id, archived_news.get_status_display()
-                )
-            )
+            pdf_capture_failed.send_robust(
+                sender=None, archived_news=archived_news, error_message=str(err))
 
     else:
+
+        pdf_capture_acquired.send_robust(
+            sender=None, archived_news=archived_news, time_took=toc-tic, pdf_capture=pdf_capture)
 
         archived_news.force_pdf_capture = False
         archived_news.status = ArchivedNews.STATUS_PROCESSED_PAGE_CAPTURE
@@ -213,8 +202,3 @@ def save_news_as_pdf(archived_news: ArchivedNews):
             object_repr=repr(archived_news),
             action_flag=CHANGE,
             change_message="Adicionado documento de captura de página com o ID {}".format(archived_news.id))
-        logger.info(
-            'Notícia com o id {} salva em formato PDF "{}" em {}s.'.format(
-                archived_news.id, archived_news_pdf_path, toc - tic
-            )
-        )
