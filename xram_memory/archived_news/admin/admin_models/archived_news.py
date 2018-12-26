@@ -1,13 +1,17 @@
+import django_rq
+import redis
+
 from django.contrib import admin
 from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
-
+from django.contrib import messages
 
 from xram_memory.archived_news.models import ArchivedNews, Keyword
 from xram_memory.documents.models import ArchivedNewsPDFCapture
 from xram_memory.base_models import TraceableAdminModel
+from xram_memory.news_fetcher.fetcher import process_news, verify_if_in_archive_org, save_news_as_pdf
 
 from ..forms import ArchivedNewsPDFCaptureStackedInlineForm, ArchivedNewsAdminForm
 
@@ -102,7 +106,40 @@ class ArchivedNewsAdmin(TraceableAdminModel):
         if not change:
             if any(field in self.MANUAL_INSERTION_TRIGGER_FIELDS for field in form.changed_data):
                 obj.manual_insertion = True
-        super().save_model(request, obj, form, change)
+        try:
+            django_rq.get_queue().get_job_ids()
+        except redis.exceptions.ConnectionError:
+            cleaned_data = form.cleaned_data
+
+            force_pdf_capture = cleaned_data.get(
+                'force_pdf_capture', False)
+            force_archive_org_processing = cleaned_data.get(
+                'force_archive_org_processing', False)
+            force_basic_processing = cleaned_data.get(
+                'force_basic_processing', False)
+
+            if force_basic_processing:
+                try:
+                    process_news(obj)
+                except:
+                    messages.add_message(request, messages.WARNING,
+                                         "Falha ao buscar informações básicas da notícia.")
+
+            if force_archive_org_processing:
+                try:
+                    verify_if_in_archive_org(obj)
+                except:
+                    messages.add_message(request, messages.WARNING,
+                                         "Falha ao buscar informações sobre a notícia no Internet Archive.")
+
+            if force_pdf_capture:
+                try:
+                    save_news_as_pdf(obj)
+                except:
+                    messages.add_message(request, messages.WARNING,
+                                         "Falha ao tentar capturar uma versão em PDF da notícia.")
+        finally:
+            super().save_model(request, obj, form, change)
 
     def save_related(self, request, form, formsets, change):
         super(ArchivedNewsAdmin, self).save_related(
