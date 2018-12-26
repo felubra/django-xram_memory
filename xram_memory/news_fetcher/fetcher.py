@@ -33,10 +33,12 @@ def archive_org_fetcher(ArchivedNews):
 def verify_if_in_archive_org(archived_news: ArchivedNews):
     try:
 
+        tic = default_timer()
         response = requests.get(
             "https://archive.org/wayback/available?url={}".format(archived_news.url))
         response.raise_for_status()
         response = response.json()
+        toc = default_timer()
         if (response["archived_snapshots"] and response["archived_snapshots"]["closest"] and
                 response["archived_snapshots"]["closest"]["available"]):
             closest_archive = response["archived_snapshots"]["closest"]
@@ -84,10 +86,12 @@ def process_news(archived_news: ArchivedNews):
             )
         )
 
+        tic = default_timer()
         article = Article(archived_news.url)
         article.download()
         article.parse()
         article.nlp()
+        toc = default_timer()
         updateable_fields = ('title', 'authors', 'keywords',
                              'images', 'top_image', 'text', 'summary',)
         multiple_value_fields = ('images', 'authors', 'keywords',)
