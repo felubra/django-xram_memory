@@ -98,6 +98,7 @@ def process_news(archived_news: ArchivedNews):
         archived_news.top_image = article.top_image  # @todo baixar
         archived_news.text = article.text
         archived_news.summary = article.summary
+        archived_news.published_date = article.publish_date
 
     except Exception as err:
 

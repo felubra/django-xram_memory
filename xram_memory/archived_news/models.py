@@ -80,6 +80,9 @@ class ArchivedNews(TraceableModel):
     keywords = models.ManyToManyField(
         Keyword, blank=True, verbose_name="Palavras-chave")
 
+    published_date = models.DateTimeField(verbose_name='Data de publicação', blank=True, null=True,
+                                          help_text='Data em que a notícia foi publicada')
+
     # Flags
     force_basic_processing = models.BooleanField(
         "Buscar automaticamente informações sobre a notícia", default=True,
@@ -111,10 +114,10 @@ class ArchivedNews(TraceableModel):
         # Não verifique o campo keywords se o modelo não estiver sido salvo para evitar uma exceção ValueError
         if self.pk is None:
             return (bool(self.text) or bool(self.summary) or bool(self.authors) or
-                    bool(self.top_image) or bool(self.images))
+                    bool(self.top_image) or bool(self.images) or bool(self.published_date))
         else:
             return (bool(self.text) or bool(self.summary) or bool(self.authors) or bool(self.keywords) or
-                    bool(self.top_image) or bool(self.images))
+                    bool(self.top_image) or bool(self.images) or bool(self.published_date))
 
     @property
     def has_pdf_capture(self):
