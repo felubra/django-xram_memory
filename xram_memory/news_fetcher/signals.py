@@ -35,7 +35,7 @@ def add_news_archive_to_queue(sender, **kwargs):
                 if archived_news.force_pdf_capture:
                     save_news_as_pdf.delay(archived_news)
 
-                # @todo configurar o django_rq para reutilizar a conexão do cache do redis-cache
+                # TODO: configurar o django_rq para reutilizar a conexão do cache do redis-cache
                 # verifique se o serviço de filas está funcionando (se existe conexão com o redis)
                 fq = django_rq.queues.get_failed_queue()
                 if fq.count > 0:

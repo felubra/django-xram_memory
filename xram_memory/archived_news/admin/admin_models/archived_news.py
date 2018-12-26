@@ -69,7 +69,7 @@ class ArchivedNewsAdmin(TraceableAdminModel):
         Crie e inclua palavas-chave extraídas pelo fetcher.
         """
         if hasattr(instance, '_keywords'):
-            # @todo remover palavras sem importância
+            # TODO: remover palavras sem importância
             for keyword in instance._keywords:
                 try:
                     # tente achar a palavra-chave pelo nome
@@ -83,7 +83,7 @@ class ArchivedNewsAdmin(TraceableAdminModel):
                     except Keyword.DoesNotExist:
                         db_keyword = Keyword.objects.create(
                             name=keyword, slug=slugify(keyword), created_by=user)
-                        # @todo: tratar casos de edição e adição separadamente
+                        # TODO: tratar casos de edição e adição separadamente
                         LogEntry.objects.log_action(
                             user_id=db_keyword.created_by_id,
                             content_type_id=ContentType.objects.get_for_model(

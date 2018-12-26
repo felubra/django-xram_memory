@@ -57,7 +57,7 @@ def verify_if_in_archive_org(archived_news: ArchivedNews):
         status_before = archived_news.get_status_display()
         archived_news.status = ArchivedNews.STATUS_PROCESSED_ARCHIVED_NEWS_FETCHED
         archived_news.save()
-        # @todo: tratar casos de edição e adição separadamente
+        # TODO:: tratar casos de edição e adição separadamente
         LogEntry.objects.log_action(
             user_id=archived_news.modified_by_id,
             content_type_id=ContentType.objects.get_for_model(
@@ -139,7 +139,7 @@ def process_news(archived_news: ArchivedNews):
 
         archived_news.authors = ",".join(archived_news.authors)
         archived_news.images = ",".join(
-            archived_news.images)  # @todo, baixar cada uma
+            archived_news.images)  # TODO:, baixar cada uma
 
     except Exception as err:
 
@@ -158,7 +158,7 @@ def process_news(archived_news: ArchivedNews):
         status_before = archived_news.get_status_display()
         archived_news.status = ArchivedNews.STATUS_PROCESSED_BASIC_INFO
         archived_news.save()
-        # @todo: tratar casos de edição e adição separadamente
+        # TODO:: tratar casos de edição e adição separadamente
         LogEntry.objects.log_action(
             user_id=archived_news.modified_by_id,
             content_type_id=ContentType.objects.get_for_model(
@@ -178,7 +178,7 @@ def process_news(archived_news: ArchivedNews):
 def save_news_as_pdf(archived_news: ArchivedNews):
     try:
 
-        # @todo checar se o diretório existe, se existem permissões para salvar etc
+        # TODO: checar se o diretório existe, se existem permissões para salvar etc
         if not saved_pdf_dir:
             raise ValueError(
                 'O caminho para onde salvar as páginas não foi definido (constante de configuração NEWS_FETCHER_SAVED_DIR_PDF).')
@@ -199,7 +199,7 @@ def save_news_as_pdf(archived_news: ArchivedNews):
         archived_news_pdf_path = str(
             Path(saved_pdf_dir, uniq_filename))
 
-        # @todo usar um decorador para medir o tempo e logar
+        # TODO: usar um decorador para medir o tempo e logar
         tic = default_timer()
         pdfkit.from_url(archived_news.url, archived_news_pdf_path, options={
             'print-media-type': None,
@@ -236,7 +236,7 @@ def save_news_as_pdf(archived_news: ArchivedNews):
         archived_news.force_pdf_capture = False
         archived_news.status = ArchivedNews.STATUS_PROCESSED_PAGE_CAPTURE
         archived_news.save()
-        # @todo: tratar casos de edição e adição separadamente
+        # TODO:: tratar casos de edição e adição separadamente
         LogEntry.objects.log_action(
             user_id=archived_news.modified_by_id,
             content_type_id=ContentType.objects.get_for_model(
