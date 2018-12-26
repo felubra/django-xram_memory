@@ -29,7 +29,7 @@ class ArchivedNewsAdmin(TraceableAdminModel):
             'fields': ('insertion_mode', 'force_basic_processing', 'force_archive_org_processing', 'force_pdf_capture'),
         }),
         ('Informações adicionais', {
-            'fields': ('title', 'authors', 'text', 'top_image', 'summary', 'keywords'),
+            'fields': ('title', 'authors', 'text', 'top_image', 'summary', 'keywords', 'published_date'),
         }),
     )
     EDIT_FIELDSETS = (
@@ -38,7 +38,7 @@ class ArchivedNewsAdmin(TraceableAdminModel):
         }),
 
         ('Informações adicionais', {
-            'fields': ('title', 'authors', 'text', 'top_image', 'summary', 'keywords'),
+            'fields': ('title', 'authors', 'text', 'top_image', 'summary', 'keywords', 'published_date'),
         }),
         ('Avançado', {
             'fields': ('force_basic_processing', 'force_archive_org_processing', 'force_pdf_capture'),
