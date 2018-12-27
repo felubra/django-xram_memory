@@ -1,0 +1,11 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+    <script>
+        var CSRF_TOKEN = '{{ csrf_token }}';
+        var basic_info_endpoint = "/admin/news_fetcher/basic_info"; //TODO: usar reverse()
+    </script>
+    <script type="text/javascript" src="{% static 'archived_news/js/populate_via_ajax.js' %}"></script>
+{% endblock %}
