@@ -136,6 +136,7 @@ def _merge_extractions(newspaper_article, goose_article):
 
     try:
         # TODO: melhorar esse código, que está safo, mas feio pra caramba
+        # TODO: fazer a transformação nos objetos (join com ',' etc) em função dedicada
         archived_news_dict = {
             'title': newspaper_article.title if getattr(newspaper_article, 'title', None) else getattr(goose_article, 'title', None),
             'top_image': newspaper_article.top_image if getattr(newspaper_article, 'top_image', None) else goose_article.top_image.src if isinstance(getattr(goose_article, 'top_image', None), Image) else None,
@@ -158,9 +159,8 @@ def _merge_extractions(newspaper_article, goose_article):
         )
 
 
-def extract_basic_info(archived_news):
-    newspaper_article, goose_article = archived_news_extract_basic_info(
-        archived_news.url)
+def extract_basic_info_from_url(url):
+    newspaper_article, goose_article = archived_news_extract_basic_info(url)
     return _merge_extractions(newspaper_article, goose_article)
 
 
@@ -175,7 +175,7 @@ def process_news(archived_news: ArchivedNews):
             )
         )
 
-        archived_news_dict = extract_basic_info(archived_news)
+        archived_news_dict = extract_basic_info_from_url(archived_news.url)
 
         for prop, value in archived_news_dict.items():
             setattr(archived_news, prop, value)
