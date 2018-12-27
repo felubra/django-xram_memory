@@ -30,6 +30,7 @@ class ArchivedNewsAdmin(TraceableAdminModel):
             'fields': ('url', 'archived_news_url')
         }),
         ('Modo de inserção', {
+            'classes': ('auto_insert_options',),
             'fields': ('insertion_mode', 'force_basic_processing', 'force_archive_org_processing', 'force_pdf_capture'),
         }),
         ('Informações adicionais', {
@@ -45,6 +46,7 @@ class ArchivedNewsAdmin(TraceableAdminModel):
             'fields': ('title', 'authors', 'text', 'top_image', 'summary', 'keywords', 'published_date'),
         }),
         ('Avançado', {
+            'classes': ('auto_insert_options',),
             'fields': ('force_basic_processing', 'force_archive_org_processing', 'force_pdf_capture'),
         }),
     )
