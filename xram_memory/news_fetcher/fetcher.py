@@ -11,6 +11,7 @@ from django.core.files.storage import default_storage
 
 from newspaper import Article
 from goose3 import Goose
+from goose3.image import Image
 from django_rq import job
 from pathlib import Path
 from timeit import default_timer
@@ -74,6 +75,9 @@ def verify_if_in_archive_org(archived_news: ArchivedNews):
 
 
 def _extract_using_newspaper(url, raw_html=None):
+    '''
+    Tenta extrair usando a biblioteca newspaper3k
+    '''
     try:
         newspaper_article = Article(url)
 
@@ -90,6 +94,9 @@ def _extract_using_newspaper(url, raw_html=None):
 
 
 def _extract_using_goose3(url, raw_html=None):
+    '''
+    Tenta extrair usando a biblioteca goose3
+    '''
     try:
         goose = Goose({'enable_image_fetching': True})
 
@@ -103,6 +110,60 @@ def _extract_using_goose3(url, raw_html=None):
         return None
 
 
+def archived_news_extract_basic_info(url):
+    '''
+    Retorna uma tupla com as extrações de informações básicas para determinada url de Notícia Arquivada.
+    '''
+    # Tente extrair primeiro usando o newspaper3k e reutilize seu html, se possível
+    newspaper_article = _extract_using_newspaper(url)
+    if newspaper_article:
+        goose_article = _extract_using_goose3(
+            url, newspaper_article.html)
+    else:
+        goose_article = _extract_using_goose3(url)
+    if newspaper_article is None and goose_article is None:
+        raise(Exception(
+            'Não foi possível extrair informações básicas sobre a notícia, pois nenhum dos extratores funcionou.'))
+    return (newspaper_article, goose_article,)
+
+
+def _merge_extractions(newspaper_article, goose_article):
+    '''
+    Com base nas extrações passadas, constrói um dicionário em que a informação de cada uma é aproveitada, se existir.
+    '''
+    def join_with_comma(list):
+        return ",".join(list)
+
+    try:
+        # TODO: melhorar esse código, que está safo, mas feio pra caramba
+        archived_news_dict = {
+            'title': newspaper_article.title if getattr(newspaper_article, 'title', None) else getattr(goose_article, 'title', None),
+            'top_image': newspaper_article.top_image if getattr(newspaper_article, 'top_image', None) else goose_article.top_image.src if isinstance(getattr(goose_article, 'top_image', None), Image) else None,
+            'text': newspaper_article.text if getattr(newspaper_article, 'text', None) else getattr(goose_article, 'cleaned_text', None),
+            'summary': getattr(newspaper_article, 'summary', None),
+
+            'published_date': newspaper_article.publish_date if getattr(newspaper_article, 'publish_date', None) else getattr(goose_article, 'publish_date', None),
+
+            'authors': join_with_comma(newspaper_article.authors if getattr(newspaper_article, 'authors', []) else getattr(goose_article, 'authors', [])),
+            'images': join_with_comma(getattr(newspaper_article, 'images', [])),
+            '_keywords': newspaper_article.keywords if getattr(newspaper_article, 'keywords', []) else getattr(goose_article, 'tags', []),
+        }
+        return archived_news_dict
+    except Exception as err:
+        raise(
+            Exception(
+                "Falha ao construir o dicionário com as informações básicas da notícia arquivada: {}."
+                .format(str(err))
+            )
+        )
+
+
+def extract_basic_info(archived_news):
+    newspaper_article, goose_article = archived_news_extract_basic_info(
+        archived_news.url)
+    return _merge_extractions(newspaper_article, goose_article)
+
+
 @job
 def process_news(archived_news: ArchivedNews):
     try:
@@ -113,32 +174,11 @@ def process_news(archived_news: ArchivedNews):
                 archived_news.id, archived_news.get_status_display()
             )
         )
-        # Tente extrair primeiro usando o newspaper3k e reutilize seu html, se possível
-        newspaper_article = _extract_using_newspaper(archived_news.url)
-        if newspaper_article:
-            goose_article = _extract_using_goose3(
-                archived_news.url, newspaper_article.html)
-        else:
-            goose_article = _extract_using_goose3(archived_news.url)
 
-        if newspaper_article is None and goose_article is None:
-            raise(Exception(
-                'Não foi possível extrair o artigo, pois nenhum dos extratores funcionou.'))
+        archived_news_dict = extract_basic_info(archived_news)
 
-        archived_news.title = newspaper_article.title if newspaper_article.title else goose_article.title
-        archived_news.authors = newspaper_article.authors if newspaper_article.authors else goose_article.authors
-
-        archived_news._keywords = newspaper_article.keywords if newspaper_article.keywords else goose_article.tags
-
-        archived_news.images = newspaper_article.images
-        archived_news.top_image = newspaper_article.top_image if newspaper_article.top_image else goose_article.top_image.src
-        archived_news.text = newspaper_article.text if newspaper_article.text else goose_article.cleaned_text
-        archived_news.summary = newspaper_article.summary
-        archived_news.published_date = newspaper_article.publish_date if newspaper_article.publish_date else goose_article.publish_date
-
-        archived_news.authors = ",".join(archived_news.authors)
-        archived_news.images = ",".join(
-            archived_news.images)  # TODO:, baixar cada uma
+        for prop, value in archived_news_dict.items():
+            setattr(archived_news, prop, value)
 
     except Exception as err:
 
