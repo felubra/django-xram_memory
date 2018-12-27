@@ -30,7 +30,6 @@ def archive_org_fetcher(ArchivedNews):
     pass
 
 
-@job
 def verify_if_in_archive_org(archived_news: ArchivedNews):
     try:
 
@@ -50,6 +49,7 @@ def verify_if_in_archive_org(archived_news: ArchivedNews):
                 archived_news.id, archived_news.get_status_display(), str(err)
             )
         )
+        raise(err)
 
     else:
 
@@ -108,7 +108,6 @@ def process_news(archived_news: ArchivedNews):
     try:
 
         archived_news.status = ArchivedNews.STATUS_QUEUED_BASIC_INFO
-        archived_news.save()
         logger.info(
             'Notícia com o id {} e status "{}" inserida na fila para processamento básico.'.format(
                 archived_news.id, archived_news.get_status_display()
@@ -145,13 +144,13 @@ def process_news(archived_news: ArchivedNews):
 
         try:
             archived_news.status = ArchivedNews.STATUS_ERROR_NO_PROCESS
-            archived_news.save()
         finally:
             logger.error(
                 'Falha ao processar Notícia com o id {} e status "{}": {}'.format(
                     archived_news.id, archived_news.get_status_display(), str(err)
                 )
             )
+            raise(err)
 
     else:
         archived_news.force_basic_processing = False
@@ -174,7 +173,6 @@ def process_news(archived_news: ArchivedNews):
         )
 
 
-@job
 def save_news_as_pdf(archived_news: ArchivedNews):
     try:
 
@@ -184,7 +182,6 @@ def save_news_as_pdf(archived_news: ArchivedNews):
                 'O caminho para onde salvar as páginas não foi definido (constante de configuração NEWS_FETCHER_SAVED_DIR_PDF).')
 
         archived_news.status = ArchivedNews.STATUS_QUEUED_PAGE_CAPTURE
-        archived_news.save()
         logger.info(
             'Notícia com o id {} e status "{}" inserida na fila para captura de página.'.format(
                 archived_news.id, archived_news.get_status_display()
@@ -223,13 +220,13 @@ def save_news_as_pdf(archived_news: ArchivedNews):
 
         try:
             archived_news.status = ArchivedNews.STATUS_ERROR_NO_CAPTURE
-            archived_news.save()
         finally:
             logger.error(
                 'Falha ao tentar salvar a Notícia em formato PDF com o id {} e status "{}".'.format(
                     archived_news.id, archived_news.get_status_display()
                 )
             )
+            raise(err)
 
     else:
 
@@ -250,3 +247,27 @@ def save_news_as_pdf(archived_news: ArchivedNews):
                 archived_news.id, archived_news_pdf_path, toc - tic
             )
         )
+
+
+@job
+def save_news_as_pdf_job(archived_news: ArchivedNews):
+    try:
+        save_news_as_pdf(archived_news)
+    finally:
+        archived_news.save()
+
+
+@job
+def process_news_job(archived_news: ArchivedNews):
+    try:
+        process_news(archived_news)
+    finally:
+        archived_news.save()
+
+
+@job
+def verify_if_in_archive_org_job(archived_news: ArchivedNews):
+    try:
+        verify_if_in_archive_org(archived_news)
+    finally:
+        archived_news.save()

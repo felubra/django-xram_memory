@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from ..archived_news.models import ArchivedNews
-from .fetcher import process_news, save_news_as_pdf, verify_if_in_archive_org
+from .fetcher import process_news_job, save_news_as_pdf_job, verify_if_in_archive_org_job
 import logging
 import django_rq
 import redis
@@ -27,13 +27,13 @@ def add_news_archive_to_queue(sender, **kwargs):
                 archived_news._job_processing = True
 
                 if archived_news.force_basic_processing:
-                    process_news.delay(archived_news)
+                    process_news_job.delay(archived_news)
 
                 if archived_news.force_archive_org_processing:
-                    verify_if_in_archive_org.delay(archived_news)
+                    verify_if_in_archive_org_job.delay(archived_news)
 
                 if archived_news.force_pdf_capture:
-                    save_news_as_pdf.delay(archived_news)
+                    save_news_as_pdf_job.delay(archived_news)
 
                 # TODO: configurar o django_rq para reutilizar a conexão do cache do redis-cache
                 # verifique se o serviço de filas está funcionando (se existe conexão com o redis)
