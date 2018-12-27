@@ -26,6 +26,9 @@ class Common(Configuration):
 
     # Application definition
     INSTALLED_APPS = [
+        'xram_memory.news_fetcher',
+        'xram_memory.archived_news',
+
         'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
@@ -34,14 +37,13 @@ class Common(Configuration):
         'whitenoise.runserver_nostatic',
         'django.contrib.staticfiles',
 
+        'xram_memory.users',
+        'xram_memory.documents',
+        'xram_memory.taxonomy',
+
         'django_extensions',
         'debug_toolbar',
 
-        'xram_memory.users',
-        'xram_memory.archived_news',
-        'xram_memory.news_fetcher',
-        'xram_memory.documents',
-        'xram_memory.taxonomy',
 
         'django_rq',
     ]
