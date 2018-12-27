@@ -63,7 +63,8 @@ class ArchivedNewsAdmin(TraceableAdminModel):
         '''
         Use um conjunto diferente de fieldsets para adição e edição
         '''
-        if obj is None:
+        pk = getattr(obj, 'pk', None)
+        if pk is None:
             return self.INSERT_FIELDSETS
         else:
             return self.EDIT_FIELDSETS
