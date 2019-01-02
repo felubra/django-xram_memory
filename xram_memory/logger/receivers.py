@@ -119,6 +119,9 @@ def pdf_capture_job_success(sender, **kwargs):
                 kwargs['time_took'], kwargs['pdf_capture'].pk
             )
         )
+        """
+        TODO: despachar um sinal para começar a gerar um relatório de captura em pdf.
+        """
     except:
         logger.info(
             'Sucesso em fazer uma captura de página em PDF para a Notícia com o id {}. Um erro impede que o sistema informe mais detalhes sobre a notícia.'.format(
