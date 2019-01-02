@@ -147,7 +147,7 @@ def _merge_extractions(newspaper_article, goose_article):
 
             'authors': join_with_comma(newspaper_article.authors if getattr(newspaper_article, 'authors', []) else getattr(goose_article, 'authors', [])),
             'images': join_with_comma(getattr(newspaper_article, 'images', [])),
-            '_keywords': newspaper_article.keywords if getattr(newspaper_article, 'keywords', []) else getattr(goose_article, 'tags', []),
+            'keywords': newspaper_article.keywords if getattr(newspaper_article, 'keywords', []) else getattr(goose_article, 'tags', []),
         }
         return archived_news_dict
     except Exception as err:
@@ -178,7 +178,10 @@ def process_news(archived_news: ArchivedNews):
         archived_news_dict = extract_basic_info_from_url(archived_news.url)
 
         for prop, value in archived_news_dict.items():
-            setattr(archived_news, prop, value)
+            if prop == 'keywords':
+                setattr(archived_news, '_keywords', value)
+            else:
+                setattr(archived_news, prop, value)
 
     except Exception as err:
 
