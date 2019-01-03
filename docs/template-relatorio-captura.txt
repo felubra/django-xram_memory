@@ -1,0 +1,24 @@
+﻿<Logo>
+
+Título: Registro de captura
+
+<Protocolo>
+
+Capturado por
+	<Nome do usuário>
+Data de captura
+	<Timestamp com Fuso>
+
+Endereço original da Notícia
+	<URL da notícia original>
+
+<Endereço de captura>
+QR code para <Endereço de captura>
+
+<quebra de página>
+
+<Logs de captura>
+
+<quebra de página>
+
+<Notícia capturada>
