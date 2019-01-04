@@ -42,6 +42,7 @@ class Common(Configuration):
         'xram_memory.news_fetcher',
         'xram_memory.documents',
         'xram_memory.taxonomy',
+        'xram_memory.logger',
 
         'django_rq',
     ]

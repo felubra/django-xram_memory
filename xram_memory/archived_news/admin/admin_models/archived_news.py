@@ -11,7 +11,7 @@ from django.contrib import messages
 from xram_memory.archived_news.models import ArchivedNews, Keyword
 from xram_memory.documents.models import ArchivedNewsPDFCapture
 from xram_memory.base_models import TraceableAdminModel
-from xram_memory.news_fetcher.fetcher import process_news, verify_if_in_archive_org, save_news_as_pdf
+from xram_memory.news_fetcher.fetcher import process_news, verify_if_in_archive_org, save_news_as_pdf, get_pdf_capture
 
 from ..forms import ArchivedNewsPDFCaptureStackedInlineForm, ArchivedNewsAdminForm
 
@@ -102,6 +102,10 @@ class ArchivedNewsAdmin(TraceableAdminModel):
                     instance.keywords.add(db_keyword)
 
     def save_model(self, request, obj, form, change):
+        '''
+        TODO: refatorar.
+        '''
+        pdf_capture = None
         # Se estivermos a criar (não editar) um novo registro, determine com base nos campos ou na escolha do usuário se
         # se trata de inserção manual
         if not change:
@@ -119,6 +123,9 @@ class ArchivedNewsAdmin(TraceableAdminModel):
             force_basic_processing = cleaned_data.get(
                 'force_basic_processing', False)
 
+            if force_pdf_capture or force_archive_org_processing or force_basic_processing:
+                obj._job_processing = True
+
             if force_basic_processing:
                 try:
                     process_news(obj)
@@ -135,12 +142,17 @@ class ArchivedNewsAdmin(TraceableAdminModel):
 
             if force_pdf_capture:
                 try:
-                    save_news_as_pdf(obj)
+                    pdf_capture = get_pdf_capture(obj)
                 except:
                     messages.add_message(request, messages.WARNING,
                                          "Falha ao tentar capturar uma versão em PDF da notícia.")
+
         finally:
             super().save_model(request, obj, form, change)
+            del obj._job_processing
+            if pdf_capture:
+                pdf_capture.archived_news = obj
+                pdf_capture.save()
 
     def save_related(self, request, form, formsets, change):
         super(ArchivedNewsAdmin, self).save_related(
