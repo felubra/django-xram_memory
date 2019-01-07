@@ -2,11 +2,11 @@ from django.db import models
 
 from ..taxonomy.models import Keyword
 from ..users.models import User
-from ..base_models import TraceableModel
+from ..artifact.models import Artifact
 # Create your models here.
 
 
-class ArchivedNews(TraceableModel):
+class ArchivedNews(Artifact):
     """
     Guarda uma notícia arquivada, enviada tanto manualmente ou obtida automaticamente pelo sistema do
     site.
