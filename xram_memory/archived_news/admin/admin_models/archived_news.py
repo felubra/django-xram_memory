@@ -17,6 +17,7 @@ from ..forms import ArchivedNewsPDFCaptureStackedInlineForm, ArchivedNewsAdminFo
 
 
 class ArchivedNewsPDFCaptureInline(admin.TabularInline):
+    fk_name = "archived_news"
     model = ArchivedNewsPDFCapture
     form = ArchivedNewsPDFCaptureStackedInlineForm
 
