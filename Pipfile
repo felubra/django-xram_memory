@@ -27,3 +27,4 @@ pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",
 requests = "*"
 redis = "*"
 goose3 = "*"
+django-polymorphic = "*"
