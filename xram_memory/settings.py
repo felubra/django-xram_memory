@@ -38,11 +38,10 @@ class Common(Configuration):
         'debug_toolbar',
 
         'xram_memory.users',
+        'xram_memory.artifact',
         'xram_memory.archived_news',
-        'xram_memory.news_fetcher',
         'xram_memory.documents',
-        'xram_memory.taxonomy',
-        'xram_memory.logger',
+        'xram_memory.collection',
 
         'django_rq',
     ]

@@ -1,17 +1,17 @@
 from django.contrib import admin
 
-from .models import PDFFile
+from .models import Collection
 
 
-@admin.register(PDFFile)
-class PDFFileAdmin(admin.ModelAdmin):
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'created_by',
         'modified_by',
         'created_at',
         'modified_at',
-        'filename',
     )
     list_filter = ('created_by', 'modified_by', 'created_at', 'modified_at')
+    raw_id_fields = ('items',)
     date_hierarchy = 'created_at'

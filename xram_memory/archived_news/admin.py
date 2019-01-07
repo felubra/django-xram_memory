@@ -1,17 +1,16 @@
 from django.contrib import admin
 
-from .models import PDFFile
+from .models import ArchivedNews
 
 
-@admin.register(PDFFile)
-class PDFFileAdmin(admin.ModelAdmin):
+@admin.register(ArchivedNews)
+class ArchivedNewsAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'created_by',
         'modified_by',
         'created_at',
         'modified_at',
-        'filename',
     )
     list_filter = ('created_by', 'modified_by', 'created_at', 'modified_at')
     date_hierarchy = 'created_at'
