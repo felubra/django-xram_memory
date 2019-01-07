@@ -26,6 +26,7 @@ class Common(Configuration):
 
     # Application definition
     INSTALLED_APPS = [
+        'polymorphic',
         'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
@@ -38,10 +39,12 @@ class Common(Configuration):
         'debug_toolbar',
 
         'xram_memory.users',
+        'xram_memory.artifact',
         'xram_memory.archived_news',
         'xram_memory.news_fetcher',
         'xram_memory.documents',
         'xram_memory.taxonomy',
+        'xram_memory.collection',
         'xram_memory.logger',
 
         'django_rq',
