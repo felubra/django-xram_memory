@@ -137,6 +137,8 @@ class Common(Configuration):
     NEWS_FETCHER_SAVED_DIR_IMAGE = 'saved_news_pages/image/'
     NEWS_FETCHER_SAVED_DIR_HTML = 'saved_news_pages/html/'
 
+    USER_PDF_DIR = 'pdf_uploads/'
+
 
 class Development(Common):
     """

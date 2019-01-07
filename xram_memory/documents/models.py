@@ -38,3 +38,15 @@ class ArchivedNewsPDFCapture(FileArtifact):
 
     def __str__(self):
         return basename(self.pdf_file.file.name)
+
+
+class PDFFile(FileArtifact):
+    '''
+    Uma documento em pdf enviado pelo usuário.
+    '''
+    pdf_file = models.FileField(upload_to=user_uploaded_pdf_dir,
+                                verbose_name="Arquivo em PDF",
+                                blank=True)
+
+    def __str__(self):
+        return basename(self.pdf_file.file.name)
