@@ -4,12 +4,14 @@ from os.path import basename
 
 from ..base_models import TraceableModel
 from ..archived_news.models import ArchivedNews
+from ..artifact.models import Artifact
 
 # Create your models here.
 saved_pdf_dir = settings.NEWS_FETCHER_SAVED_DIR_PDF
+user_uploaded_pdf_dir = settings.USER_PDF_DIR
 
 
-class Document(TraceableModel):
+class FileArtifact(Artifact):
     '''
     Modelo abstrato para todos os tipos de documento.
     '''
@@ -21,7 +23,7 @@ class Document(TraceableModel):
         abstract = True
 
 
-class ArchivedNewsPDFCapture(Document):
+class ArchivedNewsPDFCapture(FileArtifact):
     '''
     Uma captura de página de uma notícia arquivada.
     '''
