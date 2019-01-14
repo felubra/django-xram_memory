@@ -14,10 +14,12 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 - Tipos de conteúdo
   - Notícia arquivada
     - published_date: data de publicação, pegar de `published_date` ou de `meta_data.date`
-  - Documento
+  - Documento em PDF
   - Imagem
   - Coleção: conjunto curado de notícias arquivadas e/ou documentos
-  - Site da notícia
+  - Página genérica
+  - Artigo
+  - Veículo de Comunicação
     - Campos:
       - Endereço base
       - Descrição
@@ -29,7 +31,6 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
         ```
       - Imagem
       - Brand (veículo) (relacionamento)
-  - Veículo de notícia
 
 - Processos de auditoria
   - Faça um relatório da captura da notícia em PDF
