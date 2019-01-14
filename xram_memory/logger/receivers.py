@@ -1,10 +1,8 @@
-import logging
+from loguru import logger
 from django.dispatch import receiver
 
 from xram_memory.archived_news.models import ArchivedNews
 from xram_memory.news_fetcher import signals as process_signals
-
-logger = logging.getLogger(__name__)
 
 
 @receiver(process_signals.basic_info_started)
