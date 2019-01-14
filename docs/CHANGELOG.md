@@ -12,12 +12,13 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 ### ADICIONADO
 
 - Tipos de conteúdo
+
   - Notícia arquivada
     - published_date: data de publicação, pegar de `published_date` ou de `meta_data.date`
   - Documento
   - Imagem
   - Coleção: conjunto curado de notícias arquivadas e/ou documentos
-  - Site da notícia
+  - Veículo da notícia
     - Campos:
       - Endereço base
       - Descrição
@@ -29,9 +30,9 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
         ```
       - Imagem
       - Brand (veículo) (relacionamento)
-  - Veículo de notícia
 
 - Processos de auditoria
+
   - Faça um relatório da captura da notícia em PDF
   - Faça um perfil de Auditor
   - Mecanismo de logging robusto
@@ -39,16 +40,19 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
     - Considerar integração com o Graylog
 
 - Captura automática
+
   - Todas as capturas devem ser instâncias de documentos
   - Formatos:
     - HTML
     - Imagem
 
 - Perfis de acesso para usuários
+
   - Adicionar os perfis visitante, membro, garimpador, moderador, editor e auditor (mais informações no arquivo de
-  requisitos)
+    requisitos)
 
 - Interface administrativa
+
   - Notícia Arquivada: Ícones para indicar a presença de capturas, ao invés de descrição textual do status
   - [OK] Notícia Arquivada: Link para a notícia no título
   - [OK] Notícia Arquivada: fazer uma classe para fazer um método comum de salvamento sobre os modelos do tipo `TraceableModel`
@@ -56,6 +60,7 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
   - Notícia Arquivada: desativar sinais e agendar jobs diretamente da interface administrativa no método `save_model`
 
 - Busca de conteúdos
+
   - Faça uma busca multi-facetada
   - Utilize o ElasticSearch
   - Páginas
@@ -78,6 +83,7 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 ### MODIFICADO
 
 - Workflow
+
   - Considere deixar para a fila de processamento apenas a captura de página
     - Ao menos o processamento básico seria feito sincronicamente
       - Ao menos o título da notícia seria populado sincronicamente
@@ -94,6 +100,7 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 ### Obsoleto
 
 ### REMOVIDO
+
 - Não persista flags de modelo, utilize apenas o controller para definir, quando for salvar o modelo qual o
   processamento deve ser feito ou não.
 
@@ -104,6 +111,7 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 ## 0.1.0 - 2018-12-19
 
 ### ADICIONADO
+
 - App dedicado para taxonomia
 - Algumas anotações de tipo em variáveis
 - App dedicado para documentos
@@ -114,6 +122,7 @@ Segue abaixo funcionalidades para serem feitas ou ainda não publicadas.
 - Meta: novos requisitos e changelog atualizado
 
 ## MODIFICADO
+
 - Permita várias capturas de página por notícia arquivada
 - Reorganização do changelog
 - Toda mídia é um documento (classe `Document`)
