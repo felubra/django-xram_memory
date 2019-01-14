@@ -2,12 +2,12 @@ import logging
 from django.dispatch import receiver
 
 from xram_memory.archived_news.models import ArchivedNews
-from xram_memory.news_fetcher import signals as job_signals
+from xram_memory.news_fetcher import signals as process_signals
 
 logger = logging.getLogger(__name__)
 
 
-@receiver(job_signals.basic_info_started)
+@receiver(process_signals.basic_info_started)
 def basic_info_job_started(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
@@ -26,7 +26,7 @@ def basic_info_job_started(sender, **kwargs):
         )
 
 
-@receiver(job_signals.internet_archive_started)
+@receiver(process_signals.internet_archive_started)
 def internet_archive_job_started(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
@@ -45,7 +45,7 @@ def internet_archive_job_started(sender, **kwargs):
         )
 
 
-@receiver(job_signals.pdf_capture_started)
+@receiver(process_signals.pdf_capture_started)
 def pdf_capture_job_started(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
@@ -64,7 +64,7 @@ def pdf_capture_job_started(sender, **kwargs):
         )
 
 
-@receiver(job_signals.basic_info_acquired)
+@receiver(process_signals.basic_info_acquired)
 def basic_info_job_success(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
@@ -85,7 +85,7 @@ def basic_info_job_success(sender, **kwargs):
         )
 
 
-@receiver(job_signals.internet_archive_acquired)
+@receiver(process_signals.internet_archive_acquired)
 def internet_archive_job_success(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
@@ -106,7 +106,7 @@ def internet_archive_job_success(sender, **kwargs):
         )
 
 
-@receiver(job_signals.pdf_capture_acquired)
+@receiver(process_signals.pdf_capture_acquired)
 def pdf_capture_job_success(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
@@ -130,7 +130,7 @@ def pdf_capture_job_success(sender, **kwargs):
         )
 
 
-@receiver(job_signals.basic_info_failed)
+@receiver(process_signals.basic_info_failed)
 def basic_info_job_fail(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
@@ -151,7 +151,7 @@ def basic_info_job_fail(sender, **kwargs):
         )
 
 
-@receiver(job_signals.internet_archive_failed)
+@receiver(process_signals.internet_archive_failed)
 def internet_archive_job_fail(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
@@ -172,7 +172,7 @@ def internet_archive_job_fail(sender, **kwargs):
         )
 
 
-@receiver(job_signals.pdf_capture_failed)
+@receiver(process_signals.pdf_capture_failed)
 def pdf_capture_job_fail(sender, **kwargs):
     archived_news: ArchivedNews = kwargs['archived_news']
     if not archived_news:
