@@ -29,3 +29,4 @@ redis = "*"
 goose3 = "*"
 loguru = "*"
 python-magic = "*"
+django-currentuser = {editable = true,git = "https://github.com/PaesslerAG/django-currentuser",ref = "master"}

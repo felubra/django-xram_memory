@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bb1bdc47ab0447b8ac93a1b44d7933ae9e233f3dd9d68199cc29f7f7590f7c23"
+            "sha256": "37b382d34e867f26ec1bb35164ef7a7b5f91d6c8be7859556c06467f3a40d9da"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -93,6 +93,11 @@
             ],
             "index": "pypi",
             "version": "==2.1"
+        },
+        "django-currentuser": {
+            "editable": true,
+            "git": "https://github.com/PaesslerAG/django-currentuser",
+            "ref": "a7e3f5588f1c0a63a756f5cbe46aeb0691aca7f1"
         },
         "django-debug-toolbar": {
             "hashes": [
