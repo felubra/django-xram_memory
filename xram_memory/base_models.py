@@ -19,6 +19,18 @@ class TraceableModel(models.Model):
         abstract = True
 
 
+class TraceableEditorialModel(TraceableModel):
+    '''
+    Modelo que implementa um fluxo editorial básico
+    '''
+    published = models.BooleanField(verbose_name="Publicado?", default=True)
+    featured = models.BooleanField(
+        verbose_name="Em destaque na página inicial?", default=True)
+
+    class Meta:
+        abstract = True
+
+
 class TraceableAdminModel(admin.ModelAdmin):
     fieldsets = (('Informações gerais', {
         'fields': ('created_by', 'modified_by',
