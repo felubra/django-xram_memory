@@ -64,9 +64,9 @@ Um acervo para guardar documentos, notícias e imagens sobre temas relacionados 
 
 ### Informações básicas que todo registro deve ter
 
-- Tipo da ação (Criação, atualização e deleção)
-- Nome do usuário que realizou a ação
-- Identificação do objeto que sofreu a ação
+- Operação
+- Nome do usuário que está realizando a operação
+- Identificação do objeto que sofre a operação
 - IP do usuário
 - Data e hora da ação
 - Estágio ou resultado da ação (iniciado, concluído, falha)
