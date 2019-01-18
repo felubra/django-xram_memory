@@ -7,11 +7,13 @@ from .users.models import User
 
 class TraceableModel(models.Model):
     created_by = models.ForeignKey(
-        to=User, on_delete=models.PROTECT, related_name='%(class)s_creator', null=True, editable=False)
+        to=User, on_delete=models.PROTECT, related_name='%(class)s_creator', null=True, editable=False, verbose_name="Criado por")
     modified_by = models.ForeignKey(
-        to=User, on_delete=models.PROTECT, related_name='%(class)s_last_modifier', null=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
+        to=User, on_delete=models.PROTECT, related_name='%(class)s_last_modifier', null=True, editable=False, verbose_name="Modificado por")
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Criado em")
+    modified_at = models.DateTimeField(
+        auto_now=True, verbose_name="Modificado em")
 
     class Meta:
         abstract = True
