@@ -132,11 +132,7 @@ class Common(Configuration):
         },
     }
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-    NEWS_FETCHER_SAVED_DIR_ROOT = 'saved_news_pages/'
-    NEWS_FETCHER_SAVED_DIR_PDF = 'saved_news_pages/pdf/'
-    NEWS_FETCHER_SAVED_DIR_IMAGE = 'saved_news_pages/image/'
-    NEWS_FETCHER_SAVED_DIR_HTML = 'saved_news_pages/html/'
+    NEWS_FETCHER_SAVED_DIR_PDF = 'artifacts/news/pdf_captures/'
 
 
 class Development(Common):
