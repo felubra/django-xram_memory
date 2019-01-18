@@ -20,8 +20,15 @@ class TraceableModel(models.Model):
 
 
 class TraceableAdminModel(admin.ModelAdmin):
+    fieldsets = (('Informações gerais', {
+        'fields': ('created_by', 'modified_by',
+                   'created_at', 'modified_at')
+    }),)
+    readonly_fields = ('created_by', 'modified_by',
+                       'created_at', 'modified_at')
+
     def save_model(self, request, obj, form, change):
-        if not change and isinstance(obj, TraceableModel):
+        if not change:
             # adicione um usuário criador, quando estivermos criando
             obj.created_by = request.user
         # em todas situações, adicione um usuário modificador
