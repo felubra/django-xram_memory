@@ -26,6 +26,12 @@ class Artifact(TraceableEditorialModel):
         return self.title
 
     def save(self, *args, **kwargs):
+        self.set_slug()
+        if not self.title:
+            raise ValueError(
+                "Não é possível criar um artefato sem título.")
+        super(Artifact, self).save(*args, **kwargs)
+
+    def set_slug(self):
         if not self.slug:
             self.slug = slugify(self.title)
-        super(Artifact, self).save(*args, **kwargs)
