@@ -131,7 +131,9 @@ class Common(Configuration):
         },
     }
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    NEWS_FETCHER_SAVED_DIR_PDF = 'artifacts/news/pdf_captures/'
+    MEDIA_URL = '/media/'
+    PDF_ARTIFACT_DIR = 'artifacts/documents/pdf_files/'
+    IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
 
 
 class Development(Common):
