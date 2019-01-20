@@ -1,5 +1,6 @@
 from django import forms
 from xram_memory.artifact.models import News
+from xram_memory.artifact.news_fetcher import NewsFetcher
 
 
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
@@ -46,6 +47,7 @@ class NewsAdminForm(forms.ModelForm):
         add_pdf_capture = cleaned_data.get(
             'add_pdf_capture', False)
         url = cleaned_data.get('url', None)
+        # TODO: verificar  slug vazia
         slug = cleaned_data.get('slug', None)
 
         if not set_basic_info and self.instance.title == '':
@@ -59,7 +61,7 @@ class NewsAdminForm(forms.ModelForm):
         if url and set_basic_info:
             try:
                 # faça a busca das informações aqui, pois precisamos saber se ela retorna ao menos um título
-                basic_info = News.fetch_basic_info(url)
+                basic_info = NewsFetcher.fetch_basic_info(url)
                 cleaned_data['set_basic_info'] = False
             except:
                 # Desmarque o checkbox depois de um erro

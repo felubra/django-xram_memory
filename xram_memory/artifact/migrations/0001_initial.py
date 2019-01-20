@@ -15,19 +15,31 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Criado em')),
-                ('modified_at', models.DateTimeField(auto_now=True, verbose_name='Modificado em')),
-                ('published', models.BooleanField(default=True, verbose_name='Publicado?')),
-                ('featured', models.BooleanField(default=True, verbose_name='Em destaque na página inicial?')),
-                ('title', models.CharField(blank=True, help_text='Título', max_length=255, verbose_name='Título')),
-                ('teaser', models.TextField(blank=True, help_text='Resumo ou chamada', verbose_name='Resumo ou chamada')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(
+                    auto_now_add=True, verbose_name='Criado em')),
+                ('modified_at', models.DateTimeField(
+                    auto_now=True, verbose_name='Modificado em')),
+                ('published', models.BooleanField(
+                    default=True, verbose_name='Publicado?')),
+                ('featured', models.BooleanField(default=True,
+                                                 verbose_name='Em destaque na página inicial?')),
+                ('title', models.CharField(blank=True, help_text='Título',
+                                           max_length=255, verbose_name='Título')),
+                ('teaser', models.TextField(
+                    blank=True, help_text='Resumo ou chamada', verbose_name='Resumo ou chamada')),
                 ('slug', models.SlugField(blank=True, verbose_name='Slug')),
-                ('mime_type', models.CharField(blank=True, editable=False, help_text='Tipo do arquivo', max_length=255)),
-                ('file_size', models.PositiveIntegerField(default=0, editable=False, help_text='Tamanho do arquivo em bytes')),
-                ('file_hash', models.CharField(help_text='Hash único do arquivo em MD5', max_length=32)),
-                ('aditional_info', models.TextField(editable=False, help_text='Informações adicionais sobre o arquivo (JSON)', null=True)),
-                ('is_user_object', models.BooleanField(default=True, help_text='Indica se o arquivo foi inserido diretamente por um usuário')),
+                ('mime_type', models.CharField(blank=True, editable=False,
+                                               help_text='Tipo do arquivo', max_length=255)),
+                ('file_size', models.PositiveIntegerField(default=0,
+                                                          editable=False, help_text='Tamanho do arquivo em bytes')),
+                ('file_hash', models.CharField(
+                    help_text='Hash único do arquivo em MD5', max_length=32)),
+                ('aditional_info', models.TextField(editable=False,
+                                                    help_text='Informações adicionais sobre o arquivo (JSON)', null=True)),
+                ('is_user_object', models.BooleanField(
+                    default=True, help_text='Indica se o arquivo foi inserido diretamente por um usuário')),
             ],
             options={
                 'verbose_name': 'Documento',
@@ -37,19 +49,31 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='News',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Criado em')),
-                ('modified_at', models.DateTimeField(auto_now=True, verbose_name='Modificado em')),
-                ('published', models.BooleanField(default=True, verbose_name='Publicado?')),
-                ('featured', models.BooleanField(default=True, verbose_name='Em destaque na página inicial?')),
-                ('title', models.CharField(blank=True, help_text='Título', max_length=255, verbose_name='Título')),
-                ('teaser', models.TextField(blank=True, help_text='Resumo ou chamada', verbose_name='Resumo ou chamada')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(
+                    auto_now_add=True, verbose_name='Criado em')),
+                ('modified_at', models.DateTimeField(
+                    auto_now=True, verbose_name='Modificado em')),
+                ('published', models.BooleanField(
+                    default=True, verbose_name='Publicado?')),
+                ('featured', models.BooleanField(default=True,
+                                                 verbose_name='Em destaque na página inicial?')),
+                ('title', models.CharField(blank=True, help_text='Título',
+                                           max_length=255, verbose_name='Título')),
+                ('teaser', models.TextField(
+                    blank=True, help_text='Resumo ou chamada', verbose_name='Resumo ou chamada')),
                 ('slug', models.SlugField(blank=True, verbose_name='Slug')),
-                ('url', models.URLField(help_text='Endereço original da notícia', max_length=255, unique=True, verbose_name='Endereço')),
-                ('archived_news_url', models.URLField(blank=True, help_text="Endereço da notícia no <a href='https://archive.org/'>Archive.org</a>", max_length=255, null=True, unique=True, verbose_name='Endereço no Internet Archive')),
-                ('authors', models.TextField(blank=True, help_text='Nomes dos autores, separados por vírgula', verbose_name='Autores')),
-                ('body', models.TextField(blank=True, help_text='Texto integral da notícia', verbose_name='Texto da notícia')),
-                ('published_date', models.DateTimeField(blank=True, help_text='Data em que a notícia foi publicada', null=True, verbose_name='Data de publicação')),
+                ('url', models.URLField(help_text='Endereço original da notícia',
+                                        max_length=255, unique=True, verbose_name='Endereço')),
+                ('archived_news_url', models.URLField(blank=True, help_text="Endereço da notícia no <a href='https://archive.org/'>Archive.org</a>",
+                                                      max_length=255, null=True, unique=True, verbose_name='Endereço no Internet Archive')),
+                ('authors', models.TextField(
+                    blank=True, help_text='Nomes dos autores, separados por vírgula', verbose_name='Autores')),
+                ('body', models.TextField(
+                    blank=True, help_text='Texto integral da notícia', verbose_name='Texto da notícia')),
+                ('published_date', models.DateTimeField(
+                    blank=True, help_text='Data em que a notícia foi publicada', null=True, verbose_name='Data de publicação')),
             ],
             options={
                 'verbose_name': 'Notícia',
@@ -59,10 +83,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='NewsImageCapture',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image_capture_date', models.DateTimeField(auto_now_add=True, help_text='Data desta captura', null=True, verbose_name='Data de captura')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('image_capture_date', models.DateTimeField(auto_now_add=True,
+                                                            help_text='Data desta captura', null=True, verbose_name='Data de captura')),
                 ('original_url', models.CharField(max_length=255, unique=True)),
-                ('news', models.OneToOneField(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='image_capture', to='artifact.News')),
+                ('news', models.OneToOneField(null=True, on_delete=django.db.models.deletion.SET_NULL,
+                                              related_name='image_capture', to='artifact.News')),
             ],
             options={
                 'verbose_name': 'Imagem capturada em Notícias',
@@ -72,9 +99,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='NewsPDFCapture',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pdf_capture_date', models.DateTimeField(auto_now_add=True, help_text='Data desta captura', null=True, verbose_name='Data de captura')),
-                ('news', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='pdf_captures', to='artifact.News')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('pdf_capture_date', models.DateTimeField(auto_now_add=True,
+                                                          help_text='Data desta captura', null=True, verbose_name='Data de captura')),
+                ('news', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL,
+                                           related_name='pdf_captures', to='artifact.News')),
             ],
             options={
                 'verbose_name': 'Captura de Notícia em PDF',
@@ -84,8 +114,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ImageDocument',
             fields=[
-                ('document', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='artifact.Document')),
-                ('image_file', models.FileField(upload_to='artifacts/documents/image_files/', verbose_name='Arquivo')),
+                ('document', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE,
+                                                  parent_link=True, primary_key=True, serialize=False, to='artifact.Document')),
+                ('image_file', models.FileField(
+                    upload_to='artifacts/documents/image_files/', verbose_name='Arquivo')),
             ],
             options={
                 'verbose_name': 'Imagem',
@@ -96,8 +128,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PDFDocument',
             fields=[
-                ('document', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='artifact.Document')),
-                ('pdf_file', models.FileField(upload_to='artifacts/documents/pdf_files/', verbose_name='Arquivo')),
+                ('document', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE,
+                                                  parent_link=True, primary_key=True, serialize=False, to='artifact.Document')),
+                ('pdf_file', models.FileField(
+                    upload_to='artifacts/documents/pdf_files/', verbose_name='Arquivo')),
             ],
             options={
                 'verbose_name': 'Documento PDF',

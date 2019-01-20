@@ -23,7 +23,7 @@ class DocumentAdmin(admin.ModelAdmin):
         'mime_type',
         'file_size',
         'file_hash',
-        'aditional_info',
+        'additional_info',
         'is_user_object',
     )
     list_filter = (
@@ -73,7 +73,7 @@ class ImageDocumentAdmin(admin.ModelAdmin):
         'mime_type',
         'file_size',
         'file_hash',
-        'aditional_info',
+        'additional_info',
         'is_user_object',
         'image_file',
     )
