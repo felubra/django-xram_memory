@@ -30,7 +30,7 @@ def log_process(object_type, operation=None):
                     )
                 )
                 tic = default_timer()
-                func(*_args, **_kwargs)
+                result = func(*_args, **_kwargs)
                 toc = default_timer()
             except Exception as err:
                 logger.error(
@@ -44,5 +44,6 @@ def log_process(object_type, operation=None):
                         op=op, object_type=object_type, object_id=object_id, username=username, time=toc-tic
                     )
                 )
+                return result
         return logged
     return decorate
