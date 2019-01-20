@@ -24,7 +24,7 @@ class NewsAdmin(TraceableAdminModel):
         }),
 
         ('Informações adicionais', {
-            'fields': ('teaser', 'body', 'image', 'published_date', 'authors', 'slug'),
+            'fields': ('teaser', 'body',  'published_date', 'authors', 'slug'),
         }),
         ('Classificação do conteúdo', {
             'fields': ('subjects', 'keywords', ),
@@ -39,7 +39,7 @@ class NewsAdmin(TraceableAdminModel):
         }),
 
         ('Informações adicionais', {
-            'fields': ('teaser', 'body', 'image', 'published_date', 'authors', 'slug'),
+            'fields': ('teaser', 'body',  'published_date', 'authors', 'slug'),
         }),
         ('Classificação do conteúdo', {
             'fields': ('subjects', 'keywords', ),

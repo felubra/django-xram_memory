@@ -123,6 +123,35 @@ class PDFDocument(Document):
 
 
 
+class ImageDocument(Document):
+    '''
+    Uma imagem
+    '''
+    document = models.OneToOneField(
+        Document, on_delete=models.CASCADE, parent_link=True)
+    image_file = models.FileField(
+        verbose_name="Arquivo", upload_to=settings.IMAGE_ARTIFACT_DIR)
+
+    class Meta:
+        verbose_name = "Imagem"
+        verbose_name_plural = "Imagens"
+
+    def save(self, *args, **kwargs):
+        self.determine_mime_type()
+        if not self.title:
+            try:
+                self.title = Path(self.image_file.name).name
+            except:
+                self.title = "Documento de Imagem {}".format(self.pk)
+        super(ImageDocument, self).save(*args, **kwargs)
+
+    def determine_mime_type(self):
+        try:
+            self.mime_type = magic.from_file(self.the_file.name, mime=True)
+        except:
+            self.mime_type = ''
+
+
 class NewsPDFCapture(models.Model):
     '''
     Um documento PDF para uma captura de página de uma notícia
@@ -138,6 +167,23 @@ class NewsPDFCapture(models.Model):
         verbose_name_plural = "Capturas de Notícia em PDF"
 
 
+class NewsImageCapture(models.Model):
+    '''
+    Um documento PDF para uma captura de página de uma notícia
+    '''
+    news = models.OneToOneField(
+        'News', on_delete=models.SET_NULL, null=True, related_name="image_capture")
+    image_document = models.OneToOneField(
+        ImageDocument, on_delete=models.CASCADE)
+    image_capture_date = models.DateTimeField(auto_now_add=True, verbose_name='Data de captura', blank=True, null=True,
+                                              help_text='Data desta captura')
+    original_url = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = "Imagem capturada em Notícias"
+        verbose_name_plural = "Imagens capturadas em Notícias"
+
+
 class News(Artifact):
     '''
     Uma notícia da Internet
@@ -151,8 +197,6 @@ class News(Artifact):
     # TODO: fazer um relacionamento com um artefato do tipo imagem
     authors = models.TextField(
         blank=True, verbose_name="Autores", help_text='Nomes dos autores, separados por vírgula')
-    image = models.ImageField(
-        blank=True, verbose_name="Imagem principal")
     body = models.TextField(
         blank=True, verbose_name="Texto da notícia", help_text="Texto integral da notícia")
     published_date = models.DateTimeField(verbose_name='Data de publicação', blank=True, null=True,
@@ -189,6 +233,7 @@ class News(Artifact):
             else:
                 self.add_pdf_capture.delay()
         self.add_fetched_keywords()
+        self.add_fetched_image()
 
     @property
     def has_basic_info(self):
@@ -197,7 +242,7 @@ class News(Artifact):
         TODO: acrescentar campos de relacionamento e não verificar eles se o objeto for novo.
         '''
         return (bool(self.title) or bool(self.teaser) or bool(self.body) or bool(self.authors) or
-                bool(self.image) or bool(self.published_date))
+                bool(self.published_date))
 
     @property
     def has_pdf_capture(self):
@@ -253,6 +298,8 @@ class News(Artifact):
         for prop, value in basic_info.items():
             if prop == 'keywords':
                 setattr(self, '_keywords', value)
+            elif prop == 'image':
+                setattr(self, '_image', value)
             else:
                 setattr(self, prop, value)
 
@@ -355,6 +402,7 @@ class News(Artifact):
             news=self, pdf_document=pdf_document)
 
     def add_fetched_keywords(self):
+        # TODO: fortificar esse código, último except pode falhar
         if hasattr(self, '_keywords') and len(self._keywords) > 0:
             for keyword in self._keywords:
                 # TODO: refatorar para usar um objeto Q?
@@ -372,3 +420,37 @@ class News(Artifact):
                     except Keyword.DoesNotExist:
                         self.keywords.create(name=keyword, slug=slugify(keyword), created_by=self.modified_by,
                                              modified_by=self.modified_by)
+
+    @staticmethod
+    @log_process(operation="baixar uma imagem", object_type="Notícia")
+    def fetch_image(image_url):
+        response = requests.get(image_url, allow_redirects=True)
+        response.raise_for_status()
+
+        original_filename = Path(image_url).name
+        uniq_filename = (
+            str(datetime.datetime.now().date()) + '_' +
+            str(datetime.datetime.now().time()).replace(
+                ':', '.') + original_filename
+        )
+        image_path = settings.IMAGE_ARTIFACT_DIR + uniq_filename
+        file_image_path = str(Path(settings.MEDIA_ROOT, image_path))
+
+        open(file_image_path, 'wb').write(response.content)
+
+        return image_path
+
+    def add_fetched_image(self):
+        # TODO: validar se a url da imagem é válida
+        # TODO: fortificar esse código, último except pode falhar
+        if hasattr(self, '_image') and len(self._image) > 0:
+            try:
+                captured_image = NewsImageCapture.objects.get(
+                    original_url=self._image)
+                self.image_capture = captured_image
+            except NewsImageCapture.DoesNotExist:
+                image_file_path = self.fetch_image(self._image)
+                image_document = ImageDocument.objects.create(
+                    image_file=image_file_path, is_user_object=False)
+                NewsImageCapture.objects.create(
+                    image_document=image_document, original_url=self._image, news=self)
