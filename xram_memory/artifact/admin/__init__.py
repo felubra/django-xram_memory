@@ -10,7 +10,7 @@ from .models.news import NewsAdmin
 class PDFDocumentAdmin(TraceableAdminModel):
     list_display = (
         'id',
-        'the_file',
+        'pdf_file',
         'file_size',
     )
     list_filter = (

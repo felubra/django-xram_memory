@@ -22,9 +22,6 @@ from ..base_models import TraceableEditorialModel
 from ..taxonomy.models import Subject, Keyword
 from ..logger.decorators import log_process
 
-saved_pdf_dir = os.path.join(
-    settings.MEDIA_ROOT, settings.NEWS_FETCHER_SAVED_DIR_PDF)
-
 # TODO: desmembrar este módulo
 
 
@@ -59,7 +56,6 @@ class Document(Artifact):
     '''
     Um documento, inserido pelo usuário ou criado pelo sistema
     '''
-    the_file = models.FileField(verbose_name="Arquivo")
     mime_type = models.fields.CharField(
         max_length=255, blank=True, editable=False, help_text="Tipo do arquivo")
     file_size = models.fields.PositiveIntegerField(
@@ -79,12 +75,6 @@ class Document(Artifact):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.determine_mime_type()
-        if not self.title:
-            try:
-                self.title = Path(self.the_file.name).name
-            except:
-                self.title = "Documento {}".format(self.pk)
         super(Document, self).save(*args, **kwargs)
         if not self.aditional_info:
             # TODO: fazer um decorador, abstrair o padrão abaixo de tentar executar assíncronamente mas executar
@@ -93,12 +83,6 @@ class Document(Artifact):
                 self.extract_aditional_info.delay()
             except:
                 self.extract_aditional_info()
-
-    def determine_mime_type(self):
-        try:
-            self.mime_type = magic.from_file(self.the_file.name, mime=True)
-        except:
-            self.mime_type = ''
 
     @job
     def extract_aditional_info(self):
@@ -113,10 +97,30 @@ class PDFDocument(Document):
     '''
     Um documento PDF
     '''
+    document = models.OneToOneField(
+        Document, on_delete=models.CASCADE, parent_link=True)
+    pdf_file = models.FileField(
+        verbose_name="Arquivo", upload_to=settings.PDF_ARTIFACT_DIR)
+
     class Meta:
         verbose_name = "Documento PDF"
         verbose_name_plural = "Documentos PDF"
-        proxy = True
+
+    def save(self, *args, **kwargs):
+        self.determine_mime_type()
+        if not self.title:
+            try:
+                self.title = Path(self.pdf_file.name).name
+            except:
+                self.title = "Documento PDF {}".format(self.pk)
+        super(PDFDocument, self).save(*args, **kwargs)
+
+    def determine_mime_type(self):
+        try:
+            self.mime_type = magic.from_file(self.the_file.name, mime=True)
+        except:
+            self.mime_type = 'application/pdf'
+
 
 
 class NewsPDFCapture(models.Model):
@@ -125,13 +129,13 @@ class NewsPDFCapture(models.Model):
     '''
     news = models.ForeignKey(
         'News', on_delete=models.SET_NULL, null=True, related_name="pdf_captures")
-    pdf_document = models.ForeignKey(PDFDocument, on_delete=models.CASCADE)
+    pdf_document = models.OneToOneField(PDFDocument, on_delete=models.CASCADE)
     pdf_capture_date = models.DateTimeField(auto_now_add=True, verbose_name='Data de captura', blank=True, null=True,
                                             help_text='Data desta captura')
 
     class Meta:
-        verbose_name = "Captura de notícia em PDF"
-        verbose_name_plural = "Capturas de notícia em PDF"
+        verbose_name = "Captura de Notícia em PDF"
+        verbose_name_plural = "Capturas de Notícia em PDF"
 
 
 class News(Artifact):
@@ -326,25 +330,26 @@ class News(Artifact):
         '''
 
         # TODO: checar se o diretório existe, se existem permissões para salvar etc
-        if not saved_pdf_dir:
+        # TODO: usar o System check framework
+        if not settings.PDF_ARTIFACT_DIR:
             raise ValueError(
-                'O caminho para onde salvar as páginas não foi definido (constante de configuração NEWS_FETCHER_SAVED_DIR_PDF).')
+                'O caminho para onde salvar as páginas não foi definido (constante de configuração PDF_ARTIFACT_DIR).')
 
         uniq_filename = (
             str(datetime.datetime.now().date()) + '_' +
             str(datetime.datetime.now().time()).replace(':', '.') + '.pdf'
         )
 
-        news_pdf_path = str(
-            Path(saved_pdf_dir, uniq_filename))
+        pdf_path = settings.PDF_ARTIFACT_DIR + uniq_filename
+        file_pdf_path = str(Path(settings.MEDIA_ROOT, pdf_path))
 
-        pdfkit.from_url(self.url, news_pdf_path, options={
+        pdfkit.from_url(self.url, file_pdf_path, options={
             'print-media-type': None,
             'disable-javascript': None,
         })
 
         pdf_document = PDFDocument.objects.create(
-            the_file=news_pdf_path, is_user_object=False)
+            pdf_file=pdf_path, is_user_object=False)
 
         news_pdf_capture = NewsPDFCapture.objects.create(
             news=self, pdf_document=pdf_document)
