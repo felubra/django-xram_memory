@@ -1,4 +1,5 @@
 from django.core.files.base import ContentFile
+from django.core.validators import URLValidator
 
 from pathlib import Path
 
@@ -26,7 +27,7 @@ class News(Artifact):
     '''
     url = models.URLField(
         max_length=255, help_text="Endereço original da notícia",
-        verbose_name="Endereço", unique=True)
+        verbose_name="Endereço", unique=True, null=False, validators=[URLValidator])
     archived_news_url = models.URLField(
         max_length=255, help_text="Endereço da notícia no <a href='https://archive.org/'>Archive.org</a>",
         verbose_name="Endereço no Internet Archive", null=True, blank=True)
@@ -43,6 +44,10 @@ class News(Artifact):
         verbose_name_plural = "Notícias"
 
     def save(self, *args, **kwargs):
+        if not self.url:
+            raise ValueError(
+                "Você precisa definir um endereço para a notícia.")
+
         set_basic_info = getattr(
             self, '_set_basic_info', self.pk is None)
         fetch_archived_url = getattr(
