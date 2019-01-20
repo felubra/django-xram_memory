@@ -14,8 +14,8 @@ class Document(Artifact):
         max_length=255, blank=True, editable=False, help_text="Tipo do arquivo")
     file_size = models.fields.PositiveIntegerField(
         default=0, editable=False, help_text="Tamanho do arquivo em bytes")
-    file_hash = models.CharField(
-        max_length=32, help_text="Hash único do arquivo em MD5")
+    file_hash = models.CharField(blank=True, editable=False,
+                                 max_length=32, help_text="Hash único do arquivo em MD5")
     additional_info = models.TextField(
         null=True, editable=False, help_text="Informações adicionais sobre o arquivo (JSON)")
     is_user_object = models.BooleanField(
