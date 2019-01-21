@@ -137,9 +137,8 @@ class News(Artifact):
         pdf_file = ContentFile(pdf_content, uniq_filename)
 
         pdf_document = PDFDocument.objects.create(
-            file=pdf_file, is_user_object=False)
-
-        pdf_document.determine_mime_type()
+            file=pdf_file, is_user_object=False, created_by=self.modified_by,
+            modified_by=self.modified_by)
 
         NewsPDFCapture.objects.create(
             news=self, pdf_document=pdf_document)
@@ -156,12 +155,13 @@ class News(Artifact):
                 except Keyword.DoesNotExist:
                     # caso não consiga, tente achar pela slug
                     try:
+                        # TODO: respeitar o limite máximo da slug na comparação
                         db_keyword = Keyword.objects.get(
                             slug=slugify(keyword))
                         self.keywords.add(db_keyword)
                     # caso não ache, crie uma palavra-chave utilizando o usuário que modificou esta notícia
                     except Keyword.DoesNotExist:
-                        self.keywords.create(name=keyword, slug=slugify(keyword), created_by=self.modified_by,
+                        self.keywords.create(name=keyword, created_by=self.modified_by,
                                              modified_by=self.modified_by)
 
     @log_process(operation="baixar uma imagem", object_type="Notícia")
@@ -186,7 +186,8 @@ class News(Artifact):
             image_file = ContentFile(image_contents, uniq_filename)
 
             image_document = ImageDocument.objects.create(
-                file=image_file, is_user_object=False)
+                file=image_file, is_user_object=False, created_by=self.modified_by,
+                modified_by=self.modified_by)
             NewsImageCapture.objects.create(
                 image_document=image_document, original_url=self._image, news=self)
 
