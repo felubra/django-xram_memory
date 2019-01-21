@@ -32,7 +32,7 @@ class TraceableEditorialModel(TraceableModel):
 
 
 class TraceableAdminModel(admin.ModelAdmin):
-    fieldsets = (('Informações gerais', {
+    COMMON_FIELDSETS = (('Informações gerais', {
         'fields': ('created_by', 'modified_by',
                    'created_at', 'modified_at')
     }),)

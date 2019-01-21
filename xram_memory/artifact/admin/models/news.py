@@ -77,7 +77,7 @@ class NewsAdmin(TraceableAdminModel):
         if pk is None:
             return self.INSERT_FIELDSETS
         else:
-            return self.EDIT_FIELDSETS + self.fieldsets
+            return self.EDIT_FIELDSETS + self.COMMON_FIELDSETS
 
     def save_related(self, request, form, formsets, change):
         super(NewsAdmin, self).save_related(request, form, formsets, change)
