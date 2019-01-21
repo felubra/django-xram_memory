@@ -68,9 +68,9 @@ class NewsAdmin(TraceableAdminModel):
         return self.readonly_fields
 
     def get_fieldsets(self, request, obj):
-        '''
+        """
         Use um conjunto diferente de fieldsets para adição e edição
-        '''
+        """
         # TODO: colocar o fieldset das capturas de página antes do fieldset com as informações gerais
         super(NewsAdmin, self).get_fieldsets(request, obj)
         pk = getattr(obj, 'pk', None)
