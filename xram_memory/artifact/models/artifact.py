@@ -1,7 +1,7 @@
 from django.db import models
+from xram_memory.utils import unique_slugify
 from xram_memory.base_models import TraceableEditorialModel
 from xram_memory.taxonomy.models import Keyword, Subject
-from django.template.defaultfilters import slugify
 
 
 class Artifact(TraceableEditorialModel):
@@ -26,12 +26,8 @@ class Artifact(TraceableEditorialModel):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.set_slug()
+        unique_slugify(self, self.title)
         if not self.title:
             raise ValueError(
                 "Não é possível criar um artefato sem título.")
         super(Artifact, self).save(*args, **kwargs)
-
-    def set_slug(self):
-        if not self.slug:
-            self.slug = slugify(self.title)

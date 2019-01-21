@@ -1,7 +1,7 @@
 from django.db import models
-from django.template.defaultfilters import slugify
 
 from ..base_models import TraceableModel
+from xram_memory.utils import unique_slugify
 
 # Create your models here.
 
@@ -21,8 +21,7 @@ class TaxonomyItem(TraceableModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
+        unique_slugify(self, self.name)
         super().save(*args, **kwargs)
 
 
