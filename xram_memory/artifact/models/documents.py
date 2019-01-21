@@ -11,10 +11,10 @@ class Document(Artifact):
     """
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
-    mime_type = models.fields.CharField(
-        max_length=255, blank=True, editable=False, help_text="Tipo do arquivo")
-    file_size = models.fields.PositiveIntegerField(
-        default=0, editable=False, help_text="Tamanho do arquivo em bytes")
+    mime_type = models.fields.CharField(verbose_name="Tipo",
+                                        max_length=255, blank=True, editable=False, help_text="Tipo do arquivo")
+    file_size = models.fields.CharField(verbose_name="Tamanho",
+                                        default='0', editable=False, help_text="Tamanho do arquivo em bytes", max_length=100)
     is_user_object = models.BooleanField(verbose_name="Objeto criado pelo usuário?", editable=False,
                                          default=True, help_text="Indica se o arquivo foi inserido diretamente por um usuário")
     file = NotImplemented
@@ -35,7 +35,6 @@ class Document(Artifact):
         pass
 
     def save(self, *args, **kwargs):
-        self.size = self.file.size
         if not self.title:
             self.title = self.file.name
         super(Document, self).save(*args, **kwargs)
@@ -45,6 +44,12 @@ class Document(Artifact):
             self.mime_type = magic.from_file(self.file.path, mime=True)
         except Exception as err:
             self.mime_type = ''
+
+    def determine_file_size(self):
+        try:
+            self.file_size = self.file.size
+        except Exception as err:
+            self.file_size = '0'
 
 
 class PDFDocument(Document):
