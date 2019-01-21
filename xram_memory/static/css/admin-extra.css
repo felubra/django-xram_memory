@@ -1,0 +1,80 @@
+/*
+    DJANGO Admin styles
+*/
+
+@import url("https://fonts.googleapis.com/css?family=Cabin:400,400i,700,700i");
+
+body {
+  font-family: "Cabin", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans",
+    Verdana, Arial, sans-serif;
+}
+
+/* LINKS */
+
+a:link,
+a:visited {
+  color: #9b4444;
+}
+
+a:focus,
+a:hover {
+  color: #600;
+}
+
+table thead th.sorted .sortoptions a.sortremove:focus:after,
+table thead th.sorted .sortoptions a.sortremove:hover:after {
+  color: #9b4444;
+}
+
+/* FORM DEFAULTS */
+
+input,
+textarea,
+select,
+.form-row p,
+form .button {
+  font-family: "Cabin", "Lucida Grande", Verdana, Arial, sans-serif;
+}
+/* FORM BUTTONS */
+
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+  background: #c87979;
+}
+
+.button.default,
+input[type="submit"].default,
+.submit-row input.default {
+  background: #855d5d;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+  background: #c87979;
+}
+
+/* BREADCRUMBS */
+
+div.breadcrumbs {
+  background: #c87979;
+  color: #ffe3e3;
+}
+
+.object-tools a:focus,
+.object-tools a:hover {
+  background-color: #855d5d;
+}
+/* HEADER */
+
+#header {
+  background: #855d5d;
+}
+#user-tools a:focus,
+#user-tools a:hover {
+  border-bottom-color: #c87979;
+  color: #c87979;
+}

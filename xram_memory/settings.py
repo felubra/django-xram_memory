@@ -63,7 +63,7 @@ class Common(Configuration):
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [],
+            'DIRS': [os.path.join(BASE_DIR, 'xram_memory', 'templates')],
             'APP_DIRS': True,
             'OPTIONS': {
                 'context_processors': [
@@ -74,6 +74,10 @@ class Common(Configuration):
                 ],
             },
         },
+    ]
+
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, "xram_memory", "static"),
     ]
 
     WSGI_APPLICATION = 'xram_memory.wsgi.application'
