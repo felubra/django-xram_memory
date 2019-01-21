@@ -18,6 +18,7 @@ class Artifact(TraceableEditorialModel):
     teaser = models.TextField(
         verbose_name="Resumo ou chamada",
         help_text="Resumo ou chamada",
+        null=True,
         blank=True,
     )
     # TODO: adicionar um help_text para `slug`
