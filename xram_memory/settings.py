@@ -26,7 +26,7 @@ class Common(Configuration):
 
     # Application definition
     INSTALLED_APPS = [
-        'django.contrib.admin',
+        'xram_memory.apps.DefaultAdminConfig',
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
