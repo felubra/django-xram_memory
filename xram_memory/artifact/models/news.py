@@ -137,7 +137,9 @@ class News(Artifact):
         pdf_file = ContentFile(pdf_content, uniq_filename)
 
         pdf_document = PDFDocument.objects.create(
-            pdf_file=pdf_file, is_user_object=False)
+            file=pdf_file, is_user_object=False)
+
+        pdf_document.determine_mime_type()
 
         NewsPDFCapture.objects.create(
             news=self, pdf_document=pdf_document)
@@ -184,7 +186,7 @@ class News(Artifact):
             image_file = ContentFile(image_contents, uniq_filename)
 
             image_document = ImageDocument.objects.create(
-                image_file=image_file, is_user_object=False)
+                file=image_file, is_user_object=False)
             NewsImageCapture.objects.create(
                 image_document=image_document, original_url=self._image, news=self)
 

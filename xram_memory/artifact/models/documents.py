@@ -1,4 +1,5 @@
 import magic
+from pathlib import Path
 
 from django.conf import settings
 from django.db import models
@@ -14,12 +15,9 @@ class Document(Artifact):
         max_length=255, blank=True, editable=False, help_text="Tipo do arquivo")
     file_size = models.fields.PositiveIntegerField(
         default=0, editable=False, help_text="Tamanho do arquivo em bytes")
-    file_hash = models.CharField(blank=True, editable=False,
-                                 max_length=32, help_text="Hash único do arquivo em MD5")
-    additional_info = models.TextField(
-        null=True, editable=False, help_text="Informações adicionais sobre o arquivo (JSON)")
-    is_user_object = models.BooleanField(
-        default=True, help_text="Indica se o arquivo foi inserido diretamente por um usuário")
+    is_user_object = models.BooleanField(verbose_name="Objeto criado pelo usuário?", editable=False,
+                                         default=True, help_text="Indica se o arquivo foi inserido diretamente por um usuário")
+    file = NotImplemented
 
     class Meta:
         verbose_name = "Documento"
@@ -27,16 +25,6 @@ class Document(Artifact):
 
     def __str__(self):
         return self.title
-
-    def save(self, *args, **kwargs):
-        super(Document, self).save(*args, **kwargs)
-        if not self.additional_info:
-            # TODO: fazer um decorador, abstrair o padrão abaixo de tentar executar assíncronamente mas executar
-            # síncronamente se o redis não estiver disponível. Logar em caso de erro.
-            try:
-                self.extract_additional_info.delay()
-            except:
-                self.extract_additional_info()
 
     @job
     def extract_additional_info(self):
@@ -46,6 +34,18 @@ class Document(Artifact):
         """
         pass
 
+    def save(self, *args, **kwargs):
+        self.size = self.file.size
+        if not self.title:
+            self.title = self.file.name
+        super(Document, self).save(*args, **kwargs)
+
+    def determine_mime_type(self):
+        try:
+            self.mime_type = magic.from_file(self.file.path, mime=True)
+        except Exception as err:
+            self.mime_type = ''
+
 
 class PDFDocument(Document):
     """
@@ -53,27 +53,12 @@ class PDFDocument(Document):
     """
     document = models.OneToOneField(
         Document, on_delete=models.CASCADE, parent_link=True)
-    pdf_file = models.FileField(
+    file = models.FileField(
         verbose_name="Arquivo", upload_to=settings.PDF_ARTIFACT_DIR)
 
     class Meta:
         verbose_name = "Documento PDF"
         verbose_name_plural = "Documentos PDF"
-
-    def save(self, *args, **kwargs):
-        self.determine_mime_type()
-        if not self.title:
-            try:
-                self.title = self.pdf_file.name
-            except:
-                self.title = "Documento PDF {}".format(self.id)
-        super(PDFDocument, self).save(*args, **kwargs)
-
-    def determine_mime_type(self):
-        try:
-            self.mime_type = magic.from_file(self.pdf_file.path, mime=True)
-        except:
-            self.mime_type = 'application/pdf'
 
 
 class ImageDocument(Document):
@@ -82,24 +67,9 @@ class ImageDocument(Document):
     """
     document = models.OneToOneField(
         Document, on_delete=models.CASCADE, parent_link=True)
-    image_file = models.FileField(
+    file = models.FileField(
         verbose_name="Arquivo", upload_to=settings.IMAGE_ARTIFACT_DIR)
 
     class Meta:
         verbose_name = "Imagem"
         verbose_name_plural = "Imagens"
-
-    def save(self, *args, **kwargs):
-        self.determine_mime_type()
-        if not self.title:
-            try:
-                self.title = self.image_file.name
-            except:
-                self.title = "Documento de Imagem {}".format(self.id)
-        super(ImageDocument, self).save(*args, **kwargs)
-
-    def determine_mime_type(self):
-        try:
-            self.mime_type = magic.from_file(self.image_file.name, mime=True)
-        except:
-            self.mime_type = ''
