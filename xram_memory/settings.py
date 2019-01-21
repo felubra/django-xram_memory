@@ -38,11 +38,10 @@ class Common(Configuration):
         'debug_toolbar',
 
         'xram_memory.users',
-        'xram_memory.archived_news',
-        'xram_memory.news_fetcher',
-        'xram_memory.documents',
         'xram_memory.taxonomy',
         'xram_memory.logger',
+
+        'xram_memory.artifact',
 
         'django_rq',
     ]
@@ -56,6 +55,7 @@ class Common(Configuration):
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'django_currentuser.middleware.ThreadLocalUserMiddleware',
     ]
 
     ROOT_URLCONF = 'xram_memory.urls'
@@ -131,11 +131,9 @@ class Common(Configuration):
         },
     }
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-    NEWS_FETCHER_SAVED_DIR_ROOT = 'saved_news_pages/'
-    NEWS_FETCHER_SAVED_DIR_PDF = 'saved_news_pages/pdf/'
-    NEWS_FETCHER_SAVED_DIR_IMAGE = 'saved_news_pages/image/'
-    NEWS_FETCHER_SAVED_DIR_HTML = 'saved_news_pages/html/'
+    MEDIA_URL = '/media/'
+    PDF_ARTIFACT_DIR = 'artifacts/documents/pdf_files/'
+    IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
 
 
 class Development(Common):

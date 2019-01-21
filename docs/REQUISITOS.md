@@ -10,7 +10,7 @@ Um acervo para guardar documentos, notícias e imagens sobre temas relacionados 
   - Artefatos: os itens principais do acervo
     - Notícia
       - Uma notícia da web capturada em formato PDF
-    - Arquivos do usuário (PDFs, imagens etc.)
+    - Documentos (PDFs, imagens etc.)
   - Página
     - Uma página de conteúdo geral para o site ou um texto sobre determinado tema/assunto com referências a um ou mais
       artefato do acervo
@@ -42,7 +42,7 @@ Um acervo para guardar documentos, notícias e imagens sobre temas relacionados 
   - Páginas individuais de conteúdo
     - Página
     - Notícia
-    - Arquivo
+    - Documento
       - Imagem
       - Documento PDF
       - Documento genérico
@@ -64,9 +64,9 @@ Um acervo para guardar documentos, notícias e imagens sobre temas relacionados 
 
 ### Informações básicas que todo registro deve ter
 
-- Tipo da ação (Criação, atualização e deleção)
-- Nome do usuário que realizou a ação
-- Identificação do objeto que sofreu a ação
+- Operação
+- Nome do usuário que está realizando a operação
+- Identificação do objeto que sofre a operação
 - IP do usuário
 - Data e hora da ação
 - Estágio ou resultado da ação (iniciado, concluído, falha)
@@ -136,11 +136,6 @@ Um acervo para guardar documentos, notícias e imagens sobre temas relacionados 
 - Data de publicação original
 - Autor(es)
 
-##### Campos internos (preenchidos pelo sistema)
-
-- Hash (usado para cache)
-- Data de captura
-
 #### Captura automática
 
 - O usuário pode automatizar a captura da notícia e seus campos de conteúdo apenas inserindo uma URL
@@ -156,7 +151,7 @@ Um acervo para guardar documentos, notícias e imagens sobre temas relacionados 
 
 - Validador para o campo URL para testar basicamente se a URL existe e se temos acesso à ela.
 
-### Arquivo do usuário (`user_file`)
+### Documento (`document`)
 
 #### Campos (herda os campos do artefato)
 
@@ -168,6 +163,9 @@ Um acervo para guardar documentos, notícias e imagens sobre temas relacionados 
 
 - Tipo (`mime_type`)
 - Tamanho
+- Produzido pelo usuário?
+- Informações adicionais
+- Hash (usado para cache)
 
 #### Revisões e histórico
 
