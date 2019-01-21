@@ -8,11 +8,14 @@ from functools import lru_cache
 
 
 class NewsFetcher:
+    """
+    Classe que concentra métodos para a busca de informações sobre notícias na web.
+    """
     @staticmethod
     def fetch_archived_url(url):
-        '''
+        """
         Verifica se existe adiciona a URL de uma versão arquivada desta notícia no `Internet Archive`
-        '''
+        """
         response = requests.get(
             "https://archive.org/wayback/available?url={}".format(url))
         response.raise_for_status()
@@ -25,17 +28,10 @@ class NewsFetcher:
         return ''
 
     @staticmethod
-    def get_pdf_capture(url, pdf_dir):
+    def get_pdf_capture(url):
         """
         Captura a notícia em formato para impressão e em PDF
         """
-
-        # TODO: checar se o diretório existe, se existem permissões para salvar etc
-        # TODO: usar o System check framework
-        if not pdf_dir:
-            raise ValueError(
-                'NewsFetcher: o caminho para onde salvar as páginas não foi definido')
-
         return pdfkit.from_url(url, False, options={
             'print-media-type': None,
             'disable-javascript': None,
@@ -50,9 +46,10 @@ class NewsFetcher:
     @staticmethod
     @lru_cache(maxsize=2)
     def fetch_basic_info(url):
-        '''
-        Dada uma URL, extraia informações básicas sobre uma notícia usando as bibliotecas newspaper3k e goose
-        '''
+        """
+        Dada uma URL, extraia informações básicas sobre uma notícia usando as bibliotecas
+        newspaper3k e goose
+        """
         # Tente extrair primeiro usando o newspaper3k e reutilize seu html, se possível
         newspaper_article = NewsFetcher._extract_using_newspaper(url)
         if newspaper_article:
@@ -60,9 +57,11 @@ class NewsFetcher:
                 url, newspaper_article.html)
         else:
             goose_article = NewsFetcher._extract_using_goose3(url)
+        # ao menos um dos objetos deve estar preenchido
         if newspaper_article is None and goose_article is None:
             raise(Exception(
                 'Não foi possível extrair informações básicas sobre a notícia, pois nenhum dos extratores funcionou.'))
+        # junte os objetos para tentar aproveitar de cada um alguma informação
         basic_info = NewsFetcher._merge_extractions(
             newspaper_article, goose_article)
         # TODO: remover stopwords de basic_info['keywords']
@@ -70,29 +69,30 @@ class NewsFetcher:
 
     @staticmethod
     def _merge_extractions(newspaper_article, goose_article):
-        '''
-        Com base nas extrações passadas, constrói um dicionário em que a informação de cada uma é aproveitada, se existir.
-        '''
+        """
+        Com base nas extrações passadas, constrói um dicionário em que a informação de cada uma é
+        aproveitada, se existir, com prioridade para a extração da biblioteca newspaper.
+        """
         def join_with_comma(list):
             return ",".join(list)
 
         try:
-            # TODO: melhorar esse código, que está safo, mas feio pra caramba
+            # TODO: melhorar esse código, que está safo, mas não pythônico
             news_dict = {
                 'title': newspaper_article.title if getattr(newspaper_article, 'title', None) else getattr(goose_article, 'title', None),
                 'image': newspaper_article.top_image if getattr(newspaper_article, 'top_image', None) else goose_article.top_image.src if isinstance(getattr(goose_article, 'top_image', None), Image) else None,
                 'body': newspaper_article.text if getattr(newspaper_article, 'text', None) else getattr(goose_article, 'cleaned_text', None),
                 'teaser': getattr(newspaper_article, 'summary', None),
-
+                # TODO: transformar a data de publicação para um objeto com ciência do
+                # fuso-horário usado pelo Django
                 'published_date': newspaper_article.publish_date if getattr(newspaper_article, 'publish_date', None) else getattr(goose_article, 'publish_date', None),
-
                 'authors': join_with_comma(newspaper_article.authors if getattr(newspaper_article, 'authors', []) else getattr(goose_article, 'authors', [])),
                 'keywords': newspaper_article.keywords if getattr(newspaper_article, 'keywords', []) else getattr(goose_article, 'tags', []),
             }
             return news_dict
         except Exception as err:
             raise(
-                Exception(
+                ValueError(
                     "Falha ao construir o dicionário com as informações básicas da notícia: {}."
                     .format(str(err))
                 )
