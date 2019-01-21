@@ -3,16 +3,22 @@ from django.db import models
 from ..base_models import TraceableModel
 from xram_memory.utils import unique_slugify
 
-# Create your models here.
-
 
 class TaxonomyItem(TraceableModel):
     """
     Um simples modelo para salvar uma palavra-chave
     """
-    slug = models.SlugField(max_length=60, unique=True,
-                            editable=False, default='')
-    name = models.CharField(max_length=60, verbose_name="Nome")
+    slug = models.SlugField(
+        verbose_name="Slug",
+        max_length=60,
+        unique=True,
+        editable=False,
+        default=''
+    )
+    name = models.CharField(
+        verbose_name="Nome",
+        max_length=60,
+    )
 
     class Meta:
         abstract = True
@@ -21,6 +27,8 @@ class TaxonomyItem(TraceableModel):
         return self.name
 
     def save(self, *args, **kwargs):
+        # gera uma slug única, considerando as slugs de outros artefatos
+        # TODO: somente gerar uma slug nova se não houver slug definida ou conflito de slugs
         unique_slugify(self, self.name)
         super().save(*args, **kwargs)
 

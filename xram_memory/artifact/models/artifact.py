@@ -5,19 +5,37 @@ from xram_memory.taxonomy.models import Keyword, Subject
 
 
 class Artifact(TraceableEditorialModel):
+    """
+    Classe abstrata para todos os objetos-artefato do acervo
+    """
     # TODO: lidar com a exigência do título
-    title = models.CharField(max_length=255, blank=True,
-                             help_text="Título", verbose_name="Título")
+    title = models.CharField(
+        verbose_name="Título",
+        help_text="Título",
+        max_length=255,
+        blank=True,
+    )
     teaser = models.TextField(
-        help_text="Resumo ou chamada", verbose_name="Resumo ou chamada", blank=True)
-
+        verbose_name="Resumo ou chamada",
+        help_text="Resumo ou chamada",
+        blank=True,
+    )
     # TODO: adicionar um help_text para `slug`
-    slug = models.SlugField(help_text="", verbose_name="Slug", blank=True)
-
+    slug = models.SlugField(
+        verbose_name="Slug",
+        help_text="",
+        blank=True,
+    )
     keywords = models.ManyToManyField(
-        Keyword, blank=True, verbose_name="Palavras-chave")
+        Keyword,
+        verbose_name="Palavras-chave",
+        blank=True,
+    )
     subjects = models.ManyToManyField(
-        Subject, blank=True, verbose_name="Assuntos")
+        Subject,
+        verbose_name="Assuntos",
+        blank=True,
+    )
 
     class Meta:
         abstract = True
@@ -26,6 +44,8 @@ class Artifact(TraceableEditorialModel):
         return self.title
 
     def save(self, *args, **kwargs):
+        # gera uma slug única, considerando as slugs de outros artefatos
+        # TODO: somente gerar uma slug nova se não houver slug definida ou conflito de slugs
         unique_slugify(self, self.title)
         if not self.title:
             raise ValueError(
