@@ -29,7 +29,6 @@ request = MockRequest()
 request.user = MockSuperUser()
 
 
-"""
 class NewsTestCase(TestCase):
 
     def test_create_without_url(self):
@@ -40,7 +39,6 @@ class NewsTestCase(TestCase):
         # Se colocássemos uma url válida, existiria a possibilidade do título ser preenchido automaticamente
         artifact = News(url="https://does-not-exists998.com")
         self.assertRaises(ValueError, artifact.save)
-"""
 
 
 class NewsAdminFormTestCase(TransactionTestCase):
@@ -60,7 +58,7 @@ class NewsAdminFormTestCase(TransactionTestCase):
         self.client.login(**self.user_info)
 
     def test_fields_for_new_item(self):
-        '''Testa a presença/ausência e os valores dos campos quando em modo de inserção'''
+        """Testa a presença/ausência e os valores dos campos quando em modo de inserção"""
         response: TemplateResponse = self.client.get(reverse(
             "admin:artifact_news_add"))
         self.assertEqual(response.status_code, 200)
@@ -71,7 +69,7 @@ class NewsAdminFormTestCase(TransactionTestCase):
         # Um desses precisa se chamar 'Avançado'
 
     def test_fields_for_existing_item(self):
-        '''Testa a presença/ausência e os valores dos campos quando em modo de edição'''
+        """Testa a presença/ausência e os valores dos campos quando em modo de edição"""
         self.automatic_news.save()
 
         response: TemplateResponse = self.client.get(reverse(
