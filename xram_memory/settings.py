@@ -134,6 +134,8 @@ class Common(Configuration):
     MEDIA_URL = '/media/'
     PDF_ARTIFACT_DIR = 'artifacts/documents/pdf_files/'
     IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
+    VALID_FILE_UPLOAD_MIME_TYPES = (
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
 
 
 class Development(Common):

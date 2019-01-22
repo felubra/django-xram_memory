@@ -7,7 +7,7 @@ from django.template.defaultfilters import slugify
 from django.conf import settings
 import datetime
 from ..news_fetcher import NewsFetcher
-from .documents import PDFDocument, ImageDocument
+from .documents import Document
 
 from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
@@ -176,7 +176,7 @@ class News(Artifact):
         pdf_file = ContentFile(pdf_content, uniq_filename)
         # cria um novo documento do tipo PDF
         # TODO: adicionar as tags da notícia
-        pdf_document = PDFDocument.objects.create(
+        pdf_document = Document.objects.create(
             file=pdf_file, is_user_object=False, created_by=self.modified_by,
             modified_by=self.modified_by)
         # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
@@ -212,7 +212,7 @@ class News(Artifact):
     def add_fetched_image(self):
         """
         Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e cria uma
-        instância dela como documento de artefato (ImageDocument) e captura de imagem de notícia
+        instância dela como documento de artefato (Document) e captura de imagem de notícia
         (NewsImageCapture).
         """
         # TODO: validar se a url da imagem é válida
@@ -232,7 +232,7 @@ class News(Artifact):
             image_contents = NewsFetcher.fetch_image(self._image)
             image_file = ContentFile(image_contents, uniq_filename)
 
-            image_document = ImageDocument.objects.create(
+            image_document = Document.objects.create(
                 file=image_file, is_user_object=False, created_by=self.modified_by,
                 modified_by=self.modified_by)
             NewsImageCapture.objects.create(
@@ -251,7 +251,7 @@ class NewsPDFCapture(models.Model):
         related_name="pdf_captures",
     )
     pdf_document = models.OneToOneField(
-        PDFDocument,
+        Document,
         verbose_name="Documento PDF",
         on_delete=models.CASCADE,
     )
@@ -280,7 +280,7 @@ class NewsImageCapture(models.Model):
         related_name="image_capture"
     )
     image_document = models.OneToOneField(
-        ImageDocument,
+        Document,
         verbose_name="Documento de imagem",
         on_delete=models.CASCADE,
     )
