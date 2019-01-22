@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "be8891e5e70297a04ae17c3dc78e96c55a3d82d3fc5cd39899a05b85fe6ef5a0"
+            "sha256": "37b382d34e867f26ec1bb35164ef7a7b5f91d6c8be7859556c06467f3a40d9da"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -80,11 +80,11 @@
         },
         "django": {
             "hashes": [
-                "sha256:a32c22af23634e1d11425574dce756098e015a165be02e4690179889b207c7a8",
-                "sha256:d6393918da830530a9516bbbcbf7f1214c3d733738779f06b0f649f49cc698c3"
+                "sha256:acdcc1f61fdb0a0c82a1d3bf1879a414e7732ea894a7632af7f6d66ec7ab5bb3",
+                "sha256:efbcad7ebb47daafbcead109b38a5bd519a3c3cd92c6ed0f691ff97fcdd16b45"
             ],
             "index": "pypi",
-            "version": "==2.1.5"
+            "version": "==2.1.2"
         },
         "django-configurations": {
             "hashes": [
@@ -174,11 +174,11 @@
         },
         "loguru": {
             "hashes": [
-                "sha256:68297d9f23064c2f4764bb5d0c5c767f3ed7f9fc1218244841878f5fc7c94add",
-                "sha256:ebac59630946721fd6207264679b267a8bdc290b086226067d6aad86830e3123"
+                "sha256:5697a878f0addbafc896698ed3cfa12e2515e9b641d1cb2021745fa2625c3ff7",
+                "sha256:966b4c48c98abc6c8edb3fd76f44cbce969eaddfa8555f0c08252ff6dcf083ca"
             ],
             "index": "pypi",
-            "version": "==0.2.5"
+            "version": "==0.2.4"
         },
         "lxml": {
             "hashes": [
@@ -393,10 +393,10 @@
         },
         "soupsieve": {
             "hashes": [
-                "sha256:10687fc53eeb3518e01a0ac84d3d711da623d3298a3039459d3f649927c4a270",
-                "sha256:b23a0d7da0247200fe83c67c34de9d7599ad404106367313d8e65e04174d0b4b"
+                "sha256:009d8865916766f7f452880d08ff94ed4c5445011a3deaac67543b82bdb0b9ee",
+                "sha256:97599c45a1ddfe9ab0a0cba889b7f214b3e310b703f176a0610c0b54e207cc04"
             ],
-            "version": "==1.7.2"
+            "version": "==1.7.1"
         },
         "sqlparse": {
             "hashes": [
@@ -586,9 +586,9 @@
         },
         "wrapt": {
             "hashes": [
-                "sha256:4aea003270831cceb8a90ff27c4031da6ead7ec1886023b80ce0dfe0adf61533"
+                "sha256:e03f19f64d81d0a3099518ca26b04550026f131eced2e76ced7b85c6b8d32128"
             ],
-            "version": "==1.11.1"
+            "version": "==1.11.0"
         }
     }
 }
