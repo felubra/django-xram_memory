@@ -1,6 +1,5 @@
 from django.contrib import admin
 from xram_memory.artifact.models import Document
-from ..forms.documents import PDFDocumentAdminForm
 from xram_memory.base_models import TraceableAdminModel
 
 
