@@ -81,11 +81,11 @@ def _slug_strip(value, separator='-'):
 @deconstructible
 class FileValidator(object):
     error_messages = {
-        'max_size': ("Ensure this file size is not greater than %(max_size)s."
-                     " Your file size is %(size)s."),
-        'min_size': ("Ensure this file size is not less than %(min_size)s. "
-                     "Your file size is %(size)s."),
-        'content_type': "Files of type %(content_type)s are not supported.",
+        'max_size': ("Certifique-se de que o arquivo enviado não seja maior do que %(max_size)s."
+                     " O tamanho do seu arquivo é %(size)s."),
+        'min_size': ("Certifique-se de que o arquivo enviado tenha pelo menos %(min_size)s. "
+                     "O tamanho do seu arquivo é %(size)s."),
+        'content_type': "Este tipo de arquivo (%(content_type)s) não é suportado.",
     }
 
     def __init__(self, max_size=None, min_size=None, content_types=()):
@@ -111,7 +111,10 @@ class FileValidator(object):
                                   'min_size', params)
 
         if self.content_types:
+            # Leia os primeiros 1024 bytes dos dados para determinar seu tipo com a libmagic
             content_type = magic.from_buffer(data.read(1024), mime=True)
+            # Guarde a informação sobre o tipo para ser obtida por get_file_path, isso efetivamente
+            # validará o modelo toda vez que ele for inserido pela interface administrativa
             data.file._mime_type = content_type
             data.seek(0)
             if content_type not in self.content_types:
