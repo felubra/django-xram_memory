@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from xram_memory.artifact.models import Document, ImageDocument, PDFDocument
+from xram_memory.artifact.models import Document
 
 
 @receiver(post_save)

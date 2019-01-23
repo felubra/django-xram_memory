@@ -1,3 +1,7 @@
+import magic
+from django.template.defaultfilters import filesizeformat
+from django.utils.deconstruct import deconstructible
+from django.core.exceptions import ValidationError
 import re
 from django.template.defaultfilters import slugify
 
@@ -72,3 +76,51 @@ def _slug_strip(value, separator='-'):
             re_sep = re.escape(separator)
         value = re.sub(r'^%s+|%s+$' % (re_sep, re_sep), '', value)
     return value
+
+
+@deconstructible
+class FileValidator(object):
+    error_messages = {
+        'max_size': ("Certifique-se de que o arquivo enviado não seja maior do que %(max_size)s."
+                     " O tamanho do seu arquivo é %(size)s."),
+        'min_size': ("Certifique-se de que o arquivo enviado tenha pelo menos %(min_size)s. "
+                     "O tamanho do seu arquivo é %(size)s."),
+        'content_type': "Este tipo de arquivo (%(content_type)s) não é suportado.",
+    }
+
+    def __init__(self, max_size=None, min_size=None, content_types=()):
+        self.max_size = max_size
+        self.min_size = min_size
+        self.content_types = content_types
+
+    def __call__(self, data):
+        if self.max_size is not None and data.size > self.max_size:
+            params = {
+                'max_size': filesizeformat(self.max_size),
+                'size': filesizeformat(data.size),
+            }
+            raise ValidationError(self.error_messages['max_size'],
+                                  'max_size', params)
+
+        if self.min_size is not None and data.size < self.min_size:
+            params = {
+                'min_size': filesizeformat(self.min_size),
+                'size': filesizeformat(data.size)
+            }
+            raise ValidationError(self.error_messages['min_size'],
+                                  'min_size', params)
+
+        if self.content_types:
+            # Leia os primeiros 1024 bytes dos dados para determinar seu tipo com a libmagic
+            content_type = magic.from_buffer(data.read(1024), mime=True)
+            # Guarde a informação sobre o tipo para ser obtida por get_file_path, isso efetivamente
+            # validará o modelo toda vez que ele for inserido pela interface administrativa
+            data.file._mime_type = content_type
+            data.seek(0)
+            if content_type not in self.content_types:
+                params = {'content_type': content_type}
+                raise ValidationError(self.error_messages['content_type'],
+                                      'content_type', params)
+
+    def __eq__(self, other):
+        return isinstance(other, FileValidator)

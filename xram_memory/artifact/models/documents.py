@@ -1,10 +1,40 @@
 import magic
 from pathlib import Path
+from django.core.files.base import ContentFile, File
 
 from django.conf import settings
 from django.db import models
 from .artifact import Artifact
 from django_rq import job
+
+from xram_memory.utils import FileValidator
+
+
+def get_file_path(instance, filename):
+    """
+    Tenta salvar os arquivos em locais diferentes para tipos de arquivo diferentes e dar um prefixo
+    para um arquivo criado pelo usuário.
+    """
+    # Se esta é uma instância de ContentFile, extraia o mime type aqui
+    if isinstance(instance.file.file, ContentFile):
+        mime_type = magic.from_buffer(instance.file.file.read(1024), mime=True)
+    # senão, tente contar com o mime type inserido pela função validadora
+    else:
+        mime_type = getattr(instance.file.file, '_mime_type', '')
+
+    # adicione um prefixo no arquivo se um usuário criou ele
+    file_prefix = 'u_{user_id}'.format(
+        user_id=instance.created_by.id) if instance.is_user_object else ''
+
+    # salve cada arquivo de acordo com o seu mimetype, se disponível
+    if 'image/' in mime_type:
+        folder_name = getattr(settings, 'IMAGE_ARTIFACT_DIR', '')
+    elif mime_type == 'application/pdf':
+        folder_name = getattr(settings, 'PDF_ARTIFACT_DIR', '')
+    else:
+        folder_name = ''
+
+    return '{folder_name}{file_prefix}_{filename}'.format(file_prefix=file_prefix, folder_name=folder_name, filename=filename)
 
 
 class Document(Artifact):
@@ -31,7 +61,13 @@ class Document(Artifact):
         editable=False,
         default=True,
     )
-    file = NotImplemented
+    file = models.FileField(
+        verbose_name="Arquivo",
+        upload_to=get_file_path,
+        # TODO: Considerar alterar o validador em si, pois qualquer alteração na lista de mimes requer uma nova migração
+        validators=[FileValidator(
+            content_types=settings.VALID_FILE_UPLOAD_MIME_TYPES)],
+    )
 
     class Meta:
         verbose_name = "Documento"
@@ -59,41 +95,3 @@ class Document(Artifact):
             self.file_size = self.file.size
         except:
             self.file_size = '0'
-
-
-class PDFDocument(Document):
-    """
-    Um documento PDF
-    """
-    document = models.OneToOneField(
-        Document,
-        on_delete=models.CASCADE,
-        parent_link=True,
-    )
-    file = models.FileField(
-        verbose_name="Arquivo",
-        upload_to=settings.PDF_ARTIFACT_DIR,
-    )
-
-    class Meta:
-        verbose_name = "Documento PDF"
-        verbose_name_plural = "Documentos PDF"
-
-
-class ImageDocument(Document):
-    """
-    Uma imagem
-    """
-    document = models.OneToOneField(
-        Document,
-        on_delete=models.CASCADE,
-        parent_link=True,
-    )
-    file = models.FileField(
-        verbose_name="Arquivo",
-        upload_to=settings.IMAGE_ARTIFACT_DIR,
-    )
-
-    class Meta:
-        verbose_name = "Imagem"
-        verbose_name_plural = "Imagens"

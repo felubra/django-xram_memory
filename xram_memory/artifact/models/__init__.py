@@ -1,3 +1,3 @@
 from .artifact import Artifact
-from .documents import Document, ImageDocument, PDFDocument
+from .documents import Document
 from .news import News, NewsImageCapture, NewsPDFCapture
