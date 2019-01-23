@@ -27,3 +27,21 @@ class DocumentAdmin(TraceableAdminModel):
     raw_id_fields = ('keywords', 'subjects')
     search_fields = ('slug',)
     date_hierarchy = 'created_at'
+    fieldsets = (
+        ('Arquivo', {
+            'fields': ('file',)
+        }),
+        ('Informações adicionais', {
+            'fields': ('title', 'teaser', 'slug',)
+        }),
+        ('Classificação do conteúdo', {
+            'fields': ('subjects', 'keywords', ),
+        }),
+        ('Informações editoriais', {
+            'fields': (('published', 'featured'),
+                       'created_by',
+                       'modified_by',
+                       'created_at',
+                       'modified_at',)
+        }),
+    )
