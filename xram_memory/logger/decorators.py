@@ -3,6 +3,7 @@ import inspect
 from loguru import logger
 from functools import wraps
 from timeit import default_timer
+from functools import wraps
 
 from django_currentuser.middleware import (
     get_current_user, get_current_authenticated_user)
@@ -18,6 +19,7 @@ def log_process(object_type, operation=None):
     def decorate(func):
         op = operation if operation else func.__name__
 
+        @wraps(func)
         def logged(*_args, **_kwargs):
             try:
                 username = getattr(get_current_user(), 'username', '<anônimo>')

@@ -21,6 +21,11 @@ from django.db import models
 from django_rq import job
 
 
+@job
+def add_pdf_capture_job(news):
+    return news.add_pdf_capture()
+
+
 class News(Artifact):
     """
     Uma notícia capturada da Internet
@@ -91,6 +96,13 @@ class News(Artifact):
         # salva a notícia
         super(News, self).save(*args, **kwargs)
 
+        # cria e relaciona a esta notícia palavras-chave encontradas por set_basic_info()
+        self.add_fetched_keywords()
+        # se `set_basic_info()` encontrou uma imagem para a notícia, cria essa imagem como artefato
+        # e relaciona ela a esta notícia
+        if hasattr(self, '_image') and len(self._image) > 0:
+            self.add_fetched_image()
+
         # agenda um job para adicionar uma captura de página em pdf da notícia, executa a captura se
         # o agendador não estiver disponível
         if add_pdf_capture:
@@ -99,13 +111,7 @@ class News(Artifact):
             except redis.exceptions.ConnectionError:
                 self.add_pdf_capture()
             else:
-                self.add_pdf_capture.delay()
-        # cria e relaciona a esta notícia palavras-chave encontradas por set_basic_info()
-        self.add_fetched_keywords()
-        # se `set_basic_info()` encontrou uma imagem para a notícia, cria essa imagem como artefato
-        # e relaciona ela a esta notícia
-        if hasattr(self, '_image') and len(self._image) > 0:
-            self.add_fetched_image()
+                add_pdf_capture_job.delay(self)
 
     @property
     def has_basic_info(self):
@@ -149,7 +155,6 @@ class News(Artifact):
             else:
                 setattr(self, prop, value)
 
-    @job
     @log_process(operation="adicionar uma captura em formato PDF", object_type="Notícia")
     def add_pdf_capture(self):
         """
