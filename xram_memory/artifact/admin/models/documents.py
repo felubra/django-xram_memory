@@ -24,7 +24,6 @@ class DocumentAdmin(TraceableAdminModel):
         'featured',
         'is_user_object',
     )
-    raw_id_fields = ('keywords', 'subjects')
     search_fields = ('slug',)
     date_hierarchy = 'created_at'
     fieldsets = (
