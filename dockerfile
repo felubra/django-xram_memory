@@ -2,8 +2,6 @@ FROM python:3
 
 LABEL author=felipe.lubra@gmail.com
 
-WORKDIR /app
-
 RUN pip install pipenv
 
 COPY Pipfile.lock .
@@ -11,9 +9,13 @@ COPY Pipfile .
 
 RUN pipenv install --system --deploy
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wkhtmltopdf \
-&& rm -rf /var/lib/apt/lists/*
+RUN set -ex; \
+curl -f -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb > wkhtmltox.deb; \
+apt-get update; \
+apt-get install ./wkhtmltox.deb -f --no-install-recommends -y; \
+rm -rf /var/lib/apt/lists/;
+
+WORKDIR /app
 
 COPY . .
 
