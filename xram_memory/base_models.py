@@ -59,10 +59,6 @@ class TraceableAdminModel(admin.ModelAdmin):
     """
     Modelo abstrato de administração para o preenchimento de campos de usuário.
     """
-    COMMON_FIELDSETS = (('Informações gerais', {
-        'fields': ('created_by', 'modified_by',
-                   'created_at', 'modified_at')
-    }),)
     readonly_fields = ('created_by', 'modified_by',
                        'created_at', 'modified_at')
 
@@ -79,3 +75,14 @@ class TraceableAdminModel(admin.ModelAdmin):
 
     class Meta:
         abstract = True
+
+
+class TraceableEditorialAdminModel(TraceableAdminModel):
+    COMMON_FIELDSETS = ('Informações editoriais', {
+        'fields': (('published', 'featured'),
+                   'created_by',
+                   'modified_by',
+                   'created_at',
+                   'modified_at',)
+    }),
+    pass

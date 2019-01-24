@@ -1,10 +1,10 @@
 from django.contrib import admin
 from xram_memory.artifact.models import Document
-from xram_memory.base_models import TraceableAdminModel
+from xram_memory.base_models import TraceableEditorialAdminModel
 
 
 @admin.register(Document)
-class DocumentAdmin(TraceableAdminModel):
+class DocumentAdmin(TraceableEditorialAdminModel):
     list_display = (
         'id',
         'file',
@@ -26,7 +26,7 @@ class DocumentAdmin(TraceableAdminModel):
     )
     search_fields = ('slug',)
     date_hierarchy = 'created_at'
-    fieldsets = (
+    FIELDSETS = (
         ('Arquivo', {
             'fields': ('file',)
         }),
@@ -36,11 +36,7 @@ class DocumentAdmin(TraceableAdminModel):
         ('Classificação do conteúdo', {
             'fields': ('subjects', 'keywords', ),
         }),
-        ('Informações editoriais', {
-            'fields': (('published', 'featured'),
-                       'created_by',
-                       'modified_by',
-                       'created_at',
-                       'modified_at',)
-        }),
     )
+
+    def get_fieldsets(self, request, obj):
+        return self.FIELDSETS + self.COMMON_FIELDSETS

@@ -4,7 +4,7 @@ import redis
 from django.contrib import admin
 from django.template.defaultfilters import slugify
 
-from xram_memory.base_models import TraceableAdminModel
+from xram_memory.base_models import TraceableEditorialAdminModel
 from xram_memory.artifact.models import News, NewsPDFCapture
 from xram_memory.taxonomy.models import Subject, Keyword
 
@@ -17,7 +17,7 @@ class NewsPDFCaptureInline(admin.TabularInline):
 
 
 @admin.register(News)
-class NewsAdmin(TraceableAdminModel):
+class NewsAdmin(TraceableEditorialAdminModel):
     INSERT_FIELDSETS = (
         ('Informações básicas', {
             'fields': ('url', 'title',   'archived_news_url')
