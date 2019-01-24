@@ -35,8 +35,6 @@ class Common(Configuration):
         'django.contrib.staticfiles',
 
         'django_extensions',
-        'debug_toolbar',
-
         'xram_memory.users',
         'xram_memory.taxonomy',
         'xram_memory.logger',
@@ -67,7 +65,7 @@ class Common(Configuration):
             'APP_DIRS': True,
             'OPTIONS': {
                 'context_processors': [
-                    'django.template.context_processors.debug',
+                    #'django.template.context_processors.debug',
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
