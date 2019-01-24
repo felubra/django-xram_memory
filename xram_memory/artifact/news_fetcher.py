@@ -65,6 +65,8 @@ class NewsFetcher:
         basic_info = NewsFetcher._merge_extractions(
             newspaper_article, goose_article)
         # TODO: remover stopwords de basic_info['keywords']
+        del newspaper_article
+        del goose_article
         return basic_info
 
     @staticmethod
@@ -116,6 +118,8 @@ class NewsFetcher:
             return newspaper_article
         except:
             return None
+        finally:
+            del raw_html
 
     @staticmethod
     def _extract_using_goose3(url, raw_html=None):
@@ -133,3 +137,5 @@ class NewsFetcher:
             return goose_article
         except:
             return None
+        finally:
+            del raw_html

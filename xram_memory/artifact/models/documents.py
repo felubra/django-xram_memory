@@ -86,7 +86,8 @@ class Document(Artifact):
         Utilizando a biblioteca libmagic, determine qual é o mimetype do arquivo deste documento.
         """
         try:
-            self.mime_type = magic.from_file(self.file.path, mime=True)
+            self.mime_type = magic.from_buffer(
+                self.file.read(1024), mime=True)
         except:
             self.mime_type = ''
 

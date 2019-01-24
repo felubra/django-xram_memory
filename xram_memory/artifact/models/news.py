@@ -184,6 +184,8 @@ class News(Artifact):
         pdf_document = Document.objects.create(
             file=pdf_file, is_user_object=False, created_by=self.modified_by,
             modified_by=self.modified_by)
+        pdf_file.close()
+        del pdf_content
         # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
         NewsPDFCapture.objects.create(
             news=self, pdf_document=pdf_document)
@@ -240,6 +242,8 @@ class News(Artifact):
             image_document = Document.objects.create(
                 file=image_file, is_user_object=False, created_by=self.modified_by,
                 modified_by=self.modified_by)
+            image_file.close()
+            del image_contents
             NewsImageCapture.objects.create(
                 image_document=image_document, original_url=self._image, news=self)
 
