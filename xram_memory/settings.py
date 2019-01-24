@@ -156,6 +156,10 @@ class Development(Common):
         'debug_toolbar.middleware.DebugToolbarMiddleware'
     ]
 
+    INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'debug_toolbar',
+    ]
+
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
