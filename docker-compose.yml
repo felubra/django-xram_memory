@@ -1,0 +1,58 @@
+version: "3.5"
+
+services:
+#TODO: adicionar um local para o banco de dados .sqlite
+  python:
+    image: xram-memory_v0.3.0h
+    container_name:  "${PROJECT_NAME}_web"
+    env_file: ./.env
+#    depends_on:
+#      - redis
+    tmpfs:
+      - /tmp
+    restart: always  
+    volumes:
+      - static/:/app/staticfiles/
+      - media/:/app/media/
+    networks:
+      - web
+
+
+  nginx:
+    image: kyma/docker-nginx
+    container_name:  "${PROJECT_NAME}_files"
+#    depends_on:
+#      - redis
+    tmpfs:
+      - /tmp
+    restart: always
+    volumes:
+      - media/:/var/www/media/
+    networks:
+      - web
+
+
+
+#  redis:
+#    container_name: "${PROJECT_NAME}_redis"
+#    image: wodby/redis:$REDIS_TAG
+#    restart: always
+#    networks:
+#      - internal
+#    sysctls:
+#      net.core.somaxconn: '511'
+networks:
+  web:
+    external: true
+  internal:
+    name: "${PROJECT_NAME}_net_internal"
+
+
+volumes:
+  static:
+    external:
+      name: xram_memory_static
+  media:
+    external:
+      name: xram_memory_media
+
