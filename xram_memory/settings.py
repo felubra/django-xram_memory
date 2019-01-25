@@ -35,8 +35,6 @@ class Common(Configuration):
         'django.contrib.staticfiles',
 
         'django_extensions',
-        'debug_toolbar',
-
         'xram_memory.users',
         'xram_memory.taxonomy',
         'xram_memory.logger',
@@ -148,7 +146,7 @@ class Development(Common):
     """
     DEBUG = True
 
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.99.100']
 
     INTERNAL_IPS = [
         '127.0.0.1'
@@ -156,6 +154,10 @@ class Development(Common):
 
     MIDDLEWARE = Common.MIDDLEWARE + [
         'debug_toolbar.middleware.DebugToolbarMiddleware'
+    ]
+
+    INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'debug_toolbar',
     ]
 
     LOGGING = {
@@ -188,13 +190,17 @@ class Staging(Common):
     SECURE_BROWSER_XSS_FILTER = values.BooleanValue(True)
     SECURE_CONTENT_TYPE_NOSNIFF = values.BooleanValue(True)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = values.BooleanValue(True)
-    SECURE_HSTS_SECONDS = values.IntegerValue(31536000)
+    SECURE_HSTS_SECONDS = values.IntegerValue(3600)
     SECURE_REDIRECT_EXEMPT = values.ListValue([])
     SECURE_SSL_HOST = values.Value(None)
     SECURE_SSL_REDIRECT = values.BooleanValue(True)
     SECURE_PROXY_SSL_HEADER = values.TupleValue(
         ('HTTP_X_FORWARDED_PROTO', 'https')
     )
+
+    ALLOWED_HOSTS = ['xram-memory.felipelube.com']
+    USE_X_FORWARDED_HOST = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 class Production(Staging):
