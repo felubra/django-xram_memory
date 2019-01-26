@@ -5,6 +5,7 @@ from newspaper import Article
 from goose3 import Goose
 from goose3.image import Image
 from functools import lru_cache
+from xram_memory.artifact.lib import stopwords
 
 
 class NewsFetcher:
@@ -89,8 +90,14 @@ class NewsFetcher:
                 # fuso-horário usado pelo Django
                 'published_date': newspaper_article.publish_date if getattr(newspaper_article, 'publish_date', None) else getattr(goose_article, 'publish_date', None),
                 'authors': join_with_comma(newspaper_article.authors if getattr(newspaper_article, 'authors', []) else getattr(goose_article, 'authors', [])),
-                'keywords': newspaper_article.keywords if getattr(newspaper_article, 'keywords', []) else getattr(goose_article, 'tags', []),
+                'keywords': getattr(newspaper_article, 'keywords', getattr(goose_article, 'tags', [])),
+                'language': getattr(newspaper_article, 'meta_lang', getattr(goose_article, 'meta_lang', [])),
             }
+            keywords_for_language = stopwords.get(news_dict["language"], [])
+            if len(keywords_for_language) > 0:
+                news_dict["keywords"] = [
+                    keyword for keyword in news_dict["keywords"] if keyword not in stopwords["pt"]
+                ]
             return news_dict
         except Exception as err:
             raise(

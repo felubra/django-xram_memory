@@ -96,3 +96,6 @@ media/
 
 # ignore arquivos estáticos coletados pelo Django
 staticfiles/
+
+# ignore a regra para a pasta 'lib' acima para esta pasta
+!xram_memory/artifact/lib/
