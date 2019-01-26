@@ -66,6 +66,13 @@ class News(Artifact):
         null=True,
     )
 
+    language = models.CharField(
+        max_length=2,
+        null=True,
+        blank=True,
+        default='pt',
+    )
+
     class Meta:
         verbose_name = "Notícia"
         verbose_name_plural = "Notícias"
