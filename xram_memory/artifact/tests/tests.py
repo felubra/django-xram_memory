@@ -1,15 +1,28 @@
+import os
+import logging
+from pathlib import Path
+
+import requests
+import requests_mock
+import newspaper as newspaper3k
+
 from django.test import TestCase, Client, TransactionTestCase
-from .models import Artifact, News, Document
-from ..taxonomy.models import Keyword
 from django.template.defaultfilters import slugify
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.options import ModelAdmin
-from .admin import NewsAdmin
-from ..users.models import User
 from django.urls import reverse
 from django.db import transaction
 from django.template.response import TemplateResponse
-import logging
+
+
+from xram_memory.users.models import User
+from xram_memory.taxonomy.models import Keyword
+
+from xram_memory.artifact.models import Artifact, News, Document
+from xram_memory.artifact.admin import NewsAdmin
+
+from xram_memory.artifact.news_fetcher import NewsFetcher
+from xram_memory.artifact.lib import stopwords
 
 logger = logging.getLogger(__name__)
 
@@ -80,3 +93,31 @@ class NewsAdminFormTestCase(TransactionTestCase):
         # Deverão existir três grupos de campos...
         self.assertEqual(len(admin_form.fieldsets), 5)
         # Um desses precisa se chamar 'Avançado'
+
+
+@requests_mock.Mocker()
+class NewsFetcherTestCase(TestCase):
+
+    def setUp(self):
+        with open(str(Path(os.path.dirname(__file__), 'mocks', '0.html')), encoding='utf-8') as f:
+            self.article_content = f.read()
+
+    def test_fetch_basic_basic_fields(self, m):
+        BASIC_FIELDS = ['title', 'image', 'body', 'teaser',
+                        'published_date', 'authors', 'keywords', 'language']
+
+        article_url = "https://politica.estadao.com.br/blogs/fausto-macedo/justica-decreta-bloqueio-de-r-5-bilhoes/"
+        m.register_uri('GET', article_url, text=self.article_content)
+
+        basic_info = NewsFetcher.fetch_basic_info(article_url)
+        for field in BASIC_FIELDS:
+            self.assertIn(field, basic_info)
+
+    def test_fetch_basic_basic_no_stopword_keyword(self, m):
+        article_url = "https://politica.estadao.com.br/blogs/fausto-macedo/justica-decreta-bloqueio-de-r-5-bilhoes/"
+        m.register_uri('GET', article_url, text=self.article_content)
+
+        basic_info = NewsFetcher.fetch_basic_info(article_url)
+        self.assertEqual(basic_info["language"], "pt")
+        for keyword in basic_info["keywords"]:
+            self.assertNotIn(keyword, stopwords["pt"])
