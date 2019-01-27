@@ -99,3 +99,5 @@ staticfiles/
 
 # ignore a regra para a pasta 'lib' acima para esta pasta
 !xram_memory/artifact/lib/
+# ignore a pasta usada pelo virtualenv
+.venv
