@@ -11,6 +11,7 @@ pdir2 = "*"
 rope = "*"
 pylint-django = "*"
 requests-mock = "*"
+python-magic-bin = "==0.4.14"
 
 [packages]
 dj-database-url = "==0.5.0"
@@ -31,3 +32,5 @@ goose3 = "*"
 loguru = "*"
 python-magic = "*"
 django-currentuser = {editable = true,git = "https://github.com/PaesslerAG/django-currentuser",ref = "master"}
+easy-thumbnails = {editable = true,git = "https://github.com/SmileyChris/easy-thumbnails",ref = "master"}
+pdf2image = "*"

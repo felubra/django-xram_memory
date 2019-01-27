@@ -40,6 +40,7 @@ class Common(Configuration):
         'xram_memory.logger',
 
         'xram_memory.artifact',
+        'easy_thumbnails',
 
         'django_rq',
     ]
@@ -138,6 +139,11 @@ class Common(Configuration):
     IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
     VALID_FILE_UPLOAD_MIME_TYPES = (
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
+
+    THUMBNAIL_SOURCE_GENERATORS = (
+        'easy_thumbnails.source_generators.pil_image',
+        'xram_memory.artifact.lib.file_previews.pdf_preview',
+    )
 
 
 class Development(Common):
