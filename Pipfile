@@ -35,3 +35,4 @@ django-currentuser = {editable = true,git = "https://github.com/PaesslerAG/djang
 easy-thumbnails = {editable = true,git = "https://github.com/SmileyChris/easy-thumbnails",ref = "master"}
 pdf2image = "*"
 django-bower = "*"
+cairosvg = "*"
