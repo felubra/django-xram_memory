@@ -18,7 +18,7 @@ class TaxonomyItemAdmin(TraceableAdminModel):
     date_hierarchy = 'created_at'
 
     def get_fieldsets(self, request, obj):
-        super(TaxonomyItemAdmin, self).get_fieldsets(request, obj)
+        super().get_fieldsets(request, obj)
         pk = getattr(obj, 'pk', None)
         if pk is None:
             return self.TAXONOMY_ITEM_FIELDSETS

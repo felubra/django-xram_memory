@@ -51,4 +51,4 @@ class Artifact(TraceableEditorialModel):
         if not self.title:
             raise ValueError(
                 "Não é possível criar um artefato sem título.")
-        super(Artifact, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)

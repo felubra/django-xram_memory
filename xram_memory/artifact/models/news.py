@@ -101,7 +101,7 @@ class News(Artifact):
             self.fetch_archived_url()
 
         # salva a notícia
-        super(News, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         # cria e relaciona a esta notícia palavras-chave encontradas por set_basic_info()
         self.add_fetched_keywords()
