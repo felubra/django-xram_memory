@@ -142,9 +142,9 @@ class Common(Configuration):
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
 
     THUMBNAIL_SOURCE_GENERATORS = (
-        'xram_memory.artifact.lib.file_previews.icon_preview',
         'easy_thumbnails.source_generators.pil_image',
         'xram_memory.artifact.lib.file_previews.pdf_preview',
+        'xram_memory.artifact.lib.file_previews.icon_preview',
     )
 
     STATICFILES_FINDERS = [
