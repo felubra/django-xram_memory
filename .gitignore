@@ -101,3 +101,5 @@ staticfiles/
 !xram_memory/artifact/lib/
 # ignore a pasta usada pelo virtualenv
 .venv
+# ignore components instalados pelo bower
+bower_components
