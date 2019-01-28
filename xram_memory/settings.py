@@ -154,6 +154,10 @@ class Common(Configuration):
     ]
     BOWER_COMPONENTS_ROOT = BASE_DIR
 
+    BOWER_INSTALLED_APPS = (
+        'stopwords-iso',
+    )
+
 
 class Development(Common):
     """

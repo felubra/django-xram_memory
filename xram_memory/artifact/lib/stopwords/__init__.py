@@ -1,7 +1,13 @@
-import os
-from pathlib import Path
 import json
 
-# Arquivo de: https://github.com/stopwords-iso/stopwords-iso
-with open(str(Path(os.path.dirname(__file__), 'stopwords.json')), encoding='utf-8') as f:
-    stopwords = json.loads(f.read())
+from django.contrib.staticfiles import finders
+
+# tenta retornar uma dicionário com palavras vazias por idioma
+try:
+    stopwords_json_file = finders.find('stopwords-iso/stopwords-iso.json')
+    # Arquivo de: https://github.com/stopwords-iso/stopwords-iso
+    with open(stopwords_json_file, encoding='utf-8') as f:
+        stopwords = json.loads(f.read())
+        pass
+except TypeError:
+    stopwords = {}
