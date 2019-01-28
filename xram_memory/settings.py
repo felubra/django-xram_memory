@@ -156,6 +156,7 @@ class Common(Configuration):
 
     BOWER_INSTALLED_APPS = (
         'stopwords-iso',
+        'file-icon-vectors',
     )
 
 
