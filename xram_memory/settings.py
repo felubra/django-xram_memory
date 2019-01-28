@@ -43,6 +43,7 @@ class Common(Configuration):
         'easy_thumbnails',
 
         'django_rq',
+        'djangobower',
     ]
 
     MIDDLEWARE = [
@@ -141,9 +142,17 @@ class Common(Configuration):
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
 
     THUMBNAIL_SOURCE_GENERATORS = (
+        'xram_memory.artifact.lib.file_previews.icon_preview',
         'easy_thumbnails.source_generators.pil_image',
         'xram_memory.artifact.lib.file_previews.pdf_preview',
     )
+
+    STATICFILES_FINDERS = [
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'djangobower.finders.BowerFinder',
+    ]
+    BOWER_COMPONENTS_ROOT = BASE_DIR
 
 
 class Development(Common):

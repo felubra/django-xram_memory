@@ -34,3 +34,4 @@ python-magic = "*"
 django-currentuser = {editable = true,git = "https://github.com/PaesslerAG/django-currentuser",ref = "master"}
 easy-thumbnails = {editable = true,git = "https://github.com/SmileyChris/easy-thumbnails",ref = "master"}
 pdf2image = "*"
+django-bower = "*"
