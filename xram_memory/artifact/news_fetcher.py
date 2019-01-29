@@ -5,7 +5,7 @@ from newspaper import Article
 from goose3 import Goose
 from goose3.image import Image
 from functools import lru_cache
-from xram_memory.artifact.lib import stopwords
+from xram_memory.lib import stopwords
 
 
 class NewsFetcher:
@@ -46,7 +46,7 @@ class NewsFetcher:
 
     @staticmethod
     @lru_cache(maxsize=2)
-    def fetch_basic_info(url):
+    def fetch_basic_info(url, fetch_images=True):
         """
         Dada uma URL, extraia informações básicas sobre uma notícia usando as bibliotecas
         newspaper3k e goose
@@ -55,9 +55,10 @@ class NewsFetcher:
         newspaper_article = NewsFetcher._extract_using_newspaper(url)
         if newspaper_article:
             goose_article = NewsFetcher._extract_using_goose3(
-                url, newspaper_article.html)
+                url, fetch_images=fetch_images, raw_html=newspaper_article.html)
         else:
-            goose_article = NewsFetcher._extract_using_goose3(url)
+            goose_article = NewsFetcher._extract_using_goose3(
+                url, fetch_images=fetch_images)
         # ao menos um dos objetos deve estar preenchido
         if newspaper_article is None and goose_article is None:
             raise(Exception(
@@ -65,7 +66,6 @@ class NewsFetcher:
         # junte os objetos para tentar aproveitar de cada um alguma informação
         basic_info = NewsFetcher._merge_extractions(
             newspaper_article, goose_article)
-        # TODO: remover stopwords de basic_info['keywords']
         del newspaper_article
         del goose_article
         return basic_info
@@ -129,15 +129,15 @@ class NewsFetcher:
             del raw_html
 
     @staticmethod
-    def _extract_using_goose3(url, raw_html=None):
+    def _extract_using_goose3(url, fetch_images=True, raw_html=None):
         """
         Tenta extrair usando a biblioteca goose3
         """
         try:
-            goose = Goose({'enable_image_fetching': True})
+            goose = Goose({'enable_image_fetching': fetch_images})
 
             if raw_html:
-                goose_article = goose.extract(raw_html=raw_html, url=url)
+                goose_article = goose.extract(raw_html=raw_html)
             else:
                 goose_article = goose.extract(url=url)
 
