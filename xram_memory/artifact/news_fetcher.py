@@ -96,7 +96,7 @@ class NewsFetcher:
             keywords_for_language = stopwords.get(news_dict["language"], [])
             if len(keywords_for_language) > 0:
                 news_dict["keywords"] = [
-                    keyword for keyword in news_dict["keywords"] if keyword not in stopwords["pt"]
+                    keyword for keyword in news_dict["keywords"] if keyword not in stopwords[news_dict["language"]]
                 ]
             return news_dict
         except Exception as err:
