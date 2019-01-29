@@ -22,7 +22,7 @@ from xram_memory.artifact.models import Artifact, News, Document
 from xram_memory.artifact.admin import NewsAdmin
 
 from xram_memory.artifact.news_fetcher import NewsFetcher
-from xram_memory.artifact.lib import stopwords
+from xram_memory.lib import stopwords
 
 logger = logging.getLogger(__name__)
 
@@ -107,17 +107,21 @@ class NewsFetcherTestCase(TestCase):
                         'published_date', 'authors', 'keywords', 'language']
 
         article_url = "https://politica.estadao.com.br/blogs/fausto-macedo/justica-decreta-bloqueio-de-r-5-bilhoes/"
-        m.register_uri('GET', article_url, text=self.article_content)
+        m.register_uri('GET', article_url,
+                       text=self.article_content)
 
-        basic_info = NewsFetcher.fetch_basic_info(article_url)
+        basic_info = NewsFetcher.fetch_basic_info(
+            article_url, fetch_images=False)
         for field in BASIC_FIELDS:
             self.assertIn(field, basic_info)
 
     def test_fetch_basic_basic_no_stopword_keyword(self, m):
         article_url = "https://politica.estadao.com.br/blogs/fausto-macedo/justica-decreta-bloqueio-de-r-5-bilhoes/"
-        m.register_uri('GET', article_url, text=self.article_content)
+        m.register_uri('GET', article_url,
+                       text=self.article_content)
 
-        basic_info = NewsFetcher.fetch_basic_info(article_url)
+        basic_info = NewsFetcher.fetch_basic_info(
+            article_url, fetch_images=False)
         self.assertEqual(basic_info["language"], "pt")
         for keyword in basic_info["keywords"]:
             self.assertNotIn(keyword, stopwords["pt"])
