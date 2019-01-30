@@ -3,7 +3,6 @@ from pathlib import Path
 from django.core.files.base import ContentFile, File
 
 from django.conf import settings
-from django.template.defaultfilters import slugify
 from django.db import models
 from .artifact import Artifact
 from django_rq import job
@@ -25,7 +24,7 @@ def get_file_path(instance, filename):
 
     # adicione um prefixo no arquivo se um usuário criou ele
     file_prefix = 'u_{user_id}'.format(
-        user_id=instance.created_by.id) if instance.is_user_object else 's_'
+        user_id=instance.created_by.id) if instance.is_user_object else ''
 
     # salve cada arquivo de acordo com o seu mimetype, se disponível
     if 'image/' in mime_type:
@@ -34,8 +33,8 @@ def get_file_path(instance, filename):
         folder_name = getattr(settings, 'PDF_ARTIFACT_DIR', '')
     else:
         folder_name = ''
-    filename = slugify(filename)
-    return '{folder_name}{file_prefix}{filename}'.format(file_prefix=file_prefix, folder_name=folder_name, filename=filename)
+
+    return '{folder_name}{file_prefix}_{filename}'.format(file_prefix=file_prefix, folder_name=folder_name, filename=filename)
 
 
 class Document(Artifact):
