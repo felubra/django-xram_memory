@@ -40,8 +40,10 @@ class Common(Configuration):
         'xram_memory.logger',
 
         'xram_memory.artifact',
+        'easy_thumbnails',
 
         'django_rq',
+        'djangobower',
     ]
 
     MIDDLEWARE = [
@@ -138,6 +140,24 @@ class Common(Configuration):
     IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
     VALID_FILE_UPLOAD_MIME_TYPES = (
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
+
+    THUMBNAIL_SOURCE_GENERATORS = (
+        'easy_thumbnails.source_generators.pil_image',
+        'xram_memory.lib.file_previews.pdf_preview',
+        'xram_memory.lib.file_previews.icon_preview',
+    )
+
+    STATICFILES_FINDERS = [
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'djangobower.finders.BowerFinder',
+    ]
+    BOWER_COMPONENTS_ROOT = BASE_DIR
+
+    BOWER_INSTALLED_APPS = (
+        'stopwords-iso',
+        'file-icon-vectors',
+    )
 
 
 class Development(Common):

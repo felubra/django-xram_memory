@@ -9,6 +9,7 @@ from .artifact import Artifact
 from django_rq import job
 
 from xram_memory.utils import FileValidator
+from easy_thumbnails.fields import ThumbnailerField
 
 
 def get_file_path(instance, filename):
@@ -63,7 +64,7 @@ class Document(Artifact):
         editable=False,
         default=True,
     )
-    file = models.FileField(
+    file = ThumbnailerField(
         verbose_name="Arquivo",
         upload_to=get_file_path,
         # TODO: Considerar alterar o validador em si, pois qualquer alteração na lista de mimes requer uma nova migração
