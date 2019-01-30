@@ -40,6 +40,7 @@ class Common(Configuration):
         'xram_memory.logger',
 
         'xram_memory.artifact',
+        'xram_memory.page',
         'easy_thumbnails',
 
         'django_rq',
