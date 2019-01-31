@@ -1,5 +1,4 @@
-<div class="quill-widget vLargeTextField">
-    <div class="quill-widget-toolbar"></div>
-    <div class="quill-widget-content">{% if widget.value %}{{ widget.value | safe }}{% endif %}</textarea></div>
+<div class="quill-widget vLargeTextField"{% include "django/forms/widgets/attrs.html" %}>
+    <div class="quill-widget-content">{% if widget.value %}{{ widget.value|safe }}{% endif %}</div>
     <textarea name="{{ widget.name }}" id="id_{{widget.name}}"></textarea>
 </div>
