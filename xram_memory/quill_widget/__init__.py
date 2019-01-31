@@ -10,6 +10,8 @@ class QuillWidget(Widget):
         TODO: limpar o valor para o quill.js (remover javascripts?)
         """
         value = super().format_value(value)
+        if value == '' or value is None:
+            return ''
         return str(value)
 
     @property
