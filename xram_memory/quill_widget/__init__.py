@@ -1,4 +1,5 @@
 from django.forms.widgets import Widget
+from django.forms import Media
 
 
 class QuillWidget(Widget):
@@ -10,3 +11,17 @@ class QuillWidget(Widget):
         """
         value = super().format_value(value)
         return str(value)
+
+    @property
+    def media(self):
+        css = {
+            'screen, projection': (
+                'quill/quill.snow.css',
+                'quill_widget/css/quill-widget.css',
+            )
+        }
+        js = (
+            'quill/quill.js',
+            'quill_widget/js/quill-widget.js',
+        )
+        return Media(css=css, js=js)

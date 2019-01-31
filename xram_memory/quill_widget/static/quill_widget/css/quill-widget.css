@@ -1,0 +1,7 @@
+.quill-widget {
+  display: inline-block;
+}
+
+.quill-widget > textarea {
+  display: none;
+}

@@ -1,14 +1,5 @@
 <div class="quill-widget vLargeTextField">
     <div class="quill-widget-toolbar"></div>
     <div class="quill-widget-content">{% if widget.value %}{{ widget.value | safe }}{% endif %}</textarea></div>
-    <textarea name="{{ widget.name }}" id="id_{{widget.name}}" style="display:none"></textarea>
+    <textarea name="{{ widget.name }}" id="id_{{widget.name}}"></textarea>
 </div>
-<script>
-    document.getElementById("news_form").addEventListener("submit", function(e) {
-        var textarea_value = quill_editor.root.innerHTML;
-        console.log(textarea_value);
-        var textarea = document.getElementById("id_{{widget.name}}");
-        console.log(textarea);
-        textarea.innerHTML = textarea_value;
-    })
-</script>
