@@ -36,7 +36,7 @@ class NewsAdminForm(forms.ModelForm):
 
     class Meta:
         widgets = {
-            'body': QuillWidget(attrs={'placeholder': u'Bla bla'}),
+            'body': QuillWidget(attrs={'placeholder': u'Insira o texto da notícia', 'data-toolbar': 'bold,italic'}),
         }
 
     def __init__(self, *args, **kwargs):
