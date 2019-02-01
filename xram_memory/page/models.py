@@ -3,10 +3,11 @@ from django.utils.encoding import iri_to_uri
 from django.urls import get_script_prefix
 from django.utils.text import slugify
 from easy_thumbnails.fields import ThumbnailerImageField
+from xram_memory.base_models import TraceableEditorialModel
+from xram_memory.quill_widget import no_empty_html
 
 
 # Create your models here.
-from xram_memory.base_models import TraceableEditorialModel
 
 
 class StaticPage(TraceableEditorialModel):
@@ -27,7 +28,8 @@ class StaticPage(TraceableEditorialModel):
         db_index=True
     )
     body = models.TextField(
-        verbose_name="Corpo da página"
+        verbose_name="Corpo da página",
+        validators=[no_empty_html],
     )
     image = ThumbnailerImageField(
         verbose_name="Imagem",
