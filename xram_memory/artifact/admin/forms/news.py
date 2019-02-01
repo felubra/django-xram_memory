@@ -1,7 +1,6 @@
 from django import forms
 from xram_memory.artifact.models import News
 from xram_memory.artifact.news_fetcher import NewsFetcher
-from xram_memory.quill_widget import QuillWidget
 
 
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
@@ -33,11 +32,6 @@ class NewsAdminForm(forms.ModelForm):
         help_text="O sistema tentará capturar uma versão da página dessa notícia em PDF",
         required=False,
     )
-
-    class Meta:
-        widgets = {
-            'body': QuillWidget(attrs={'placeholder': u'Insira o texto da notícia', 'data-toolbar': 'bold,italic'}),
-        }
 
     def __init__(self, *args, **kwargs):
         """
