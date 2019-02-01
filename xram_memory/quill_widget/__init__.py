@@ -1,5 +1,16 @@
 from django.forms.widgets import Widget
 from django.forms import Media
+from bs4 import BeautifulSoup
+from django.core.exceptions import ValidationError
+
+
+def no_empty_html(value):
+    """
+    Um simples validador que converte html em texto para verificar se o texto não está em branco.
+    """
+    soup = BeautifulSoup(value)
+    if not soup.get_text().strip():
+        raise ValidationError('Este campo não pode ficar em branco.')
 
 
 class QuillWidget(Widget):
