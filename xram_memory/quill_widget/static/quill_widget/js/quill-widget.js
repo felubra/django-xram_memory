@@ -3,18 +3,19 @@ const plugEditors = function() {
 
   const plugEditor = function(el) {
     let toolbar = el.getAttribute("data-toolbar");
+    if (toolbar) {
+      toolbar = JSON.parse(toolbar);
+    }
     const options = {
       placeholder:
         el.getAttribute("data-placeholder") ||
         el.getAttribute("placeholder") ||
         "",
       modules: {
-        toolbar: el.getAttribute("data-toolbar")
-          ? el.getAttribute("data-toolbar").split(",")
-          : null
+        toolbar: toolbar
       },
       theme: el.getAttribute("data-theme") || "snow",
-      formats: el.getAttribute("data-formats").split,
+      formats: el.getAttribute("data-formats").split(","),
       readOnly: el.getAttribute("data-read-only") || false
     };
     const editorElement = el.querySelector("div.quill-widget-content");

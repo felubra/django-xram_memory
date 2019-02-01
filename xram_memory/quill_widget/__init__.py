@@ -22,12 +22,15 @@ class QuillWidget(Widget):
         self.attrs['data-theme'] = attrs.get('data-theme', 'snow') if attrs.get(
             'data-theme', 'snow') in ['snow', 'bubble'] else 'snow'
         self.attrs['data-formats'] = attrs.get(
-            'data-formats', 'bold,italic,strike')
+            'data-formats', '["bold","italic","strike"]')
+        self.attrs['data-toolbar'] = attrs.get(
+            'data-toolbar', '["bold","italic","strike"]')
 
     @property
     def media(self):
         css = {
             'screen, projection': (
+                'quill/quill.core.css',
                 'quill/quill.{}.css'.format(self.attrs['data-theme']),
                 'quill_widget/css/quill-widget.css',
             )
