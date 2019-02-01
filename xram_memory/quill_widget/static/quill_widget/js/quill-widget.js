@@ -14,6 +14,7 @@ const plugEditors = function() {
           : null
       },
       theme: el.getAttribute("data-theme") || "snow",
+      formats: el.getAttribute("data-formats").split,
       readOnly: el.getAttribute("data-read-only") || false
     };
     const editorElement = el.querySelector("div.quill-widget-content");

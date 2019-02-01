@@ -21,6 +21,8 @@ class QuillWidget(Widget):
         super().__init__(attrs)
         self.attrs['data-theme'] = attrs.get('data-theme', 'snow') if attrs.get(
             'data-theme', 'snow') in ['snow', 'bubble'] else 'snow'
+        self.attrs['data-formats'] = attrs.get(
+            'data-formats', 'bold,italic,strike')
 
     @property
     def media(self):
