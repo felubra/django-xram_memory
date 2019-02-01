@@ -72,7 +72,7 @@ class NewsAdmin(TraceableEditorialAdminModel):
         Use um conjunto diferente de fieldsets para adição e edição
         """
         # TODO: colocar o fieldset das capturas de página antes do fieldset com as informações gerais
-        super(NewsAdmin, self).get_fieldsets(request, obj)
+        super().get_fieldsets(request, obj)
         pk = getattr(obj, 'pk', None)
         if pk is None:
             return self.INSERT_FIELDSETS
@@ -80,7 +80,7 @@ class NewsAdmin(TraceableEditorialAdminModel):
             return self.EDIT_FIELDSETS + self.COMMON_FIELDSETS
 
     def save_related(self, request, form, formsets, change):
-        super(NewsAdmin, self).save_related(request, form, formsets, change)
+        super().save_related(request, form, formsets, change)
         instance = form.instance
         # precisamos adicionar as palavras-chave novamente aqui, pois as associações feitas na chamada no método save
         # serão desfeitas pelo django admin - https://timonweb.com/posts/many-to-many-field-save-method-and-the-django-admin/

@@ -5,8 +5,7 @@ from xram_memory.artifact.news_fetcher import NewsFetcher
 
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(NewsPDFCaptureStackedInlineForm,
-              self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class NewsAdminForm(forms.ModelForm):
@@ -39,7 +38,7 @@ class NewsAdminForm(forms.ModelForm):
         Define e altera a descrição de campos customizados para indicar operações adicionais sobre
         o modelo
         """
-        super(NewsAdminForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # defina os valores para os campos acima de acordo com o estado do modelo
         self.initial['set_basic_info'] = not self.instance.has_basic_info
@@ -57,7 +56,7 @@ class NewsAdminForm(forms.ModelForm):
         """
         Faz validações customizadas sobre os dados informados pelo usuário
         """
-        cleaned_data = super(NewsAdminForm, self).clean()
+        cleaned_data = super().clean()
         # operações adicionais sobre o modelo
         set_basic_info = cleaned_data.get(
             'set_basic_info', False)

@@ -39,6 +39,7 @@ class Common(Configuration):
         'xram_memory.taxonomy',
         'xram_memory.logger',
 
+        'xram_memory.quill_widget',
         'xram_memory.artifact',
         'xram_memory.page',
         'easy_thumbnails',
@@ -158,6 +159,7 @@ class Common(Configuration):
     BOWER_INSTALLED_APPS = (
         'stopwords-iso',
         'file-icon-vectors',
+        'quill=https://github.com/quilljs/quill/releases/download/v1.3.6/quill.tar.gz',
     )
 
 

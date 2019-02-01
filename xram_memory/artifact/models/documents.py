@@ -82,7 +82,7 @@ class Document(Artifact):
     def save(self, *args, **kwargs):
         if not self.title:
             self.title = self.file.name
-        super(Document, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def determine_mime_type(self):
         """
