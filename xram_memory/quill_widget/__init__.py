@@ -2,6 +2,7 @@ from django.forms.widgets import Widget
 from django.forms import Media
 from bs4 import BeautifulSoup
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 
 def no_empty_html(value):
@@ -10,7 +11,7 @@ def no_empty_html(value):
     """
     soup = BeautifulSoup(value)
     if not soup.get_text().strip():
-        raise ValidationError('Este campo não pode ficar em branco.')
+        raise ValidationError(_('This field is required.'))
 
 
 class QuillWidget(Widget):
