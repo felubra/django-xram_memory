@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "453454147867da1d4dcbac44a1cac120fb985c10e0f61480f75e50c892736d94"
+            "sha256": "302b95de5c52b16eae61afd395537e8348689fe45281c6873ee670314a0fddf5"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -27,6 +27,7 @@
                 "sha256:945065979fb8529dd2f37dbb58f00b661bdbcbebf954f93b32fdf5263ef35348",
                 "sha256:ba6d5c59906a85ac23dadfe5c88deaf3e179ef565f4898671253e50a78680718"
             ],
+            "index": "pypi",
             "version": "==4.7.1"
         },
         "better-exceptions-fork": {
@@ -305,10 +306,10 @@
         },
         "pdf2image": {
             "hashes": [
-                "sha256:3be275550d5d844a314c4e3d901f19dec3d2927e6847a5a329f385c67efbeb34"
+                "sha256:c417149cb5ca52021203943e0eeb95db53580afebe728086e69671add4daeb08"
             ],
             "index": "pypi",
-            "version": "==1.4.0"
+            "version": "==1.4.1"
         },
         "pdfkit": {
             "editable": true,
@@ -439,11 +440,11 @@
         },
         "redis": {
             "hashes": [
-                "sha256:2100750629beff143b6a200a2ea8e719fcf26420adabb81402895e144c5083cf",
-                "sha256:8e0bdd2de02e829b6225b25646f9fb9daffea99a252610d040409a6738541f0a"
+                "sha256:74c892041cba46078ae1ef845241548baa3bd3634f9a6f0f952f006eb1619c71",
+                "sha256:7ba8612bbfd966dea8c62322543fed0095da2834dbd5a7c124afbc617a156aa7"
             ],
             "index": "pypi",
-            "version": "==3.0.1"
+            "version": "==3.1.0"
         },
         "requests": {
             "hashes": [
@@ -641,10 +642,10 @@
         },
         "pycodestyle": {
             "hashes": [
-                "sha256:cbc619d09254895b0d12c2c691e237b2e91e9b2ecf5e84c26b35400f93dcfb83",
-                "sha256:cbfca99bd594a10f674d0cd97a3d802a1fdef635d4361e1a2658de47ed261e3a"
+                "sha256:95a2219d12372f05704562a14ec30bc76b05a5b297b21a5dfe3f6fac3491ae56",
+                "sha256:e40a936c9a450ad81df37f549d676d127b1b66000a6c500caa2b085bc0ca976c"
             ],
-            "version": "==2.4.0"
+            "version": "==2.5.0"
         },
         "pylint": {
             "hashes": [
