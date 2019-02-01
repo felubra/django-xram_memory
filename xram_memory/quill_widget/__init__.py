@@ -17,15 +17,6 @@ def no_empty_html(value):
 class QuillWidget(Widget):
     template_name = 'quill_widget/widget.html'
 
-    def format_value(self, value):
-        """
-        TODO: limpar o valor para o quill.js (remover javascripts?)
-        """
-        value = super().format_value(value)
-        if value == '' or value is None:
-            return ''
-        return str(value)
-
     def __init__(self, attrs):
         super().__init__(attrs)
         self.attrs['data-theme'] = attrs.get('data-theme', 'snow') if attrs.get(
@@ -44,3 +35,12 @@ class QuillWidget(Widget):
             'quill_widget/js/quill-widget.js',
         )
         return Media(css=css, js=js)
+
+    def format_value(self, value):
+        """
+        TODO: limpar o valor para o quill.js (remover javascripts?)
+        """
+        value = super().format_value(value)
+        if value == '' or value is None:
+            return ''
+        return str(value)
