@@ -1,13 +1,23 @@
+from django import forms
 from django.contrib import admin
 from xram_memory.base_models import TraceableEditorialAdminModel
 from easy_thumbnails.widgets import ImageClearableFileInput
 from easy_thumbnails.fields import ThumbnailerImageField
+from xram_memory.quill_widget import QuillWidget
 
 from .models import StaticPage
 
 
+class StaticPageAdminForm(forms.ModelForm):
+    class Meta:
+        widgets = {
+            'body': QuillWidget(attrs={'placeholder': 'Conteúdo da página...', 'data-toolbar': 'bold,italic'}),
+        }
+
+
 @admin.register(StaticPage)
 class StaticPageAdmin(TraceableEditorialAdminModel):
+    form = StaticPageAdminForm
     list_display = (
         'id',
         'title',
