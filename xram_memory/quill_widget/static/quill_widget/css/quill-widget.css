@@ -5,3 +5,7 @@
 .quill-widget > textarea {
   display: none;
 }
+
+.errors .quill-widget {
+  border: 1px solid #ba2121;
+}
