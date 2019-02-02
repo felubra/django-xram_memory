@@ -44,7 +44,6 @@ class Common(Configuration):
         'easy_thumbnails',
 
         'django_rq',
-        'djangobower',
     ]
 
     MIDDLEWARE = [
@@ -151,17 +150,15 @@ class Common(Configuration):
     STATICFILES_FINDERS = [
         'django.contrib.staticfiles.finders.FileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-        'djangobower.finders.BowerFinder',
+        'npm.finders.NpmFinder',
     ]
-    BOWER_COMPONENTS_ROOT = BASE_DIR
-
-    BOWER_INSTALLED_APPS = (
-        'stopwords-iso',
-        'file-icon-vectors',
-        'quill=https://github.com/quilljs/quill/releases/download/v1.3.6/quill.tar.gz',
-        'screenfull',
-        'material-design-icons',
-    )
+    NPM_ROOT_PATH = BASE_DIR
+    NPM_FILE_PATTERNS = {
+        'file-icon-vectors': ['dist\\icons\\vivid\\*'],
+        'stopwords-iso': ['stopwords-iso.json'],
+        'material-design-icons': ['navigation\\svg\\production\\ic_fullscreen*'],
+        'quill': ['dist\\*']
+    }
 
 
 class Development(Common):

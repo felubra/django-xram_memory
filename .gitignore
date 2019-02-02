@@ -101,5 +101,5 @@ staticfiles/
 !xram_memory/lib/
 # ignore a pasta usada pelo virtualenv
 .venv
-# ignore components instalados pelo bower
-bower_components
+# ignore components instalados pelo npm
+node_modules
