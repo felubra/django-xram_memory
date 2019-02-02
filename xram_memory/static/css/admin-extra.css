@@ -158,3 +158,9 @@ TODO: remover esse !important
 .login #header h1 a {
   color: #333 !important;
 }
+
+/** Customizações adicionais **/
+
+div.submit-row {
+  position: sticky;
+}
