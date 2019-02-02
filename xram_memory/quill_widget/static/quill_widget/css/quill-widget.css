@@ -9,3 +9,7 @@
 .errors .quill-widget {
   border: 1px solid #ba2121;
 }
+
+.quill-widget > .quill-widget-content {
+  min-height: 150px;
+}
