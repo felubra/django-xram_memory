@@ -1,0 +1,166 @@
+/*
+    DJANGO Admin styles
+*/
+
+@import url("https://fonts.googleapis.com/css?family=Cabin:400,400i,700,700i");
+
+body {
+  font-family: "Cabin", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans",
+    Verdana, Arial, sans-serif;
+}
+
+a:link,
+a:visited {
+  color: #3772d8;
+}
+
+a:focus,
+a:hover {
+  color: #19438c;
+}
+
+a.section:link,
+a.section:visited {
+  color: #aa0000;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+table thead th.sorted .sortoptions a.sortremove:focus:after,
+table thead th.sorted .sortoptions a.sortremove:hover:after {
+  color: #9b4444;
+}
+
+/* FORM DEFAULTS */
+
+input,
+textarea,
+select,
+.form-row p,
+form .button {
+  font-family: "Cabin", "Lucida Grande", Verdana, Arial, sans-serif;
+}
+/* FORM BUTTONS */
+
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+  background: #4771b9;
+}
+
+.button.default,
+input[type="submit"].default,
+.submit-row input.default {
+  background: #3772d8;
+}
+
+.button:active,
+input[type="submit"]:active,
+input[type="button"]:active,
+.button:focus,
+input[type="submit"]:focus,
+input[type="button"]:focus,
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+  background: #6077b6;
+}
+
+.button.default:active,
+input[type="submit"].default:active,
+.button.default:focus,
+input[type="submit"].default:focus,
+.button.default:hover,
+input[type="submit"].default:hover {
+  background: #203967;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+  background: #fff;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #aa0000;
+}
+
+/* BREADCRUMBS */
+
+div.breadcrumbs {
+  background: #ececec;
+  color: #524949;
+}
+
+div.breadcrumbs a {
+  color: #3772d8;
+}
+
+div.breadcrumbs a:focus,
+div.breadcrumbs a:hover {
+  color: #19438c;
+}
+
+.object-tools a:focus,
+.object-tools a:hover {
+  background-color: #3772d8;
+}
+/* HEADER */
+
+#header {
+  background: #f3f1f1;
+  color: #333333;
+}
+
+#header a:link,
+#header a:visited {
+  color: #0023a9;
+}
+
+#user-tools a:focus,
+#user-tools a:hover {
+  border-bottom-color: #036;
+  color: #19438c;
+}
+
+#branding h1 {
+  color: #333333;
+}
+
+#branding h1,
+#branding h1 a:link,
+#branding h1 a:visited {
+  color: #333333;
+}
+
+.quiet,
+a.quiet:link,
+a.quiet:visited,
+.help,
+p.help,
+form p.help,
+div.help,
+form div.help,
+div.help li {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #8b6363;
+}
+
+ul.messagelist li {
+  background-color: #e9ffe9;
+}
+
+/**
+TODO: remover esse !important
+**/
+.login #header h1 a {
+  color: #333 !important;
+}
+
+/** Customizações adicionais **/
+
+div.submit-row {
+  position: sticky;
+}

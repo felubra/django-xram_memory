@@ -26,7 +26,7 @@ class Common(Configuration):
 
     # Application definition
     INSTALLED_APPS = [
-        'django.contrib.admin',
+        'xram_memory.apps.DefaultAdminConfig',
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
@@ -35,11 +35,12 @@ class Common(Configuration):
         'django.contrib.staticfiles',
 
         'django_extensions',
-        'debug_toolbar',
-
         'xram_memory.users',
-        'xram_memory.archived_news',
-        'xram_memory.news_fetcher',
+        'xram_memory.taxonomy',
+        'xram_memory.logger',
+
+        'xram_memory.artifact',
+        'easy_thumbnails',
 
         'django_rq',
     ]
@@ -53,6 +54,7 @@ class Common(Configuration):
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'django_currentuser.middleware.ThreadLocalUserMiddleware',
     ]
 
     ROOT_URLCONF = 'xram_memory.urls'
@@ -60,7 +62,7 @@ class Common(Configuration):
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [],
+            'DIRS': [os.path.join(BASE_DIR, 'xram_memory', 'templates')],
             'APP_DIRS': True,
             'OPTIONS': {
                 'context_processors': [
@@ -71,6 +73,10 @@ class Common(Configuration):
                 ],
             },
         },
+    ]
+
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, "xram_memory", "static"),
     ]
 
     WSGI_APPLICATION = 'xram_memory.wsgi.application'
@@ -100,9 +106,9 @@ class Common(Configuration):
 
     # Internationalization
     # https://docs.djangoproject.com/en/2.1/topics/i18n/
-    LANGUAGE_CODE = 'en-us'
+    LANGUAGE_CODE = 'pt-br'
 
-    TIME_ZONE = 'UTC'
+    TIME_ZONE = 'America/Sao_Paulo'
 
     USE_I18N = True
 
@@ -128,11 +134,28 @@ class Common(Configuration):
         },
     }
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
+    PDF_ARTIFACT_DIR = 'artifacts/documents/pdf_files/'
+    IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
+    VALID_FILE_UPLOAD_MIME_TYPES = (
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
 
-    NEWS_FETCHER_SAVED_DIR_ROOT = 'saved_news_pages/'
-    NEWS_FETCHER_SAVED_DIR_PDF = 'saved_news_pages/pdf/'
-    NEWS_FETCHER_SAVED_DIR_IMAGE = 'saved_news_pages/image/'
-    NEWS_FETCHER_SAVED_DIR_HTML = 'saved_news_pages/html/'
+    THUMBNAIL_SOURCE_GENERATORS = (
+        'easy_thumbnails.source_generators.pil_image',
+        'xram_memory.lib.file_previews.pdf_preview',
+        'xram_memory.lib.file_previews.icon_preview',
+    )
+
+    STATICFILES_FINDERS = [
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'npm.finders.NpmFinder',
+    ]
+    NPM_ROOT_PATH = BASE_DIR
+    NPM_FILE_PATTERNS = {
+        'file-icon-vectors': ['dist\\icons\\vivid\\*'],
+        'stopwords-iso': ['stopwords-iso.json'],
+    }
 
 
 class Development(Common):
@@ -141,7 +164,7 @@ class Development(Common):
     """
     DEBUG = True
 
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.99.100']
 
     INTERNAL_IPS = [
         '127.0.0.1'
@@ -149,6 +172,10 @@ class Development(Common):
 
     MIDDLEWARE = Common.MIDDLEWARE + [
         'debug_toolbar.middleware.DebugToolbarMiddleware'
+    ]
+
+    INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'debug_toolbar',
     ]
 
     LOGGING = {
@@ -181,13 +208,17 @@ class Staging(Common):
     SECURE_BROWSER_XSS_FILTER = values.BooleanValue(True)
     SECURE_CONTENT_TYPE_NOSNIFF = values.BooleanValue(True)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = values.BooleanValue(True)
-    SECURE_HSTS_SECONDS = values.IntegerValue(31536000)
+    SECURE_HSTS_SECONDS = values.IntegerValue(3600)
     SECURE_REDIRECT_EXEMPT = values.ListValue([])
     SECURE_SSL_HOST = values.Value(None)
     SECURE_SSL_REDIRECT = values.BooleanValue(True)
     SECURE_PROXY_SSL_HEADER = values.TupleValue(
         ('HTTP_X_FORWARDED_PROTO', 'https')
     )
+
+    ALLOWED_HOSTS = ['xram-memory.felipelube.com']
+    USE_X_FORWARDED_HOST = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 class Production(Staging):
