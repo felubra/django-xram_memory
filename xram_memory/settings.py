@@ -158,7 +158,8 @@ class Common(Configuration):
         'file-icon-vectors': ['dist\\icons\\vivid\\*'],
         'stopwords-iso': ['stopwords-iso.json'],
         'material-design-icons': ['navigation\\svg\\production\\ic_fullscreen*'],
-        'quill': ['dist\\*']
+        'quill': ['dist\\*'],
+        'screenfull': ['dist\\*'],
     }
 
 
