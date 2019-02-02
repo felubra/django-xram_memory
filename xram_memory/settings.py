@@ -160,8 +160,6 @@ class Common(Configuration):
         'stopwords-iso',
         'file-icon-vectors',
         'quill=https://github.com/quilljs/quill/releases/download/v1.3.6/quill.tar.gz',
-        'screenfull',
-        'material-design-icons',
     )
 
 

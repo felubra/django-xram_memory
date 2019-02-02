@@ -36,7 +36,6 @@ class QuillWidget(Widget):
             )
         }
         js = (
-            'screenfull/dist/screenfull.js',
             'quill/quill.js',
             'quill_widget/js/quill-widget.js',
         )
