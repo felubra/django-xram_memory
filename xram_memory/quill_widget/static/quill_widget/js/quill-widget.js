@@ -24,7 +24,7 @@ const plugEditors = function() {
   const handleMaximize = function(event) {
     if (screenfull.enabled) {
       const icon = this.button.querySelector("img");
-      screenfull.toggle(this.quillContainer).then(function() {
+      screenfull.on("change", () => {
         if (screenfull.isFullscreen) {
           icon.setAttribute(
             "src",
@@ -37,6 +37,7 @@ const plugEditors = function() {
           );
         }
       });
+      screenfull.toggle(this.quillContainer);
     } else {
       alert(
         "Infelizmente o seu navegador não suporta exibição em tela inteira."
