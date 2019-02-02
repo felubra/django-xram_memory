@@ -157,6 +157,8 @@ class Common(Configuration):
         'stopwords-iso': ['stopwords-iso.json'],
     }
 
+    ELASTIC_SEARCH_HOSTS = ['127.0.0.1']
+
 
 class Development(Common):
     """

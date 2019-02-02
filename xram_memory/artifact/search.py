@@ -3,22 +3,22 @@ from elasticsearch_dsl import Document, Text, Date, Keyword
 from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from . import models
+from django.conf import settings
 
 connections.create_connection(
-    hosts=['127.0.0.1'])  # @todo, usar uma config
+    hosts=settings.ELASTIC_SEARCH_HOSTS)
 
 
-class ArchivedNewsIndex(Document):
-    url = Text()
-    archived_news_url = Text()
+class NewsIndex(Document):
     title = Text()
-    summary = Text()
-    text = Text()
-    created_at = Date()
-    modified_at = Date()
+    teaser = Text()
+    body = Text()
+    published_date = Date()
+    language = Text()
 
     authors = Keyword(multiple=True)
     keywords = Keyword(multiple=True)
+    subjects = Keyword(multiple=True)
 
     class Index:
         index = 'archived_news-index'
@@ -28,11 +28,12 @@ class ArchivedNewsIndex(Document):
         # transforme os campos abaixo numa string com separação por vírgula
         self.authors = self.authors.split(",")
         self.keywords = [keyword.name for keyword in self.keywords.all()]
-        return super(ArchivedNewsIndex, self).save(** kwargs)
+        self.subjects = [subject.name for subject in self.subjects.all()]
+        return super(NewsIndex, self).save(** kwargs)
 
 
 def bulk_indexing():
-    ArchivedNewsIndex.init()
+    NewsIndex.init()
     es = Elasticsearch()
     bulk(client=es, actions=(b.indexing()
-                             for b in models.ArchivedNews.objects.all().iterator()))
+                             for b in models.News.objects.all().iterator()))

@@ -19,6 +19,7 @@ import redis
 
 from django.db import models
 from django_rq import job
+from ..search import NewsIndex
 
 
 @job
@@ -253,6 +254,24 @@ class News(Artifact):
             del image_contents
             NewsImageCapture.objects.create(
                 image_document=image_document, original_url=self._image, news=self)
+
+    @log_process(operation="indexar", object_type="Notícia")
+    def indexing(self):
+        obj = NewsIndex(
+            meta={'id': self.pk},
+            title=self.title,
+            teaser=self.teaser,
+            body=self.body,
+            published_date=self.published_date,
+            language=self.language,
+
+            authors=self.authors,
+            keywords=self.keywords,
+            subjects=self.subjects,
+            archived_news_url=self.archived_news_url,
+        )
+        obj.save()
+        return obj.to_dict(include_meta=True)
 
 
 class NewsPDFCapture(models.Model):
