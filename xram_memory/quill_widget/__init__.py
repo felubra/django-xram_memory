@@ -30,13 +30,14 @@ class QuillWidget(Widget):
     def media(self):
         css = {
             'screen, projection': (
-                'quill/quill.core.css',
-                'quill/quill.{}.css'.format(self.attrs['data-theme']),
+                'quill/dist/quill.core.css',
+                'quill/dist/quill.{}.css'.format(self.attrs['data-theme']),
                 'quill_widget/css/quill-widget.css',
             )
         }
         js = (
-            'quill/quill.js',
+            'screenfull/dist/screenfull.js',
+            'quill/dist/quill.js',
             'quill_widget/js/quill-widget.js',
         )
         return Media(css=css, js=js)
