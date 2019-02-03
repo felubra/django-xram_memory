@@ -16,17 +16,15 @@ class NewsIndex(Document):
     published_date = Date()
     language = Text()
 
-    authors = Keyword(multiple=True)
-    keywords = Keyword(multiple=True)
-    subjects = Keyword(multiple=True)
+    keywords = Keyword(multi=True)
+    subjects = Keyword(multi=True)
 
     class Index:
-        index = 'archived_news-index'
-        name = 'archived_news-index'
+        index = 'news-index'
+        name = 'news-index'
 
     def save(self, ** kwargs):
         # transforme os campos abaixo numa string com separação por vírgula
-        self.authors = self.authors.split(",")
         self.keywords = [keyword.name for keyword in self.keywords.all()]
         self.subjects = [subject.name for subject in self.subjects.all()]
         return super(NewsIndex, self).save(** kwargs)
