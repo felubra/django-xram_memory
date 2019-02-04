@@ -30,11 +30,13 @@ class Artifact(TraceableEditorialModel):
     keywords = models.ManyToManyField(
         Keyword,
         verbose_name="Palavras-chave",
+        related_name="%(class)s",
         blank=True,
     )
     subjects = models.ManyToManyField(
         Subject,
         verbose_name="Assuntos",
+        related_name="%(class)s",
         blank=True,
     )
 
@@ -52,3 +54,4 @@ class Artifact(TraceableEditorialModel):
             raise ValueError(
                 "Não é possível criar um artefato sem título.")
         super().save(*args, **kwargs)
+
