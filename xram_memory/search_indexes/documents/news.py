@@ -14,6 +14,13 @@ INDEX.settings(
 @INDEX.doc_type
 class NewsDocument(DocType):
     id = fields.IntegerField(attr='id')
+    # Campos de TraceableModel
+    created_at = fields.DateField()
+    modified_at = fields.DateField()
+    # Campos de TraceableEditorialModel
+    published = fields.BooleanField()
+    featured = fields.BooleanField()
+    # Campos de Artifact
     title = fields.TextField()
     teaser = fields.TextField()
     keywords = fields.KeywordField(
@@ -24,7 +31,6 @@ class NewsDocument(DocType):
         },
         multi=True
     )
-
     subjects = fields.KeywordField(
         attr='subjects_indexing',
         fields={
@@ -33,7 +39,7 @@ class NewsDocument(DocType):
         },
         multi=True
     )
-
+    # Campos de News
     published_date = fields.DateField()
     language = fields.KeywordField()
 
