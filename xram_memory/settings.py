@@ -160,6 +160,7 @@ class Common(Configuration):
     }
     ELASTICSEARCH_INDEX_NAMES = {
         'xram_memory.search_indexes.documents.news': 'artifact_news',
+        'xram_memory.search_indexes.documents.document': 'artifact_document',
     }
     ELASTICSEARCH_DSL = {
         'default': {
