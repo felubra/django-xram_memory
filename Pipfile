@@ -36,3 +36,6 @@ easy-thumbnails = {editable = true,git = "https://github.com/SmileyChris/easy-th
 pdf2image = "*"
 cairosvg = "*"
 django-npm = "*"
+django-elasticsearch-dsl = "*"
+elasticsearch-dsl = "*"
+
