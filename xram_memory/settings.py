@@ -33,11 +33,13 @@ class Common(Configuration):
         'django.contrib.messages',
         'whitenoise.runserver_nostatic',
         'django.contrib.staticfiles',
+        'django_elasticsearch_dsl',
 
         'django_extensions',
         'xram_memory.users',
         'xram_memory.taxonomy',
         'xram_memory.logger',
+        'xram_memory.search_indexes',
 
         'xram_memory.artifact',
         'easy_thumbnails',
@@ -155,6 +157,15 @@ class Common(Configuration):
     NPM_FILE_PATTERNS = {
         'file-icon-vectors': ['dist\\icons\\vivid\\*'],
         'stopwords-iso': ['stopwords-iso.json'],
+    }
+    ELASTICSEARCH_INDEX_NAMES = {
+        'xram_memory.search_indexes.documents.news': 'artifact_news',
+    }
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': 'localhost:9200',
+            'timeout': 30,
+        },
     }
 
 
