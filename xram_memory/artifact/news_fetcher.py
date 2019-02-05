@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 from functools import lru_cache
 from xram_memory.lib import stopwords
 
+from django_rq import job
+
 
 class NewsFetcher:
     """
@@ -155,3 +157,26 @@ class NewsFetcher:
         response.raise_for_status()
         soup = BeautifulSoup(response.content)
         return soup.title.text
+
+
+@job
+def add_additional_info(news, config):
+    try:
+        news._inside_job = True
+        if config['set_basic_info']:
+            news.set_basic_info()
+        # setprogress... 1/3
+        if config['fetch_archived_url']:
+            news.fetch_archived_url()
+        # setprogress... 2/3
+        news.save()
+        if config['add_pdf_capture']:
+            news.add_pdf_capture()
+        # setprogress... 3/3
+        if hasattr(news, '_image') and len(news._image) > 0:
+            news.add_fetched_image()
+        # setprogress... 4/5
+        news.add_fetched_keywords()
+        # setprogress... 5/5
+    finally:
+        del news._inside_job
