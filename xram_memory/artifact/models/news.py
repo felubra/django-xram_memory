@@ -6,7 +6,8 @@ from pathlib import Path
 from django.template.defaultfilters import slugify
 from django.conf import settings
 import datetime
-from ..news_fetcher import NewsFetcher, add_additional_info
+from ..news_fetcher import NewsFetcher
+from xram_memory.artifact.tasks import add_additional_info
 from .documents import Document
 
 from xram_memory.logger.decorators import log_process
@@ -97,12 +98,12 @@ class News(Artifact):
             'fetch_archived_url': fetch_archived_url,
             'add_pdf_capture': add_pdf_capture
         }
-        # não entre em loop infinito
-        if not getattr(self, '_inside_job', None):
-            add_additional_info.delay(self, additional_info)
-
         # salva a notícia
         super().save(*args, **kwargs)
+
+        # não entre em loop infinito
+        if not getattr(self, '_inside_job', None):
+            add_additional_info.delay(self.pk, additional_info)
 
     @property
     def has_basic_info(self):
