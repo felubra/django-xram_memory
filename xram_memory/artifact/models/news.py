@@ -85,6 +85,10 @@ class News(Artifact):
         if not self.url:
             raise ValueError(
                 "Você precisa definir um endereço para a notícia.")
+
+        if not self.title:
+            self.fetch_web_title()
+
         # recebe os atributos do formulário de edição ou define padrões se ausentes
         set_basic_info = getattr(
             self, '_set_basic_info', self.pk is None)
@@ -93,6 +97,7 @@ class News(Artifact):
         add_pdf_capture = getattr(
             self, '_add_pdf_capture', self.pk is None)
 
+        # TODO: agendar todos estes trabalhos
         # preenche automaticamente os campos da notícia com informações inferidas
         if set_basic_info:
             self.set_basic_info()
