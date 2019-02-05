@@ -4,6 +4,7 @@ import pdfkit
 from newspaper import Article
 from goose3 import Goose
 from goose3.image import Image
+from bs4 import BeautifulSoup
 from functools import lru_cache
 from xram_memory.lib import stopwords
 
@@ -146,3 +147,11 @@ class NewsFetcher:
             return None
         finally:
             del raw_html
+
+    @staticmethod
+    @lru_cache(maxsize=2)
+    def fetch_web_title(url):
+        response = requests.get(url, allow_redirects=True)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content)
+        return soup.title.text

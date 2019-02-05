@@ -139,6 +139,10 @@ class News(Artifact):
         else:
             return bool(self.pdf_captures.count() > 0)
 
+    @log_process(operation="pegar o título", object_type="Notícia")
+    def fetch_web_title(self):
+        self.title = NewsFetcher.fetch_web_title(self.url)
+
     @log_process(operation="verificar por uma versão no archive.org", object_type="Notícia")
     def fetch_archived_url(self):
         """
