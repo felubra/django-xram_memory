@@ -89,17 +89,13 @@ class News(Artifact):
         add_pdf_capture = getattr(
             self, '_add_pdf_capture', self.pk is None)
 
-        additional_info = {
-            'set_basic_info': set_basic_info,
-            'fetch_archived_url': fetch_archived_url,
-            'add_pdf_capture': add_pdf_capture
-        }
         # salva a notícia
         super().save(*args, **kwargs)
 
         # não entre em loop infinito
         if not getattr(self, '_inside_job', None):
-            add_additional_info.delay(self.pk, additional_info)
+            add_additional_info.delay(
+                self.pk, set_basic_info, fetch_archived_url, add_pdf_capture)
 
     @property
     def has_basic_info(self):
