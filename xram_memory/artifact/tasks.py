@@ -19,7 +19,6 @@ def add_additional_info(news_id, set_basic_info=False, fetch_archived_url=False,
         if add_pdf_capture:
             news.add_pdf_capture()
         # setprogress... 3/3
-        if not news.image_capture and hasattr(news, '_image') and len(news._image) > 0:
             news.add_fetched_image()
         # setprogress... 4/5
         news.add_fetched_keywords()
