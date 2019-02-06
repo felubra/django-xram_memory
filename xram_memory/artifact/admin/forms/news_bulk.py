@@ -58,7 +58,7 @@ def news_bulk_insertion(request):
             # pegue as urls sanitizadas
             urls, = form.cleaned_data.values()
             # adicione as urls na tarefa
-            bulk_insertion_task.delay(urls, request.user.username)
+            bulk_insertion_task.delay(urls, request.user.id)
             # dê um aviso das urls inseridas
             messages.add_message(request, messages.INFO,
                                  '{} endereço(s) de notícia adicionado(s) à fila para criação.'.format(len(urls)))
