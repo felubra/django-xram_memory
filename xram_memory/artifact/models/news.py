@@ -14,12 +14,8 @@ from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
 from .artifact import Artifact
 
-import django_rq
-import redis
-
 
 from django.db import models
-from django_rq import job
 
 
 class News(Artifact):

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f07ebce0f2b52288de11810a4d5f09f8bdc641dee7c25d780414a6e6aa117755"
+            "sha256": "a212c9cfa6d06ebdce9c7df7d58f2334ad4b78ae41bfea7951926219844eb20d"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -122,13 +122,6 @@
             ],
             "version": "==3.0.4"
         },
-        "click": {
-            "hashes": [
-                "sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13",
-                "sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"
-            ],
-            "version": "==7.0"
-        },
         "colorama": {
             "hashes": [
                 "sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d",
@@ -208,14 +201,6 @@
             ],
             "index": "pypi",
             "version": "==1.0.0"
-        },
-        "django-rq": {
-            "hashes": [
-                "sha256:3ab01d75694c4124baa497ebd4d6c7ebbf9d93cb4b390bfe253b62220562a299",
-                "sha256:48a41c464194096af34be7dfba2b1a71a1cec1f466734e51813b9d138fc20676"
-            ],
-            "index": "pypi",
-            "version": "==1.3.0"
         },
         "easy-thumbnails": {
             "editable": true,
@@ -465,14 +450,6 @@
             ],
             "version": "==3.13"
         },
-        "redis": {
-            "hashes": [
-                "sha256:74c892041cba46078ae1ef845241548baa3bd3634f9a6f0f952f006eb1619c71",
-                "sha256:7ba8612bbfd966dea8c62322543fed0095da2834dbd5a7c124afbc617a156aa7"
-            ],
-            "index": "pypi",
-            "version": "==3.1.0"
-        },
         "requests": {
             "hashes": [
                 "sha256:502a824f31acdacb3a35b6690b5fbf0bc41d63a24a45c4004352b0242707598e",
@@ -487,14 +464,6 @@
                 "sha256:8f04aa6201bacda0567e7ac7f677f1499b0fc76b22140c54bc06edf1ba92e2fa"
             ],
             "version": "==1.4.3"
-        },
-        "rq": {
-            "hashes": [
-                "sha256:2ef7de3fa26a4ce41dcd0561bdba12bb62fa5b9b6d21120122d8dbbe44bb6a77",
-                "sha256:c3c6bdf738652b8464e8b32c5e158a5e646ee553711d5a1e9c6c23ab17ef68b1"
-            ],
-            "index": "pypi",
-            "version": "==0.13.0"
         },
         "singledispatch": {
             "hashes": [

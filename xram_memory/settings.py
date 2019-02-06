@@ -41,8 +41,6 @@ class Common(Configuration):
 
         'xram_memory.artifact',
         'easy_thumbnails',
-
-        'django_rq',
     ]
 
     MIDDLEWARE = [

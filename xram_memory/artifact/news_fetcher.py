@@ -8,8 +8,6 @@ from bs4 import BeautifulSoup
 from functools import lru_cache
 from xram_memory.lib import stopwords
 
-from django_rq import job
-
 
 class NewsFetcher:
     """
