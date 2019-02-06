@@ -8,10 +8,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
-urlpatterns += [
-    path('django-rq/', include('django_rq.urls'))
-]
-
 # TODO: proteger, somente usuários autenticados
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

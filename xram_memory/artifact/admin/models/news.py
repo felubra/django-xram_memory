@@ -1,6 +1,3 @@
-import django_rq
-import redis
-
 from django.contrib import admin
 from django.template.defaultfilters import slugify
 

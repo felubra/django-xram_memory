@@ -7,23 +7,16 @@ from django.template.defaultfilters import slugify
 from django.conf import settings
 import datetime
 from ..news_fetcher import NewsFetcher
+from xram_memory.artifact.tasks import add_additional_info
 from .documents import Document
 
 from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
 from .artifact import Artifact
-
-import django_rq
-import redis
+from django.db.transaction import on_commit
 
 
 from django.db import models
-from django_rq import job
-
-
-@job
-def add_pdf_capture_job(news):
-    return news.add_pdf_capture()
 
 
 class News(Artifact):
@@ -97,33 +90,13 @@ class News(Artifact):
         add_pdf_capture = getattr(
             self, '_add_pdf_capture', self.pk is None)
 
-        # TODO: agendar todos estes trabalhos
-        # preenche automaticamente os campos da notícia com informações inferidas
-        if set_basic_info:
-            self.set_basic_info()
-        # busca uma versão da notícia arquivada no Archive.org
-        if fetch_archived_url:
-            self.fetch_archived_url()
-
         # salva a notícia
         super().save(*args, **kwargs)
 
-        # cria e relaciona a esta notícia palavras-chave encontradas por set_basic_info()
-        self.add_fetched_keywords()
-        # se `set_basic_info()` encontrou uma imagem para a notícia, cria essa imagem como artefato
-        # e relaciona ela a esta notícia
-        if hasattr(self, '_image') and len(self._image) > 0:
-            self.add_fetched_image()
-
-        # agenda um job para adicionar uma captura de página em pdf da notícia, executa a captura se
-        # o agendador não estiver disponível
-        if add_pdf_capture:
-            try:
-                django_rq.get_queue().get_job_ids()
-            except redis.exceptions.ConnectionError:
-                self.add_pdf_capture()
-            else:
-                add_pdf_capture_job.delay(self)
+        # não entre em loop infinito
+        if not getattr(self, '_inside_job', None):
+            on_commit(lambda: add_additional_info.delay(
+                self.pk, set_basic_info, fetch_archived_url, add_pdf_capture))
 
     @property
     def has_basic_info(self):
