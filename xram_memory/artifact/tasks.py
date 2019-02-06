@@ -28,3 +28,12 @@ def add_additional_info(news_id, set_basic_info=False, fetch_archived_url=False,
     finally:
         if news:
             del news._inside_job
+
+
+@shared_task
+def bulk_insertion_task(urls, user):
+    pass
+    # TODO: Para cada url:
+    # 1) Crie uma notícia com o usuário informado
+    # 2) Agende o processamento desta notícia
+    # 3) Informe o status
