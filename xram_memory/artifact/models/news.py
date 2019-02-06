@@ -13,6 +13,7 @@ from .documents import Document
 from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
 from .artifact import Artifact
+from django.db.transaction import on_commit
 
 
 from django.db import models
@@ -94,8 +95,8 @@ class News(Artifact):
 
         # não entre em loop infinito
         if not getattr(self, '_inside_job', None):
-            add_additional_info.delay(
-                self.pk, set_basic_info, fetch_archived_url, add_pdf_capture)
+            on_commit(lambda: add_additional_info.delay(
+                self.pk, set_basic_info, fetch_archived_url, add_pdf_capture))
 
     @property
     def has_basic_info(self):
