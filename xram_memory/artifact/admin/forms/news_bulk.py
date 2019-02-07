@@ -4,12 +4,13 @@ from django import forms
 from django.shortcuts import render
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
-from xram_memory.artifact.tasks import bulk_insertion_task
+from xram_memory.artifact.tasks import add_news_task
 from django.urls import reverse
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.contrib.admin.sites import site as default_site, AdminSite
 from django.core.validators import URLValidator
+from django.db.utils import IntegrityError
 
 from xram_memory.admin import DefaultAdminSite
 
@@ -57,8 +58,11 @@ def news_bulk_insertion(request):
         if form.is_valid():
             # pegue as urls sanitizadas
             urls, = form.cleaned_data.values()
-            # adicione as urls na tarefa
-            bulk_insertion_task.delay(urls, request.user.id)
+            # agende a execução de 5 tarefas por vez para criar notícias com base urls
+            urls_and_user_id = ((url, request.user.id) for url in urls)
+            add_news_task.throws = (IntegrityError,)
+            add_news_task.chunks(urls_and_user_id, 5).group().apply_async()
+            # bulk_insertion_task.apply_async(args=[urls, request.user.id])
             # dê um aviso das urls inseridas
             messages.add_message(request, messages.INFO,
                                  '{} endereço(s) de notícia adicionado(s) à fila para criação.'.format(len(urls)))
