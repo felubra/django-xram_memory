@@ -5,7 +5,7 @@ from django.db.utils import IntegrityError
 
 
 @shared_task
-def add_additional_info(news_id, set_basic_info=False, fetch_archived_url=False, add_pdf_capture=False):
+def add_additional_info_task(news_id, set_basic_info=False, fetch_archived_url=False, add_pdf_capture=False):
     # TODO: distribuir em dois grupos de tarefas separadas paralelas, executar cada grupo sequencialmente
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)

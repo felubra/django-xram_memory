@@ -7,7 +7,7 @@ from django.template.defaultfilters import slugify
 from django.conf import settings
 import datetime
 from ..news_fetcher import NewsFetcher
-from xram_memory.artifact.tasks import add_additional_info
+from xram_memory.artifact.tasks import add_additional_info_task
 from .documents import Document
 
 from xram_memory.logger.decorators import log_process
@@ -95,7 +95,7 @@ class News(Artifact):
 
         # não entre em loop infinito
         if not getattr(self, '_inside_job', None):
-            on_commit(lambda: add_additional_info.delay(
+            on_commit(lambda: add_additional_info_task.delay(
                 self.pk, set_basic_info, fetch_archived_url, add_pdf_capture))
 
     @property
