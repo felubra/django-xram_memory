@@ -7,7 +7,7 @@ from django.template.defaultfilters import slugify
 from django.conf import settings
 import datetime
 from ..news_fetcher import NewsFetcher
-from xram_memory.artifact.tasks import add_additional_info_task
+from xram_memory.artifact import tasks as background_tasks
 from .documents import Document
 
 from xram_memory.logger.decorators import log_process
@@ -15,7 +15,7 @@ from xram_memory.taxonomy.models import Keyword
 from .artifact import Artifact
 from django.db.transaction import on_commit
 
-
+from celery import group
 from django.db import models
 
 
@@ -93,10 +93,24 @@ class News(Artifact):
         # salva a notícia
         super().save(*args, **kwargs)
 
+        def schedule_background_tasks(news_id):
+            tasks = []
+            if set_basic_info:
+                tasks.append(background_tasks.set_basic_info_task.s(news_id))
+            # setprogress... 1/3
+            if fetch_archived_url:
+                tasks.append(
+                    background_tasks.fetch_archived_url_task.s(news_id))
+            # setprogress... 2/3
+            if add_pdf_capture:
+                tasks.append(background_tasks.add_pdf_capture_task.s(news_id))
+            group(tasks)()
+            # TODO:
+            # com o resultado de set_basic_info, execute add_fetched_keywords e add_fetched_image, como tarefas também
+
         # não entre em loop infinito
         if not getattr(self, '_inside_job', None):
-            on_commit(lambda: add_additional_info_task.delay(
-                self.pk, set_basic_info, fetch_archived_url, add_pdf_capture))
+            on_commit(lambda: schedule_background_tasks(self.pk))
 
     @property
     def has_basic_info(self):
@@ -143,6 +157,7 @@ class News(Artifact):
                 setattr(self, '_image', value)
             else:
                 setattr(self, prop, value)
+        return basic_info
 
     @log_process(operation="adicionar uma captura em formato PDF", object_type="Notícia")
     def add_pdf_capture(self):
