@@ -43,8 +43,6 @@ class Common(Configuration):
 
         'xram_memory.artifact',
         'easy_thumbnails',
-
-        'django_rq',
     ]
 
     MIDDLEWARE = [
@@ -209,6 +207,7 @@ class Development(Common):
             },
         },
     }
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
 
 
 class Staging(Common):

@@ -7,23 +7,16 @@ from django.template.defaultfilters import slugify
 from django.conf import settings
 import datetime
 from ..news_fetcher import NewsFetcher
+from xram_memory.artifact import tasks as background_tasks
 from .documents import Document
 
 from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
 from .artifact import Artifact
+from django.db.transaction import on_commit
 
-import django_rq
-import redis
-
-
+from celery import group
 from django.db import models
-from django_rq import job
-
-
-@job
-def add_pdf_capture_job(news):
-    return news.add_pdf_capture()
 
 
 class News(Artifact):
@@ -85,6 +78,10 @@ class News(Artifact):
         if not self.url:
             raise ValueError(
                 "Você precisa definir um endereço para a notícia.")
+
+        if not self.title:
+            self.fetch_web_title()
+
         # recebe os atributos do formulário de edição ou define padrões se ausentes
         set_basic_info = getattr(
             self, '_set_basic_info', self.pk is None)
@@ -93,32 +90,27 @@ class News(Artifact):
         add_pdf_capture = getattr(
             self, '_add_pdf_capture', self.pk is None)
 
-        # preenche automaticamente os campos da notícia com informações inferidas
-        if set_basic_info:
-            self.set_basic_info()
-        # busca uma versão da notícia arquivada no Archive.org
-        if fetch_archived_url:
-            self.fetch_archived_url()
-
         # salva a notícia
         super().save(*args, **kwargs)
 
-        # cria e relaciona a esta notícia palavras-chave encontradas por set_basic_info()
-        self.add_fetched_keywords()
-        # se `set_basic_info()` encontrou uma imagem para a notícia, cria essa imagem como artefato
-        # e relaciona ela a esta notícia
-        if hasattr(self, '_image') and len(self._image) > 0:
-            self.add_fetched_image()
+        def schedule_background_tasks(news_id):
+            tasks = []
+            if set_basic_info:
+                tasks.append(background_tasks.set_basic_info_task.s(news_id))
+            # setprogress... 1/3
+            if fetch_archived_url:
+                tasks.append(
+                    background_tasks.fetch_archived_url_task.s(news_id))
+            # setprogress... 2/3
+            if add_pdf_capture:
+                tasks.append(background_tasks.add_pdf_capture_task.s(news_id))
+            group(tasks)()
+            # TODO:
+            # com o resultado de set_basic_info, execute add_fetched_keywords e add_fetched_image, como tarefas também
 
-        # agenda um job para adicionar uma captura de página em pdf da notícia, executa a captura se
-        # o agendador não estiver disponível
-        if add_pdf_capture:
-            try:
-                django_rq.get_queue().get_job_ids()
-            except redis.exceptions.ConnectionError:
-                self.add_pdf_capture()
-            else:
-                add_pdf_capture_job.delay(self)
+        # não entre em loop infinito
+        if not getattr(self, '_inside_job', None):
+            on_commit(lambda: schedule_background_tasks(self.pk))
 
     @property
     def has_basic_info(self):
@@ -138,6 +130,10 @@ class News(Artifact):
             return False
         else:
             return bool(self.pdf_captures.count() > 0)
+
+    @log_process(operation="pegar o título", object_type="Notícia")
+    def fetch_web_title(self):
+        self.title = NewsFetcher.fetch_web_title(self.url)
 
     @log_process(operation="verificar por uma versão no archive.org", object_type="Notícia")
     def fetch_archived_url(self):
@@ -161,6 +157,7 @@ class News(Artifact):
                 setattr(self, '_image', value)
             else:
                 setattr(self, prop, value)
+        return basic_info
 
     @log_process(operation="adicionar uma captura em formato PDF", object_type="Notícia")
     def add_pdf_capture(self):

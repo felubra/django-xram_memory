@@ -22,8 +22,14 @@ def log_process(object_type, operation=None):
         @wraps(func)
         def logged(*_args, **_kwargs):
             try:
-                username = getattr(get_current_user(), 'username', '<anônimo>')
                 obj = _args[0]
+                try:
+                    username = getattr(get_current_user(),
+                                       'username', None)
+                    if not username:
+                        username = str(obj.modified_by)
+                except:
+                    username = '<anônimo>'
                 object_id = obj.pk if (isinstance(
                     obj, Model) and obj.pk is not None) else "(em criação)"
                 logger.info(

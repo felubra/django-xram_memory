@@ -1,6 +1,3 @@
-import django_rq
-import redis
-
 from django.contrib import admin
 from django.template.defaultfilters import slugify
 
@@ -60,6 +57,7 @@ class NewsAdmin(TraceableEditorialAdminModel):
     search_fields = ('title',)
     date_hierarchy = 'modified_at'
     prepopulated_fields = {"slug": ("title",)}
+    change_list_template = "news_changelist.html"
 
     def get_readonly_fields(self, request, obj=None):
         if obj and obj.slug:
