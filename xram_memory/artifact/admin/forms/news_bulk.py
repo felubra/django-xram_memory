@@ -1,4 +1,5 @@
 from django import forms
+from loguru import logger
 
 
 from django.shortcuts import render
@@ -62,7 +63,11 @@ def news_bulk_insertion(request):
             urls_and_user_id = ((url, request.user.id) for url in urls)
             add_news_task.throws = (IntegrityError,)
             add_news_task.chunks(urls_and_user_id, 5).group().apply_async()
-            # bulk_insertion_task.apply_async(args=[urls, request.user.id])
+            logger.info(
+                'O usuário {username} solicitou a inserção de {n} notícia(s) de uma só vez pela interface administrativa.'.format(
+                    username=request.user.username, n=len(urls)
+                )
+            )
             # dê um aviso das urls inseridas
             messages.add_message(request, messages.INFO,
                                  '{} endereço(s) de notícia adicionado(s) à fila para criação.'.format(len(urls)))
