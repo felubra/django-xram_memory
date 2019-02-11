@@ -30,11 +30,26 @@ def set_basic_info_task(news_id):
     try:
         news._inside_job = True
         basic_info = news.set_basic_info()
+
+        try:
+            # faça uma pré-validação do modelo aqui
+            news.full_clean()
+        except ValidationError as err:
+            # ignore qualquer data de publicação fora do padrão que Fetcher trouxer
+            if err.error_dict.get("published_date"):
+                setattr(news, "published_date", None)
+                del err.error_dict["published_date"]
+            # se mesmo depois de tratarmos nossos erros aqui, ainda assim houver outros erros,
+            # invoque uma exceção
+            if len(err.error_dict.keys()) > 0:
+                raise
+
+        news.save()
+
         if hasattr(news, '_keywords') and len(news._keywords) > 0:
             add_keywords_for_news.apply_async(args=[news._keywords, news_id])
         if hasattr(news, '_keywords') and len(news._keywords) > 0:
             add_image_for_news.apply_async(args=[news._image, news_id])
-        news.save()
         return basic_info
     finally:
         if news:
