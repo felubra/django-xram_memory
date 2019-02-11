@@ -48,7 +48,7 @@ def set_basic_info_task(news_id):
 
         if hasattr(news, '_keywords') and len(news._keywords) > 0:
             add_keywords_for_news.apply_async(args=[news._keywords, news_id])
-        if hasattr(news, '_keywords') and len(news._keywords) > 0:
+        if hasattr(news, '_image') and len(news._image) > 0:
             add_image_for_news.apply_async(args=[news._image, news_id])
         return basic_info
     finally:
@@ -105,6 +105,7 @@ def add_news_task(url, user_id):
     News = apps.get_model('artifact', 'News')
     User = apps.get_model('users', 'User')
     try:
+        # TODO: fazer um chain para invocar as outras chamadas aqui: set_basic_info & fetch_archived_url => add_pdf_capture, add_keywords, add_feched image
         user = User.objects.get(pk=user_id)
         # 1) Crie uma notícia com o usuário informado
         news = News(url=url, created_by=user, modified_by=user)
