@@ -12,6 +12,7 @@ rope = "*"
 pylint-django = "*"
 requests-mock = "*"
 python-magic-bin = "==0.4.14"
+flower = "*"
 
 [packages]
 dj-database-url = "==0.5.0"
@@ -34,4 +35,4 @@ pdf2image = "*"
 cairosvg = "*"
 django-npm = "*"
 "beautifulsoup4" = "*"
-celery = "*"
+celery = {editable = true,git = "https://github.com/PaesslerAG/django-currentuser",ref = "master",extras = ["redis"]}
