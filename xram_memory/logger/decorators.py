@@ -43,7 +43,7 @@ def log_process(object_type, operation=None):
             except Exception as err:
                 logger.error(
                     '[{username} - {object_id} - {object_type}] FALHA: {op}: {err}.'.format(
-                        op=op, object_type=object_type, object_id=object_id, username=username
+                        op=op, object_type=object_type, object_id=object_id, username=username, err=err,
                     )
                 )
             else:
