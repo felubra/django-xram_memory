@@ -1,7 +1,7 @@
 import datetime
 from pathlib import Path
 
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.db.transaction import on_commit
 from django.core.files.base import ContentFile
@@ -167,14 +167,15 @@ class News(Artifact):
         pdf_file = ContentFile(pdf_content, uniq_filename)
         # cria um novo documento do tipo PDF
         # TODO: adicionar as tags da notícia
-        pdf_document = Document.objects.create(
-            file=pdf_file, is_user_object=False, created_by=self.modified_by,
-            modified_by=self.modified_by)
+        with transaction.atomic():
+            pdf_document = Document.objects.create(
+                file=pdf_file, is_user_object=False, created_by=self.modified_by,
+                modified_by=self.modified_by)
+            # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
+            NewsPDFCapture.objects.create(
+                news=self, pdf_document=pdf_document)
         pdf_file.close()
         del pdf_content
-        # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
-        NewsPDFCapture.objects.create(
-            news=self, pdf_document=pdf_document)
 
     def add_fetched_keywords(self):
         """
@@ -225,13 +226,14 @@ class News(Artifact):
             image_contents = NewsFetcher.fetch_image(self._image)
             image_file = ContentFile(image_contents, uniq_filename)
 
-            image_document = Document.objects.create(
-                file=image_file, is_user_object=False, created_by=self.modified_by,
-                modified_by=self.modified_by)
+            with transaction.atomic():
+                image_document = Document.objects.create(
+                    file=image_file, is_user_object=False, created_by=self.modified_by,
+                    modified_by=self.modified_by)
+                NewsImageCapture.objects.create(
+                    image_document=image_document, original_url=self._image, news=self)
             image_file.close()
             del image_contents
-            NewsImageCapture.objects.create(
-                image_document=image_document, original_url=self._image, news=self)
 
 
 class NewsPDFCapture(models.Model):
