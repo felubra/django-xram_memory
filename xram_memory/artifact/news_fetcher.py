@@ -8,6 +8,10 @@ from bs4 import BeautifulSoup
 from functools import lru_cache
 from xram_memory.lib import stopwords
 
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware
+from celery.contrib import rdb
+
 
 class NewsFetcher:
     """
@@ -99,6 +103,17 @@ class NewsFetcher:
                 news_dict["keywords"] = [
                     keyword for keyword in news_dict["keywords"] if keyword not in stopwords[news_dict["language"]]
                 ]
+            # Se a data de publicação veio como string, tente transformá-la num objeto datetime
+            if isinstance(news_dict['published_date'], str):
+                try:
+                    news_dict['published_date'] = parse_datetime(
+                        news_dict['published_date'])
+                except ValueError:
+                    news_dict['published_date'] = None
+            # Se a data de publicação não tem informações de fuso-horário, transforme-a para o fuso local
+            if (news_dict['published_date'] and not news_dict['published_date'].tzinfo):
+                news_dict['published_date'] = make_aware(
+                    news_dict['published_date'], timezone=None, is_dst=False)
             return news_dict
         except Exception as err:
             raise(

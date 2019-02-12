@@ -26,18 +26,6 @@ def add_additional_info(news_id, set_basic_info, fetch_archived_url, add_pdf_cap
         if add_pdf_capture:
             add_pdf_capture_task.delay(news_id)
 
-        try:
-            # faça uma pré-validação do modelo aqui
-            news.full_clean()
-        except ValidationError as err:
-            # ignore qualquer data de publicação fora do padrão que Fetcher trouxer
-            if err.error_dict.get("published_date"):
-                setattr(news, "published_date", None)
-                del err.error_dict["published_date"]
-            # se mesmo depois de tratarmos nossos erros aqui, ainda assim houver outros erros,
-            # invoque uma exceção
-            if len(err.error_dict.keys()) > 0:
-                raise
         # TODO: inclua add_image_for_news, add_keywords_for_news e add_pdf_capture_task num grupo e, quando elas terminarem, agende uma tarefa de indexação
         news.save()
         return news.pk
