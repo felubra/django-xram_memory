@@ -35,6 +35,7 @@ django-elasticsearch-dsl = "*"
 elasticsearch-dsl = "*"
 beautifulsoup4 = "*"
 celery = "*"
+redis = "*"
 
 [packages.pdfkit]
 editable = true
