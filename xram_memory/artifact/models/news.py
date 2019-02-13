@@ -280,6 +280,9 @@ class NewsPDFCapture(models.Model):
         verbose_name = "Captura de Notícia em PDF"
         verbose_name_plural = "Capturas de Notícia em PDF"
 
+    def __str__(self):
+        return "Captura em PDF de \"{}\"".format(self.news.url)
+
 
 class NewsImageCapture(models.Model):
     """
@@ -313,3 +316,6 @@ class NewsImageCapture(models.Model):
     class Meta:
         verbose_name = "Imagem de Notícia"
         verbose_name_plural = "Imagens de Notícias"
+
+    def __str__(self):
+        return "Imagem principal de \"{}\"".format(self.news.url)
