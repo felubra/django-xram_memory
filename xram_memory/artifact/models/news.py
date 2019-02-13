@@ -259,7 +259,7 @@ class NewsPDFCapture(models.Model):
     news = models.ForeignKey(
         News,
         verbose_name="Notícia",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         related_name="pdf_captures",
     )
@@ -288,7 +288,7 @@ class NewsImageCapture(models.Model):
     news = models.OneToOneField(
         News,
         verbose_name="Notícia",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         related_name="image_capture"
     )
