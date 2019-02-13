@@ -1,6 +1,6 @@
 from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
-from xram_memory.artifact.models import News, NewsPDFCapture
+from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
 from xram_memory.taxonomy.models import Keyword, Subject
 
 INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
@@ -11,7 +11,7 @@ INDEX.settings(
     # read_only_allow_delete=False
 )
 
-
+# TODO: indexar apenas notícias publicadas
 @INDEX.doc_type
 class NewsDocument(DocType):
     id = fields.IntegerField(attr='id')
@@ -32,6 +32,25 @@ class NewsDocument(DocType):
         'name': fields.KeywordField(),
         'slug': fields.KeywordField()
     })
+    pdf_captures = fields.NestedField(properties={
+        'pdf_document': fields.NestedField(properties={
+            'file_size': fields.IntegerField(),
+            'file_url': fields.KeywordField(
+                attr='file_indexing',
+            )
+        }),
+        'pdf_capture_date': fields.DateField(),
+    })
+
+    image_capture = fields.NestedField(properties={
+        'image_document': fields.NestedField(properties={
+            'file_size': fields.IntegerField(),
+            'file_url': fields.KeywordField(
+                attr='file_indexing',
+            )
+        }),
+        'image_capture_date': fields.DateField(),
+    })
     # Campos de News
     published_date = fields.DateField()
     language = fields.KeywordField()
@@ -49,4 +68,4 @@ class NewsDocument(DocType):
     class Meta(object):
         model = News  # O modelo associado a este documento
         parallel_indexing = True
-        related_models = [Keyword, Subject, NewsPDFCapture]
+        related_models = [Keyword, Subject, NewsPDFCapture, NewsImageCapture]
