@@ -31,6 +31,8 @@ python-magic = "*"
 pdf2image = "*"
 cairosvg = "*"
 django-npm = "*"
+django-elasticsearch-dsl = "*"
+elasticsearch-dsl = "*"
 beautifulsoup4 = "*"
 
 [packages.pdfkit]
