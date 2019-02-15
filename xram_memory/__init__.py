@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
+import os
 import socket
-from django.core.checks import Error, register
+from django.core.checks import register, Warning, Critical
 from kombu import Connection
 from kombu.exceptions import OperationalError
 from django.conf import settings
@@ -12,6 +13,16 @@ from .celery import app as celery_app
 @register()
 def celery_broker_check(app_configs, **kwargs):
     errors = []
+
+    if os.environ['DJANGO_CONFIGURATION'] == 'Development':
+        errors.append(
+            Warning(
+                'Pulando as verificações sobre o servidor de fila, pois estamos em desenvolvimento.',
+                hint="Pode ser que o aplicativo não funcione corretamente"
+            )
+        )
+        return errors
+
     try:
         conn = Connection(settings.CELERY_BROKER_URL)
         conn.ensure_connection(max_retries=3)
