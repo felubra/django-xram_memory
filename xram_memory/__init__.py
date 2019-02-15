@@ -20,7 +20,7 @@ def celery_broker_check(app_configs, **kwargs):
         d = insp.stats()
         if not d:
             errors.append(
-                Error(
+                Critical(
                     'Nenhum worker do Celery foi encontrado',
                     hint="Tenha certeza de que você iniciou ao menos um worker",
                     obj=inspect,
@@ -29,7 +29,7 @@ def celery_broker_check(app_configs, **kwargs):
             )
     except (IOError, OperationalError):
         errors.append(
-            Error(
+            Critical(
                 'Falha ao tentar conexão com o message broker do Celery',
                 hint='Verifique se o broker está rodando e disponível em {}.'.format(
                     settings.CELERY_BROKER_URL),
