@@ -146,6 +146,14 @@ class Common(Configuration):
         'xram_memory.lib.file_previews.icon_preview',
     )
 
+    THUMBNAIL_ALIASES = {
+        '': {
+            'thumbnail': {
+                'size': (250, 250)
+            }
+        }
+    }
+
     STATICFILES_FINDERS = [
         'django.contrib.staticfiles.finders.FileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',

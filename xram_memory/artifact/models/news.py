@@ -13,6 +13,7 @@ from xram_memory.artifact.models import Artifact, Document
 from xram_memory.artifact import tasks as background_tasks
 from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
+from easy_thumbnails.files import get_thumbnailer
 
 
 class News(Artifact):
@@ -234,6 +235,12 @@ class News(Artifact):
                     image_document=image_document, original_url=self._image, news=self)
             image_file.close()
             del image_contents
+
+    @property
+    def image_capture_indexing(self):
+        if self.image_capture:
+            url = get_thumbnailer(self.image_capture.image_document.file)['thumbnail'].url
+            return url
 
 
 class NewsPDFCapture(models.Model):
