@@ -1,6 +1,7 @@
 import requests
 import pdfkit
 
+import newspaper as newspaper3k
 from newspaper import Article
 from goose3 import Goose
 from goose3.image import Image
@@ -170,3 +171,13 @@ class NewsFetcher:
         response.raise_for_status()
         soup = BeautifulSoup(response.content)
         return soup.title.text
+
+    @staticmethod
+    @lru_cache(maxsize=2)
+    def build_newspapaper(url):
+        newspaper = newspaper3k.build(url)
+        newspaper.download()
+        newspaper.parse()
+        #TODO: retornar o objeto apropriado para o modelo, não o 'lowlevel' da biblioteca
+        #TODO: determinar o título com base no documento html
+        return newspaper

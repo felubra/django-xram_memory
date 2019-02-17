@@ -139,6 +139,8 @@ class Common(Configuration):
     IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
     VALID_FILE_UPLOAD_MIME_TYPES = (
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
+    VALID_FILE_UPLOAD_IMAGES_MIME_TYPES = (
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',)
 
     THUMBNAIL_SOURCE_GENERATORS = (
         'easy_thumbnails.source_generators.pil_image',

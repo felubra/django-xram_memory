@@ -9,6 +9,14 @@ PROCESSING_TASK_TIMEOUT = 300
 FETCH_TASK_TIMEOUT = 30
 
 
+
+@shared_task(autoretry_for=(OperationalError,), retry_backoff=5, retry_kwargs={'max_retries': 10}, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
+def newspaper_set_basic_info(newspaper_id):
+    Newspaper = apps.get_model('artifact', 'Newspaper')
+    newspaper = Newspaper.objects.get(pk=newspaper_id)
+    newspaper.set_basic_info()
+    newspaper.save()
+
 @shared_task(autoretry_for=(OperationalError,), retry_backoff=5, retry_kwargs={'max_retries': 10}, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
 def add_additional_info(news_id, set_basic_info, fetch_archived_url, add_pdf_capture):
     News = apps.get_model('artifact', 'News')

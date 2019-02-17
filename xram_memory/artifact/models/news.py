@@ -1,3 +1,4 @@
+import urllib
 import datetime
 from pathlib import Path
 
@@ -8,8 +9,8 @@ from django.core.files.base import ContentFile
 from django.core.validators import URLValidator
 from django.template.defaultfilters import slugify
 
+from xram_memory.artifact.models import Artifact, Document, Newspaper
 from xram_memory.artifact.news_fetcher import NewsFetcher
-from xram_memory.artifact.models import Artifact, Document
 from xram_memory.artifact import tasks as background_tasks
 from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
@@ -63,6 +64,13 @@ class News(Artifact):
         default='pt',
     )
 
+    newspaper = models.ForeignKey(
+        Newspaper,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='news'
+    )
+
     class Meta:
         verbose_name = "Notícia"
         verbose_name_plural = "Notícias"
@@ -79,6 +87,28 @@ class News(Artifact):
         if not self.title:
             self.fetch_web_title()
 
+        base_url = "{uri.scheme}://{uri.netloc}".format(uri=urllib.parse.urlsplit(self.url))
+        newspaper_created = False
+        try:
+            if not self.newspaper and not getattr(self, '_inside_job', None):
+                try:
+                    newspaper = Newspaper.objects.get(url=base_url)
+                    self.newspaper = newspaper
+                except Newspaper.DoesNotExist:
+                    raise
+        except Newspaper.DoesNotExist:
+            # crie um jornal (newspaper ) básico agora
+            newspaper = Newspaper.objects.create(
+                title=base_url,
+                url=base_url,
+                created_by=self.created_by,
+                modified_by=self.modified_by
+            )
+            self.newspaper = newspaper
+            newspaper_created = True
+        except:
+            self.newspaper = None
+
         # recebe os atributos do formulário de edição ou define padrões se ausentes
         set_basic_info = getattr(
             self, '_set_basic_info', self.pk is None)
@@ -90,10 +120,15 @@ class News(Artifact):
         # salva a notícia
         super().save(*args, **kwargs)
 
+        def schedule_tasks(news_id, newspaper_id = None):
+            background_tasks.add_additional_info.delay(
+                news_id, set_basic_info, fetch_archived_url, add_pdf_capture)
+            if newspaper_id:
+                background_tasks.newspaper_set_basic_info.delay(newspaper_id)
+
         # não entre em loop infinito
         if not getattr(self, '_inside_job', None):
-            on_commit(lambda: background_tasks.add_additional_info(
-                self.id, set_basic_info, fetch_archived_url, add_pdf_capture))
+            on_commit(lambda: schedule_tasks(self.pk, self.newspaper.pk if self.newspaper and newspaper_created else None))
 
     @property
     def has_basic_info(self):
