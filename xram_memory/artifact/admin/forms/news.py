@@ -59,6 +59,8 @@ class NewsAdminForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
         # operações adicionais sobre o modelo
+        title = cleaned_data.get(
+            'title', None)
         set_basic_info = cleaned_data.get(
             'set_basic_info', False)
         fetch_archived_url = cleaned_data.get(
@@ -70,7 +72,7 @@ class NewsAdminForm(forms.ModelForm):
         # TODO: verificar  slug vazia
         slug = cleaned_data.get('slug', None)
 
-        if not set_basic_info and self.instance.title == '':
+        if not set_basic_info and title == '':
             self.add_error(
                 'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
 
