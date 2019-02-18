@@ -12,6 +12,7 @@ INDEX.settings(
 )
 
 # TODO: indexar apenas notícias publicadas
+# TODO: remover stopwords com um normalizer
 @INDEX.doc_type
 class NewsDocument(DocType):
     id = fields.IntegerField(attr='id')
@@ -49,8 +50,8 @@ class NewsDocument(DocType):
     published_date = fields.DateField()
     language = fields.KeywordField()
     newspaper = fields.NestedField(properties={
-        'url' : fields.KeywordField(),
-        'title' : fields.KeywordField(),
+        'url': fields.KeywordField(),
+        'title': fields.KeywordField(),
     })
 
     def get_instances_from_related(self, related_instance):
@@ -64,4 +65,5 @@ class NewsDocument(DocType):
     class Meta(object):
         model = News  # O modelo associado a este documento
         parallel_indexing = True
-        related_models = [Keyword, Subject, NewsPDFCapture, NewsImageCapture, Newspaper]
+        related_models = [Keyword, Subject,
+                          NewsPDFCapture, NewsImageCapture, Newspaper]
