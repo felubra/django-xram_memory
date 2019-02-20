@@ -2,11 +2,13 @@ import urllib
 import datetime
 from pathlib import Path
 
-from django.db import models, transaction
+from celery import group
 from django.conf import settings
+from django.db import models, transaction
 from django.db.transaction import on_commit
 from django.core.files.base import ContentFile
 from django.core.validators import URLValidator
+from easy_thumbnails.files import get_thumbnailer
 from django.template.defaultfilters import slugify
 
 from xram_memory.artifact.models import Artifact, Document, Newspaper
@@ -14,7 +16,6 @@ from xram_memory.artifact.news_fetcher import NewsFetcher
 from xram_memory.artifact import tasks as background_tasks
 from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
-from easy_thumbnails.files import get_thumbnailer
 
 
 class News(Artifact):
@@ -120,15 +121,19 @@ class News(Artifact):
         # salva a notícia
         super().save(*args, **kwargs)
 
-        def schedule_tasks(news_id, newspaper_id = None):
-            background_tasks.add_additional_info.delay(
-                news_id, set_basic_info, fetch_archived_url, add_pdf_capture)
+        def schedule_tasks(news_id, newspaper_id=None):
+            tasks = []
+            tasks.append(background_tasks.add_additional_info.s(
+                news_id, set_basic_info, fetch_archived_url, add_pdf_capture))
             if newspaper_id:
-                background_tasks.newspaper_set_basic_info.delay(newspaper_id)
+                tasks.append(
+                    background_tasks.newspaper_set_basic_info.s(newspaper_id))
+            group(*tasks).apply_async()
 
         # não entre em loop infinito
         if not getattr(self, '_inside_job', None):
-            on_commit(lambda: schedule_tasks(self.pk, self.newspaper.pk if self.newspaper and newspaper_created else None))
+            on_commit(lambda: schedule_tasks(
+                self.pk, self.newspaper.pk if self.newspaper and newspaper_created else None))
 
     @property
     def has_basic_info(self):
