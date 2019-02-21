@@ -88,7 +88,8 @@ class News(Artifact):
         if not self.title:
             self.fetch_web_title()
 
-        base_url = "{uri.scheme}://{uri.netloc}".format(uri=urllib.parse.urlsplit(self.url))
+        base_url = "{uri.scheme}://{uri.netloc}".format(
+            uri=urllib.parse.urlsplit(self.url))
         newspaper_created = False
         try:
             if not self.newspaper and not getattr(self, '_inside_job', None):
@@ -278,9 +279,13 @@ class News(Artifact):
 
     @property
     def image_capture_indexing(self):
-        if self.image_capture:
-            url = get_thumbnailer(self.image_capture.image_document.file)['thumbnail'].url
-            return url
+        try:
+            if self.image_capture and self.image_capture.image_document and self.image_capture.image_document.file:
+                url = get_thumbnailer(self.image_capture.image_document.file)[
+                    'thumbnail'].url
+                return url
+        except:
+            return None
 
 
 class NewsPDFCapture(models.Model):
