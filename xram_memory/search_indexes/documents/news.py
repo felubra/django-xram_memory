@@ -16,6 +16,7 @@ INDEX.settings(
 @INDEX.doc_type
 class NewsDocument(DocType):
     id = fields.IntegerField(attr='id')
+    url = fields.KeywordField()
     # Campos de TraceableModel
     created_at = fields.DateField()
     modified_at = fields.DateField()
