@@ -88,7 +88,7 @@ def add_image_for_news(image_url, news_id):
 
 
 @shared_task(autoretry_for=(OperationalError,), retry_backoff=5, retry_kwargs={'max_retries': 10}, retry_backoff_max=300, retry_jitter=True, time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
-def add_pdf_capture_task(news_id):
+def news_add_pdf_capture(news_id):
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)
     news.add_pdf_capture()

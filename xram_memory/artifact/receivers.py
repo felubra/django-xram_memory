@@ -88,3 +88,12 @@ def news_add_archived_url(sender, **kwargs):
         transaction.on_commit(lambda:
                               background_tasks.news_add_archived_url.delay(instance.pk))
 
+
+@receiver(post_save)
+def news_add_pdf_capture(sender, **kwargs):
+    instance = kwargs['instance']
+    if isinstance(instance, (News)) and getattr(instance, '_add_pdf_capture', False):
+        transaction.on_commit(lambda:
+                              background_tasks.news_add_pdf_capture.delay(instance.pk))
+
+
