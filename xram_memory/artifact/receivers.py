@@ -1,5 +1,6 @@
 from urllib.parse import urlsplit
 
+from django.db import transaction
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
@@ -68,6 +69,6 @@ def newspaper_add_basic_info(sender, **kwargs):
     if hasattr(instance, '_save_in_signal_newspaper_add_basic_info'):
         return
     if isinstance(instance, (Newspaper)) and not instance.has_basic_info:
-        background_tasks.newspaper_set_basic_info.delay(
-            instance.pk)
+        transaction.on_commit(lambda: background_tasks.newspaper_set_basic_info.delay(
+            instance.pk))
 
