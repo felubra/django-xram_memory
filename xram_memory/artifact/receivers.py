@@ -95,5 +95,3 @@ def news_add_pdf_capture(sender, **kwargs):
     if isinstance(instance, (News)) and getattr(instance, '_add_pdf_capture', False):
         transaction.on_commit(lambda:
                               background_tasks.news_add_pdf_capture.delay(instance.pk))
-
-

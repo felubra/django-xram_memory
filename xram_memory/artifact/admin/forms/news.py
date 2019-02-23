@@ -89,14 +89,10 @@ class NewsAdminForm(forms.ModelForm):
                 title = NewsFetcher.fetch_web_title(url)
                 if not title:
                     raise ValueError()
-                cleaned_data['set_basic_info'] = False
             except ValueError:
                 self.add_error(
                     'title', "Não foi possível inferir o título automaticamente, preencha ele manualmente.")
             except:
-                # Desmarque o checkbox depois de um erro
-                # TODO: isto não está funcionando.
-                cleaned_data['set_basic_info'] = False
                 self.add_error(None,
                                "Não foi possível determinar automaticamente informações sobre esta notícia no momento, por-favor insira os dados dela manualmente.")
 

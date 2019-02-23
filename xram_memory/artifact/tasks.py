@@ -44,31 +44,6 @@ def news_add_archived_url(news_id):
     news.save()
 
 
-@shared_task(autoretry_for=(OperationalError,), retry_backoff=5, retry_kwargs={'max_retries': 10}, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
-def add_additional_info(news_id, set_basic_info, fetch_archived_url, add_pdf_capture):
-    News = apps.get_model('artifact', 'News')
-    news = News.objects.get(pk=news_id)
-    try:
-        news._inside_job = True
-        if set_basic_info:
-            news.set_basic_info()
-            if getattr(news, '_image', None):
-                add_image_for_news.delay(news._image, news_id)
-            if getattr(news, '_keywords', None):
-                add_keywords_for_news.delay(news._keywords, news_id)
-        if fetch_archived_url:
-            news.fetch_archived_url()
-        if add_pdf_capture:
-            add_pdf_capture_task.delay(news_id)
-
-        # TODO: inclua add_image_for_news, add_keywords_for_news e add_pdf_capture_task num grupo e, quando elas terminarem, agende uma tarefa de indexação
-        news.save()
-        return news.pk
-    finally:
-        if news:
-            del news._inside_job
-
-
 @shared_task(autoretry_for=(OperationalError,), retry_backoff=5, retry_kwargs={'max_retries': 10}, retry_backoff_max=300, retry_jitter=True,)
 def add_keywords_for_news(keywords, news_id):
     News = apps.get_model('artifact', 'News')
