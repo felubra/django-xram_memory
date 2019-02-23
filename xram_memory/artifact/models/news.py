@@ -4,6 +4,7 @@ from pathlib import Path
 
 from celery import group
 from django.conf import settings
+from django.db.models import Q
 from django.db import models, transaction
 from django.db.transaction import on_commit
 from django.core.files.base import ContentFile
@@ -229,18 +230,12 @@ class News(Artifact):
             for keyword in self._keywords:
                 # TODO: refatorar para usar um objeto Q?
                 try:
-                    # tente achar a palavra-chave pelo nome
-                    db_keyword = Keyword.objects.get(name=keyword)
-                    self.keywords.add(db_keyword)
-                except Keyword.DoesNotExist:
-                    # caso não consiga, tente achar pela slug
-                    try:
-                        # TODO: respeitar o limite máximo da slug na comparação
+                    # tente achar a palavra-chave pelo nome ou pela slug
                         db_keyword = Keyword.objects.get(
-                            slug=slugify(keyword))
+                        Q(name=keyword) | Q(slug=slugify(keyword)))
                         self.keywords.add(db_keyword)
-                    # caso não ache, crie uma palavra-chave utilizando o usuário que modificou esta notícia
                     except Keyword.DoesNotExist:
+                    with transaction.atomic():
                         self.keywords.create(name=keyword, created_by=self.modified_by,
                                              modified_by=self.modified_by)
 
