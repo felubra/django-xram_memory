@@ -80,3 +80,11 @@ def news_add_basic_info(sender, **kwargs):
         transaction.on_commit(lambda:
                               background_tasks.news_set_basic_info.delay(instance.pk))
 
+
+@receiver(post_save)
+def news_add_archived_url(sender, **kwargs):
+    instance = kwargs['instance']
+    if isinstance(instance, (News)) and getattr(instance, '_fetch_archived_url', False):
+        transaction.on_commit(lambda:
+                              background_tasks.news_add_archived_url.delay(instance.pk))
+
