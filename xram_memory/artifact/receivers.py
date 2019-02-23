@@ -72,3 +72,11 @@ def newspaper_add_basic_info(sender, **kwargs):
         transaction.on_commit(lambda: background_tasks.newspaper_set_basic_info.delay(
             instance.pk))
 
+
+@receiver(post_save)
+def news_add_basic_info(sender, **kwargs):
+    instance = kwargs['instance']
+    if isinstance(instance, (News)) and getattr(instance, '_set_basic_info', False):
+        transaction.on_commit(lambda:
+                              background_tasks.news_set_basic_info.delay(instance.pk))
+

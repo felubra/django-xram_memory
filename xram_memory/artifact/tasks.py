@@ -20,6 +20,21 @@ def newspaper_set_basic_info(newspaper_id):
     finally:
         del newspaper._save_in_signal_newspaper_add_basic_info
 
+
+@shared_task(autoretry_for=(OperationalError,), retry_backoff=5, retry_kwargs={'max_retries': 10}, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
+def news_set_basic_info(news_id):
+    News = apps.get_model('artifact', 'News')
+    news = News.objects.get(pk=news_id)
+
+    news.set_basic_info()
+    news.save()
+
+    if getattr(news, '_image', None):
+        add_image_for_news.delay(news._image, news_id)
+    if getattr(news, '_keywords', None):
+        add_keywords_for_news.delay(news._keywords, news_id)
+
+
 @shared_task(autoretry_for=(OperationalError,), retry_backoff=5, retry_kwargs={'max_retries': 10}, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
 def add_additional_info(news_id, set_basic_info, fetch_archived_url, add_pdf_capture):
     News = apps.get_model('artifact', 'News')
