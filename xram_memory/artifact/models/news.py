@@ -87,55 +87,10 @@ class News(Artifact):
                 "Você precisa definir um endereço para a notícia.")
 
         if not self.title:
-            self.fetch_web_title()
-
-        base_url = "{uri.scheme}://{uri.netloc}".format(
-            uri=urllib.parse.urlsplit(self.url))
-        newspaper_created = False
-        try:
-            if not self.newspaper and not getattr(self, '_inside_job', None):
-                try:
-                    newspaper = Newspaper.objects.get(url=base_url)
-                    self.newspaper = newspaper
-                except Newspaper.DoesNotExist:
-                    raise
-        except Newspaper.DoesNotExist:
-            # crie um jornal (newspaper ) básico agora
-            newspaper = Newspaper.objects.create(
-                title=base_url,
-                url=base_url,
-                created_by=self.created_by,
-                modified_by=self.modified_by
-            )
-            self.newspaper = newspaper
-            newspaper_created = True
-        except:
-            self.newspaper = None
-
-        # recebe os atributos do formulário de edição ou define padrões se ausentes
-        set_basic_info = getattr(
-            self, '_set_basic_info', self.pk is None)
-        fetch_archived_url = getattr(
-            self, '_fetch_archived_url', self.pk is None)
-        add_pdf_capture = getattr(
-            self, '_add_pdf_capture', self.pk is None)
+            self.set_web_title()
 
         # salva a notícia
         super().save(*args, **kwargs)
-
-        def schedule_tasks(news_id, newspaper_id=None):
-            tasks = []
-            tasks.append(background_tasks.add_additional_info.s(
-                news_id, set_basic_info, fetch_archived_url, add_pdf_capture))
-            if newspaper_id:
-                tasks.append(
-                    background_tasks.newspaper_set_basic_info.s(newspaper_id))
-            group(*tasks).apply_async()
-
-        # não entre em loop infinito
-        if not getattr(self, '_inside_job', None):
-            on_commit(lambda: schedule_tasks(
-                self.pk, self.newspaper.pk if self.newspaper and newspaper_created else None))
 
     @property
     def has_basic_info(self):
@@ -157,7 +112,7 @@ class News(Artifact):
             return bool(self.pdf_captures.count() > 0)
 
     @log_process(operation="pegar o título", object_type="Notícia")
-    def fetch_web_title(self):
+    def set_web_title(self):
         self.title = NewsFetcher.fetch_web_title(self.url)
 
     @log_process(operation="verificar por uma versão no archive.org", object_type="Notícia")
@@ -231,10 +186,10 @@ class News(Artifact):
                 # TODO: refatorar para usar um objeto Q?
                 try:
                     # tente achar a palavra-chave pelo nome ou pela slug
-                        db_keyword = Keyword.objects.get(
+                    db_keyword = Keyword.objects.get(
                         Q(name=keyword) | Q(slug=slugify(keyword)))
-                        self.keywords.add(db_keyword)
-                    except Keyword.DoesNotExist:
+                    self.keywords.add(db_keyword)
+                except Keyword.DoesNotExist:
                     with transaction.atomic():
                         self.keywords.create(name=keyword, created_by=self.modified_by,
                                              modified_by=self.modified_by)

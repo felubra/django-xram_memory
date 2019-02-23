@@ -8,6 +8,7 @@ from xram_memory.utils import FileValidator
 from xram_memory.artifact.models import Artifact
 from xram_memory.artifact.news_fetcher import NewsFetcher
 
+
 class Newspaper(Artifact):
     url = models.URLField(
         verbose_name="Endereço",
@@ -33,9 +34,13 @@ class Newspaper(Artifact):
     teaser = None
     keywords = None
     subjects = None
-    #TODO: campo brand ('marca')
+    # TODO: campo brand ('marca')
 
     def set_basic_info(self):
-        #TODO: pegar o título correto, não a marca
+        # TODO: pegar o título correto, não a marca
         newspaper = NewsFetcher.build_newspapaper(self.url)
         self.description, self.title = newspaper.description, newspaper.brand
+
+    @property
+    def has_basic_info(self):
+        return self.title != self.url
