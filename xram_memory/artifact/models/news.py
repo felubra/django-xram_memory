@@ -267,7 +267,10 @@ class NewsPDFCapture(models.Model):
         verbose_name_plural = "Capturas de Notícia em PDF"
 
     def __str__(self):
+        try:
         return "Captura em PDF de \"{}\"".format(self.news.url)
+        except AttributeError:
+            return "Captura em PDF de notícia"
 
 
 class NewsImageCapture(models.Model):
@@ -304,4 +307,7 @@ class NewsImageCapture(models.Model):
         verbose_name_plural = "Imagens de Notícias"
 
     def __str__(self):
+        try:
         return "Imagem principal de \"{}\"".format(self.news.url)
+        except AttributeError:
+            return "Imagem principal de notícia"
