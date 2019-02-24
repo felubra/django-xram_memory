@@ -98,3 +98,8 @@ class Document(Artifact):
             self.file_size = self.file.size
         except:
             self.file_size = '0'
+
+    @property
+    def file_indexing(self):
+        if self.file:
+            return self.file.url

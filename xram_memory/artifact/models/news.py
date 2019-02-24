@@ -1,15 +1,19 @@
+import urllib
 import datetime
 from pathlib import Path
 
-from django.db import models
+from celery import group
 from django.conf import settings
+from django.db.models import Q
 from django.db.transaction import on_commit
 from django.core.files.base import ContentFile
 from django.core.validators import URLValidator
+from easy_thumbnails.files import get_thumbnailer
 from django.template.defaultfilters import slugify
+from django.db import models, transaction, IntegrityError
 
+from xram_memory.artifact.models import Artifact, Document, Newspaper
 from xram_memory.artifact.news_fetcher import NewsFetcher
-from xram_memory.artifact.models import Artifact, Document
 from xram_memory.artifact import tasks as background_tasks
 from xram_memory.logger.decorators import log_process
 from xram_memory.taxonomy.models import Keyword
@@ -54,12 +58,17 @@ class News(Artifact):
         blank=True,
         null=True,
     )
-
     language = models.CharField(
         max_length=2,
         null=True,
         blank=True,
         default='pt',
+    )
+    newspaper = models.ForeignKey(
+        Newspaper,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='news'
     )
 
     class Meta:
@@ -76,23 +85,10 @@ class News(Artifact):
                 "Você precisa definir um endereço para a notícia.")
 
         if not self.title:
-            self.fetch_web_title()
-
-        # recebe os atributos do formulário de edição ou define padrões se ausentes
-        set_basic_info = getattr(
-            self, '_set_basic_info', self.pk is None)
-        fetch_archived_url = getattr(
-            self, '_fetch_archived_url', self.pk is None)
-        add_pdf_capture = getattr(
-            self, '_add_pdf_capture', self.pk is None)
+            self.set_web_title()
 
         # salva a notícia
         super().save(*args, **kwargs)
-
-        # não entre em loop infinito
-        if not getattr(self, '_inside_job', None):
-            on_commit(lambda: background_tasks.add_additional_info(
-                self.id, set_basic_info, fetch_archived_url, add_pdf_capture))
 
     @property
     def has_basic_info(self):
@@ -114,7 +110,7 @@ class News(Artifact):
             return bool(self.pdf_captures.count() > 0)
 
     @log_process(operation="pegar o título", object_type="Notícia")
-    def fetch_web_title(self):
+    def set_web_title(self):
         self.title = NewsFetcher.fetch_web_title(self.url)
 
     @log_process(operation="verificar por uma versão no archive.org", object_type="Notícia")
@@ -170,36 +166,33 @@ class News(Artifact):
         pdf_document = Document.objects.create(
             file=pdf_file, is_user_object=False, created_by=self.modified_by,
             modified_by=self.modified_by)
+        # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
+        NewsPDFCapture.objects.create(news=self, pdf_document=pdf_document)
+
         pdf_file.close()
         del pdf_content
-        # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
-        NewsPDFCapture.objects.create(
-            news=self, pdf_document=pdf_document)
 
+    @log_process(operation="adicionar palavras-chave", object_type="Notícia")
     def add_fetched_keywords(self):
         """
         Para cada uma das palavras-chave descobertas por set_basic_info(), crie uma palavra-chave no
         banco de dados e associe ela a esta notícia
         """
-        # TODO: fortificar esse código, último except pode falhar
         if hasattr(self, '_keywords') and len(self._keywords) > 0:
+            keywords = []
             for keyword in self._keywords:
-                # TODO: refatorar para usar um objeto Q?
                 try:
-                    # tente achar a palavra-chave pelo nome
-                    db_keyword = Keyword.objects.get(name=keyword)
-                    self.keywords.add(db_keyword)
+                    # tente achar a palavra-chave pelo nome ou pela slug
+                    keywords.append(Keyword.objects.get(
+                        Q(name=keyword) | Q(slug=slugify(keyword))))
                 except Keyword.DoesNotExist:
-                    # caso não consiga, tente achar pela slug
                     try:
-                        # TODO: respeitar o limite máximo da slug na comparação
-                        db_keyword = Keyword.objects.get(
-                            slug=slugify(keyword))
-                        self.keywords.add(db_keyword)
-                    # caso não ache, crie uma palavra-chave utilizando o usuário que modificou esta notícia
-                    except Keyword.DoesNotExist:
-                        self.keywords.create(name=keyword, created_by=self.modified_by,
-                                             modified_by=self.modified_by)
+                        keywords.append(Keyword.objects.create(name=keyword, created_by=self.modified_by,
+                                                               modified_by=self.modified_by))
+                    except IntegrityError:
+                        pass
+            if len(keywords):
+                self.keywords.add(*keywords)
 
     @log_process(operation="baixar uma imagem", object_type="Notícia")
     def add_fetched_image(self):
@@ -212,8 +205,9 @@ class News(Artifact):
         # TODO: fortificar esse código, último except pode falhar
         try:
             captured_image = NewsImageCapture.objects.get(
-                original_url=self._image)
-            self.image_capture = captured_image
+                original_url=self._image, news=self)
+            if captured_image:
+                return
         except NewsImageCapture.DoesNotExist:
             original_filename = Path(self._image).name
             uniq_filename = (
@@ -228,10 +222,20 @@ class News(Artifact):
             image_document = Document.objects.create(
                 file=image_file, is_user_object=False, created_by=self.modified_by,
                 modified_by=self.modified_by)
-            image_file.close()
-            del image_contents
             NewsImageCapture.objects.create(
                 image_document=image_document, original_url=self._image, news=self)
+            image_file.close()
+            del image_contents
+
+    @property
+    def image_capture_indexing(self):
+        try:
+            if self.image_capture and self.image_capture.image_document and self.image_capture.image_document.file:
+                url = get_thumbnailer(self.image_capture.image_document.file)[
+                    'thumbnail'].url
+                return url
+        except:
+            return None
 
 
 class NewsPDFCapture(models.Model):
@@ -241,7 +245,7 @@ class NewsPDFCapture(models.Model):
     news = models.ForeignKey(
         News,
         verbose_name="Notícia",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         related_name="pdf_captures",
     )
@@ -262,6 +266,12 @@ class NewsPDFCapture(models.Model):
         verbose_name = "Captura de Notícia em PDF"
         verbose_name_plural = "Capturas de Notícia em PDF"
 
+    def __str__(self):
+        try:
+            return "Captura em PDF de \"{}\"".format(self.news.url)
+        except AttributeError:
+            return "Captura em PDF de notícia"
+
 
 class NewsImageCapture(models.Model):
     """
@@ -270,7 +280,7 @@ class NewsImageCapture(models.Model):
     news = models.OneToOneField(
         News,
         verbose_name="Notícia",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         related_name="image_capture"
     )
@@ -289,9 +299,14 @@ class NewsImageCapture(models.Model):
     original_url = models.CharField(
         verbose_name="Endereço original da imagem",
         max_length=255,
-        unique=True,
     )
 
     class Meta:
         verbose_name = "Imagem de Notícia"
         verbose_name_plural = "Imagens de Notícias"
+
+    def __str__(self):
+        try:
+            return "Imagem principal de \"{}\"".format(self.news.url)
+        except AttributeError:
+            return "Imagem principal de notícia"

@@ -20,10 +20,7 @@ class TaxonomyItemAdmin(TraceableAdminModel):
     def get_fieldsets(self, request, obj):
         super().get_fieldsets(request, obj)
         pk = getattr(obj, 'pk', None)
-        if pk is None:
-            return self.TAXONOMY_ITEM_FIELDSETS
-        else:
-            return self.TAXONOMY_ITEM_FIELDSETS + self.fieldsets
+        return self.TAXONOMY_ITEM_FIELDSETS
 
 
 @admin.register(Keyword)

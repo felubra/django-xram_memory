@@ -8,6 +8,10 @@ class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 
+class NewsImageCaptureStackedInlineForm(forms.ModelForm):
+    pass
+
+
 class NewsAdminForm(forms.ModelForm):
     """
     Um formulário para editar/adicionar uma notícia
@@ -59,6 +63,8 @@ class NewsAdminForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
         # operações adicionais sobre o modelo
+        title = cleaned_data.get(
+            'title', None)
         set_basic_info = cleaned_data.get(
             'set_basic_info', False)
         fetch_archived_url = cleaned_data.get(
@@ -70,7 +76,7 @@ class NewsAdminForm(forms.ModelForm):
         # TODO: verificar  slug vazia
         slug = cleaned_data.get('slug', None)
 
-        if not set_basic_info and self.instance.title == '':
+        if not set_basic_info and title == '':
             self.add_error(
                 'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
 
@@ -87,14 +93,10 @@ class NewsAdminForm(forms.ModelForm):
                 title = NewsFetcher.fetch_web_title(url)
                 if not title:
                     raise ValueError()
-                cleaned_data['set_basic_info'] = False
             except ValueError:
                 self.add_error(
                     'title', "Não foi possível inferir o título automaticamente, preencha ele manualmente.")
             except:
-                # Desmarque o checkbox depois de um erro
-                # TODO: isto não está funcionando.
-                cleaned_data['set_basic_info'] = False
                 self.add_error(None,
                                "Não foi possível determinar automaticamente informações sobre esta notícia no momento, por-favor insira os dados dela manualmente.")
 

@@ -2,15 +2,20 @@ from django.contrib import admin
 from django.template.defaultfilters import slugify
 
 from xram_memory.base_models import TraceableEditorialAdminModel
-from xram_memory.artifact.models import News, NewsPDFCapture
+from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
 from xram_memory.taxonomy.models import Subject, Keyword
 
-from ..forms.news import NewsPDFCaptureStackedInlineForm, NewsAdminForm
+from ..forms.news import NewsPDFCaptureStackedInlineForm, NewsAdminForm, NewsImageCaptureStackedInlineForm
 
 
 class NewsPDFCaptureInline(admin.TabularInline):
     model = NewsPDFCapture
     form = NewsPDFCaptureStackedInlineForm
+
+
+class NewsImageCaptureInline(admin.StackedInline):
+    model = NewsImageCapture
+    form = NewsImageCaptureStackedInlineForm
 
 
 @admin.register(News)
@@ -21,7 +26,7 @@ class NewsAdmin(TraceableEditorialAdminModel):
         }),
 
         ('Informações adicionais', {
-            'fields': ('teaser', 'body',  'published_date', 'authors', 'slug'),
+            'fields': ('teaser', 'body',  'published_date', 'authors', 'slug', ),
         }),
         ('Classificação do conteúdo', {
             'fields': ('subjects', 'keywords', ),
@@ -36,7 +41,7 @@ class NewsAdmin(TraceableEditorialAdminModel):
         }),
 
         ('Informações adicionais', {
-            'fields': ('teaser', 'body',  'published_date', 'authors', 'slug'),
+            'fields': ('teaser', 'body',  'published_date', 'authors', 'slug', ),
         }),
         ('Classificação do conteúdo', {
             'fields': ('subjects', 'keywords', ),
@@ -53,6 +58,7 @@ class NewsAdmin(TraceableEditorialAdminModel):
     list_display_links = ('title', 'id',)
     inlines = [
         NewsPDFCaptureInline,
+        NewsImageCaptureInline,
     ]
     search_fields = ('title',)
     date_hierarchy = 'modified_at'
