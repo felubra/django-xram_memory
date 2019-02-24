@@ -138,7 +138,6 @@ class News(Artifact):
         return basic_info
 
     @log_process(operation="adicionar uma captura em formato PDF", object_type="Notícia")
-    @transaction.atomic
     def add_pdf_capture(self):
         """
         Captura a notícia em formato para impressão e em PDF.
@@ -164,17 +163,16 @@ class News(Artifact):
         pdf_file = ContentFile(pdf_content, uniq_filename)
         # cria um novo documento do tipo PDF
         # TODO: adicionar as tags da notícia
-        with transaction.atomic():
-            pdf_document = Document.objects.create(
-                file=pdf_file, is_user_object=False, created_by=self.modified_by,
-                modified_by=self.modified_by)
-            # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
-            NewsPDFCapture.objects.create(
-                news=self, pdf_document=pdf_document)
+        pdf_document = Document.objects.create(
+            file=pdf_file, is_user_object=False, created_by=self.modified_by,
+            modified_by=self.modified_by)
+        # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
+        NewsPDFCapture.objects.create(news=self, pdf_document=pdf_document)
+
         pdf_file.close()
         del pdf_content
 
-    @transaction.atomic
+    @log_process(operation="adicionar palavras-chave", object_type="Notícia")
     def add_fetched_keywords(self):
         """
         Para cada uma das palavras-chave descobertas por set_basic_info(), crie uma palavra-chave no
@@ -189,16 +187,14 @@ class News(Artifact):
                         Q(name=keyword) | Q(slug=slugify(keyword))))
                 except Keyword.DoesNotExist:
                     try:
-                        with transaction.atomic():
-                            keywords.append(Keyword.objects.create(name=keyword, created_by=self.modified_by,
-                                                                   modified_by=self.modified_by))
+                        keywords.append(Keyword.objects.create(name=keyword, created_by=self.modified_by,
+                                                               modified_by=self.modified_by))
                     except IntegrityError:
                         pass
             if len(keywords):
                 self.keywords.add(*keywords)
 
     @log_process(operation="baixar uma imagem", object_type="Notícia")
-    @transaction.atomic
     def add_fetched_image(self):
         """
         Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e cria uma
@@ -223,12 +219,11 @@ class News(Artifact):
             image_contents = NewsFetcher.fetch_image(self._image)
             image_file = ContentFile(image_contents, uniq_filename)
 
-            with transaction.atomic():
-                image_document = Document.objects.create(
-                    file=image_file, is_user_object=False, created_by=self.modified_by,
-                    modified_by=self.modified_by)
-                NewsImageCapture.objects.create(
-                    image_document=image_document, original_url=self._image, news=self)
+            image_document = Document.objects.create(
+                file=image_file, is_user_object=False, created_by=self.modified_by,
+                modified_by=self.modified_by)
+            NewsImageCapture.objects.create(
+                image_document=image_document, original_url=self._image, news=self)
             image_file.close()
             del image_contents
 
