@@ -39,7 +39,6 @@ def news_set_basic_info(news_id):
 def news_add_archived_url(news_id):
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)
-
     news.fetch_archived_url()
     news.save()
 
@@ -76,11 +75,14 @@ def add_news_task(url, user_id):
     News = apps.get_model('artifact', 'News')
     User = apps.get_model('users', 'User')
     try:
-        # TODO: fazer um chain para invocar as outras chamadas aqui: set_basic_info & fetch_archived_url => add_pdf_capture, add_keywords, add_feched image
         user = User.objects.get(pk=user_id)
         # 1) Crie uma notícia com o usuário informado
         news = News(url=url, created_by=user, modified_by=user)
-        # 2) Salve a notícia
+        # 2) Defina as flags para agendar trabalhos para obter informações adicionais
+        news._set_basic_info = True
+        news._fetch_archived_url = True
+        news._add_pdf_capture = True
+        # 3) Salve a notícia
         news.save()
         return news.pk
     # TODO: verificar por que a exceção IntegrityError não está sendo ignorada pelo parâmetro throws na tarefa
