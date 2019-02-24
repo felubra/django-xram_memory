@@ -5,7 +5,6 @@ from pathlib import Path
 from celery import group
 from django.conf import settings
 from django.db.models import Q
-from django.db import models, transaction
 from django.db.transaction import on_commit
 from django.core.files.base import ContentFile
 from django.core.validators import URLValidator
@@ -59,14 +58,12 @@ class News(Artifact):
         blank=True,
         null=True,
     )
-
     language = models.CharField(
         max_length=2,
         null=True,
         blank=True,
         default='pt',
     )
-
     newspaper = models.ForeignKey(
         Newspaper,
         null=True,
@@ -141,6 +138,7 @@ class News(Artifact):
         return basic_info
 
     @log_process(operation="adicionar uma captura em formato PDF", object_type="Notícia")
+    @transaction.atomic
     def add_pdf_capture(self):
         """
         Captura a notícia em formato para impressão e em PDF.
@@ -176,6 +174,7 @@ class News(Artifact):
         pdf_file.close()
         del pdf_content
 
+    @transaction.atomic
     def add_fetched_keywords(self):
         """
         Para cada uma das palavras-chave descobertas por set_basic_info(), crie uma palavra-chave no
@@ -190,7 +189,7 @@ class News(Artifact):
                         Q(name=keyword) | Q(slug=slugify(keyword))))
                 except Keyword.DoesNotExist:
                     try:
-                    with transaction.atomic():
+                        with transaction.atomic():
                             keywords.append(Keyword.objects.create(name=keyword, created_by=self.modified_by,
                                                                    modified_by=self.modified_by))
                     except IntegrityError:
@@ -199,6 +198,7 @@ class News(Artifact):
                 self.keywords.add(*keywords)
 
     @log_process(operation="baixar uma imagem", object_type="Notícia")
+    @transaction.atomic
     def add_fetched_image(self):
         """
         Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e cria uma
@@ -273,7 +273,7 @@ class NewsPDFCapture(models.Model):
 
     def __str__(self):
         try:
-        return "Captura em PDF de \"{}\"".format(self.news.url)
+            return "Captura em PDF de \"{}\"".format(self.news.url)
         except AttributeError:
             return "Captura em PDF de notícia"
 
@@ -312,6 +312,6 @@ class NewsImageCapture(models.Model):
 
     def __str__(self):
         try:
-        return "Imagem principal de \"{}\"".format(self.news.url)
+            return "Imagem principal de \"{}\"".format(self.news.url)
         except AttributeError:
             return "Imagem principal de notícia"
