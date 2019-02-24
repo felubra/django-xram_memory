@@ -8,6 +8,10 @@ class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 
+class NewsImageCaptureStackedInlineForm(forms.ModelForm):
+    pass
+
+
 class NewsAdminForm(forms.ModelForm):
     """
     Um formulário para editar/adicionar uma notícia
