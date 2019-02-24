@@ -205,8 +205,9 @@ class News(Artifact):
         # TODO: fortificar esse código, último except pode falhar
         try:
             captured_image = NewsImageCapture.objects.get(
-                original_url=self._image)
-            self.image_capture = captured_image
+                original_url=self._image, news=self)
+            if captured_image:
+                return
         except NewsImageCapture.DoesNotExist:
             original_filename = Path(self._image).name
             uniq_filename = (
@@ -299,7 +300,6 @@ class NewsImageCapture(models.Model):
     original_url = models.CharField(
         verbose_name="Endereço original da imagem",
         max_length=255,
-        unique=True,
     )
 
     class Meta:
