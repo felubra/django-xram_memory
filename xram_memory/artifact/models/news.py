@@ -11,6 +11,7 @@ from django.core.files.base import ContentFile
 from django.core.validators import URLValidator
 from easy_thumbnails.files import get_thumbnailer
 from django.template.defaultfilters import slugify
+from django.db import models, transaction, IntegrityError
 
 from xram_memory.artifact.models import Artifact, Document, Newspaper
 from xram_memory.artifact.news_fetcher import NewsFetcher
@@ -180,19 +181,22 @@ class News(Artifact):
         Para cada uma das palavras-chave descobertas por set_basic_info(), crie uma palavra-chave no
         banco de dados e associe ela a esta notícia
         """
-        # TODO: fortificar esse código, último except pode falhar
         if hasattr(self, '_keywords') and len(self._keywords) > 0:
+            keywords = []
             for keyword in self._keywords:
-                # TODO: refatorar para usar um objeto Q?
                 try:
                     # tente achar a palavra-chave pelo nome ou pela slug
-                    db_keyword = Keyword.objects.get(
-                        Q(name=keyword) | Q(slug=slugify(keyword)))
-                    self.keywords.add(db_keyword)
+                    keywords.append(Keyword.objects.get(
+                        Q(name=keyword) | Q(slug=slugify(keyword))))
                 except Keyword.DoesNotExist:
+                    try:
                     with transaction.atomic():
-                        self.keywords.create(name=keyword, created_by=self.modified_by,
-                                             modified_by=self.modified_by)
+                            keywords.append(Keyword.objects.create(name=keyword, created_by=self.modified_by,
+                                                                   modified_by=self.modified_by))
+                    except IntegrityError:
+                        pass
+            if len(keywords):
+                self.keywords.add(*keywords)
 
     @log_process(operation="baixar uma imagem", object_type="Notícia")
     def add_fetched_image(self):
