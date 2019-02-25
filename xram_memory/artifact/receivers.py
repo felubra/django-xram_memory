@@ -38,7 +38,6 @@ def news_add_newspaper(sender, **kwargs):
         return
     if isinstance(instance, (News)) and not instance.newspaper:
         instance._save_in_signal_add_newspaper = True
-
         try:
             base_url = "{uri.scheme}://{uri.netloc}".format(
                 uri=urlsplit(instance.url))
@@ -66,6 +65,7 @@ def news_add_newspaper(sender, **kwargs):
 @receiver(post_save)
 def newspaper_add_basic_info(sender, **kwargs):
     instance = kwargs['instance']
+    # Não entre em loop infinito
     if hasattr(instance, '_save_in_signal_newspaper_add_basic_info'):
         return
     if isinstance(instance, (Newspaper)) and not instance.has_basic_info:
@@ -76,6 +76,9 @@ def newspaper_add_basic_info(sender, **kwargs):
 @receiver(post_save)
 def news_add_basic_info(sender, **kwargs):
     instance = kwargs['instance']
+    # Não agende a captura em pdf se o sinal foi enviado durante o cadastro de um jornal
+    if hasattr(instance, '_save_in_signal_add_newspaper'):
+        return
     if isinstance(instance, (News)) and getattr(instance, '_set_basic_info', False):
         transaction.on_commit(lambda instance=instance:
                               background_tasks.news_set_basic_info.delay(instance.pk))
@@ -84,6 +87,9 @@ def news_add_basic_info(sender, **kwargs):
 @receiver(post_save)
 def news_add_archived_url(sender, **kwargs):
     instance = kwargs['instance']
+    # Não agende a captura em pdf se o sinal foi enviado durante o cadastro de um jornal
+    if hasattr(instance, '_save_in_signal_add_newspaper'):
+        return
     if isinstance(instance, (News)) and getattr(instance, '_fetch_archived_url', False):
         transaction.on_commit(lambda instance=instance:
                               background_tasks.news_add_archived_url.delay(instance.pk))
@@ -92,6 +98,9 @@ def news_add_archived_url(sender, **kwargs):
 @receiver(post_save)
 def news_add_pdf_capture(sender, **kwargs):
     instance = kwargs['instance']
+    # Não agende a captura em pdf se o sinal foi enviado durante o cadastro de um jornal
+    if hasattr(instance, '_save_in_signal_add_newspaper'):
+        return
     if isinstance(instance, (News)) and getattr(instance, '_add_pdf_capture', False):
         transaction.on_commit(lambda instance=instance:
                               background_tasks.news_add_pdf_capture.delay(instance.pk))
