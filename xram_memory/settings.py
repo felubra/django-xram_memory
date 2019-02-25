@@ -33,11 +33,13 @@ class Common(Configuration):
         'django.contrib.messages',
         'whitenoise.runserver_nostatic',
         'django.contrib.staticfiles',
+        'django_elasticsearch_dsl',
 
         'django_extensions',
         'xram_memory.users',
         'xram_memory.taxonomy',
         'xram_memory.logger',
+        'xram_memory.search_indexes',
 
         'xram_memory.artifact',
         'easy_thumbnails',
@@ -137,12 +139,22 @@ class Common(Configuration):
     IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
     VALID_FILE_UPLOAD_MIME_TYPES = (
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
+    VALID_FILE_UPLOAD_IMAGES_MIME_TYPES = (
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',)
 
     THUMBNAIL_SOURCE_GENERATORS = (
         'easy_thumbnails.source_generators.pil_image',
         'xram_memory.lib.file_previews.pdf_preview',
         'xram_memory.lib.file_previews.icon_preview',
     )
+
+    THUMBNAIL_ALIASES = {
+        '': {
+            'thumbnail': {
+                'size': (250, 250)
+            }
+        }
+    }
 
     STATICFILES_FINDERS = [
         'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -153,6 +165,16 @@ class Common(Configuration):
     NPM_FILE_PATTERNS = {
         'file-icon-vectors': ['dist\\icons\\vivid\\*'],
         'stopwords-iso': ['stopwords-iso.json'],
+    }
+    ELASTICSEARCH_INDEX_NAMES = {
+        'xram_memory.search_indexes.documents.news': 'artifact_news',
+        'xram_memory.search_indexes.documents.document': 'artifact_document',
+    }
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': 'localhost:9200',
+            'timeout': 30,
+        },
     }
 
 

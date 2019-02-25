@@ -13,6 +13,7 @@ pylint-django = "*"
 requests-mock = "*"
 python-magic-bin = "==0.4.14"
 flower = "*"
+gitchangelog = "*"
 
 [packages]
 dj-database-url = "==0.5.0"
@@ -49,6 +50,7 @@ git = "https://github.com/SmileyChris/easy-thumbnails"
 ref = "master"
 
 [packages.celery]
-extras = [ "redis",]
-git = "https://github.com/celery/celery"
+editable = true
+git = "https://github.com/PaesslerAG/django-currentuser"
 ref = "master"
+extras = [ "redis",]
