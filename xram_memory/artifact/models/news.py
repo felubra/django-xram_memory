@@ -184,8 +184,7 @@ class News(Artifact):
             for keyword in self._keywords:
                 try:
                     # tente achar a palavra-chave pelo nome ou pela slug
-                    keywords.append(Keyword.objects.get(
-                        Q(name=keyword) | Q(slug=slugify(keyword))))
+                    keywords.append(Keyword.objects.get(name=keyword))
                 except Keyword.DoesNotExist:
                     try:
                         keywords.append(Keyword.objects.create(name=keyword, created_by=self.modified_by,
