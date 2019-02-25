@@ -67,7 +67,7 @@ class NewsFetcher:
                 url, fetch_images=fetch_images)
         # ao menos um dos objetos deve estar preenchido
         if newspaper_article is None and goose_article is None:
-            raise(Exception(
+            raise(ValueError(
                 'Não foi possível extrair informações básicas sobre a notícia, pois nenhum dos extratores funcionou.'))
         # junte os objetos para tentar aproveitar de cada um alguma informação
         basic_info = NewsFetcher._merge_extractions(
@@ -178,6 +178,6 @@ class NewsFetcher:
         newspaper = newspaper3k.build(url)
         newspaper.download()
         newspaper.parse()
-        #TODO: retornar o objeto apropriado para o modelo, não o 'lowlevel' da biblioteca
-        #TODO: determinar o título com base no documento html
+        # TODO: retornar o objeto apropriado para o modelo, não o 'lowlevel' da biblioteca
+        # TODO: determinar o título com base no documento html
         return newspaper

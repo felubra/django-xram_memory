@@ -28,7 +28,7 @@ def newspaper_set_basic_info(newspaper_id):
         del newspaper._save_in_signal_newspaper_add_basic_info
 
 
-@shared_task(autoretry_for=(OperationalError,), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
+@shared_task(autoretry_for=(OperationalError,), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError, ValueError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
 def news_set_basic_info(news_id):
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)
