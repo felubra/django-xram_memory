@@ -50,6 +50,7 @@ class News(Artifact):
     body = models.TextField(
         verbose_name="Texto da notícia",
         help_text="Texto integral da notícia",
+        null=True,
         blank=True,
     )
     published_date = models.DateTimeField(
