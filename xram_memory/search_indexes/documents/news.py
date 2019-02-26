@@ -8,8 +8,48 @@ INDEX.settings(
     number_of_shards=1,
     number_of_replicas=1,
     blocks={'read_only_allow_delete': False},
-    # read_only_allow_delete=False
+    # read_only_allow_delete=False,
+    analysis={
+        "filter": {
+            "portuguese_stop": {
+                "type":       "stop",
+                "stopwords":  "_portuguese_"
+            },
+            "portuguese_stemmer": {
+                "type":       "stemmer",
+                "language":   "light_portuguese"
+            },
+            "snowball_portuguese": {
+                "type": "snowball",
+                "language":   "portuguese"
+            }
+        },
+        'analyzer': {
+            "rebuilt_portuguese": {
+                "tokenizer":  "standard",
+                "filter": [
+                    "lowercase",
+                    "portuguese_stop",
+                    "portuguese_stemmer"
+                ]
+            },
+            'html_strip': {
+                'tokenizer': "standard",
+                'filter': ["standard", "lowercase", "stop", "snowball"],
+                'char_filter': ["html_strip"]
+            },
+        },
+        "normalizer": {
+            "my_normalizer": {
+                "type": "custom",
+                "char_filter": [],
+                "filter": ["lowercase", "asciifolding"]
+            }
+        }
+
+    }
 )
+
 
 # TODO: indexar apenas notícias publicadas
 # TODO: remover stopwords com um normalizer
@@ -24,8 +64,8 @@ class NewsDocument(DocType):
     published = fields.BooleanField()
     featured = fields.BooleanField()
     # Campos de Artifact
-    title = fields.TextField()
-    teaser = fields.TextField()
+    title = fields.TextField(analyzer='rebuilt_portuguese')
+    teaser = fields.TextField(analyzer='rebuilt_portuguese')
     keywords = fields.NestedField(properties={
         'name': fields.KeywordField(),
         'slug': fields.KeywordField()
