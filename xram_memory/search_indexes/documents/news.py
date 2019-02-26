@@ -77,9 +77,9 @@ class NewsDocument(DocType):
     pdf_captures = fields.NestedField(properties={
         'pdf_document': fields.NestedField(properties={
             'id': fields.IntegerField(index=False),
-            'file_size': fields.IntegerField(),
+            'file_size': fields.IntegerField(index=False),
         }),
-        'pdf_capture_date': fields.DateField(),
+        'pdf_capture_date': fields.DateField(index=False),
     })
 
     image_capture = fields.KeywordField(
