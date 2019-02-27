@@ -43,6 +43,7 @@ class Common(Configuration):
 
         'xram_memory.artifact',
         'easy_thumbnails',
+        'rest_framework',
     ]
 
     MIDDLEWARE = [
@@ -175,6 +176,12 @@ class Common(Configuration):
             'hosts': 'localhost:9200',
             'timeout': 30,
         },
+    }
+
+    REST_FRAMEWORK = {
+        'DEFAULT_PARSER_CLASSES': (
+            'rest_framework.parsers.JSONParser',
+        )
     }
 
 
