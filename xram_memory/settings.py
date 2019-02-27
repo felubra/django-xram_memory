@@ -44,9 +44,11 @@ class Common(Configuration):
         'xram_memory.artifact',
         'easy_thumbnails',
         'rest_framework',
+        'corsheaders',
     ]
 
     MIDDLEWARE = [
+        'corsheaders.middleware.CorsMiddleware',
         'django.middleware.security.SecurityMiddleware',
         'whitenoise.middleware.WhiteNoiseMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
@@ -225,6 +227,8 @@ class Development(Common):
         },
     }
     CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+
+    CORS_ORIGIN_ALLOW_ALL = True
 
 
 class Staging(Common):

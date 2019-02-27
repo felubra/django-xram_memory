@@ -34,6 +34,7 @@ cairosvg = "*"
 django-npm = "*"
 beautifulsoup4 = "*"
 djangorestframework = "*"
+django-cors-headers = "*"
 
 [packages.pdfkit]
 editable = true
