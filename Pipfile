@@ -33,6 +33,7 @@ pdf2image = "*"
 cairosvg = "*"
 django-npm = "*"
 beautifulsoup4 = "*"
+djangorestframework = "*"
 
 [packages.pdfkit]
 editable = true
