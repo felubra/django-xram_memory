@@ -87,6 +87,7 @@ class NewsDocument(DocType):
     )
     # Campos de News
     published_date = fields.DateField()
+    published_year = fields.IntegerField(attr="published_year")
     language = fields.KeywordField()
     newspaper = fields.NestedField(properties={
         'url': fields.KeywordField(),

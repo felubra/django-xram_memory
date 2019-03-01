@@ -239,6 +239,18 @@ class News(Artifact):
         except:
             return None
 
+    @property
+    def published_year(self):
+        try:
+            # Tente retornar o ano da data de publicação
+            return self.published_date.timetuple()[0]
+        except AttributeError:
+            try:
+                # Ou ao menos o ano data de criação dessa Notícia no sistema
+                return self.created_at.timetuple()[0]
+            except AttributeError:
+                return None
+
 
 class NewsPDFCapture(models.Model):
     """
