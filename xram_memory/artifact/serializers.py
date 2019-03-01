@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, CharField
 from xram_memory.artifact.models import Document, News, Newspaper, NewsPDFCapture, NewsImageCapture
 from xram_memory.taxonomy.serializers import KeywordSerializer, SubjectSerializer
 
@@ -15,13 +15,6 @@ class PDFCaptureSerializer(ModelSerializer):
         model = NewsPDFCapture
         fields = ('pdf_document', 'pdf_capture_date',)
     pdf_document = DocumentSerializer()
-
-
-class ImageCaptureSerializer(ModelSerializer):
-    class Meta:
-        model = NewsImageCapture
-        fields = ('image_document', 'image_document',)
-    image_document = DocumentSerializer()
 
 
 class NewspaperSerializer(ModelSerializer):
@@ -41,4 +34,4 @@ class NewsSerializer(ModelSerializer):
     keywords = KeywordSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     pdf_captures = PDFCaptureSerializer(many=True)
-    image_capture = ImageCaptureSerializer()
+    image_capture = CharField(source='image_capture_indexing')
