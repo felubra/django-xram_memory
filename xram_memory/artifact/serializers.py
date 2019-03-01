@@ -28,7 +28,7 @@ class NewspaperSerializer(ModelSerializer):
     class Meta:
         model = Newspaper
         fields = ('title', 'slug',
-                  'description', 'logo',)
+                  'description', 'logo', 'url')
 
 
 class NewsSerializer(ModelSerializer):
