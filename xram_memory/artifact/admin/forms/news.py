@@ -8,6 +8,10 @@ class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 
+class NewsImageCaptureStackedInlineForm(forms.ModelForm):
+    pass
+
+
 class NewsAdminForm(forms.ModelForm):
     """
     Um formulário para editar/adicionar uma notícia
@@ -48,6 +52,7 @@ class NewsAdminForm(forms.ModelForm):
         if self.instance.pk:
             # altere as descrições para os campos acima de acordo com o estado do modelo
             # TODO: utilizar a propriedades conforme acima para definir as descrições
+            # TODO: atualizar as descrições abaixo para 'obter as informações automaticamente etc.'
             self.fields['set_basic_info'].label = 'Tentar inferir informações sobre essa notícia novamente'
             self.fields['fetch_archived_url'].label = 'Procurar novamente por uma versão arquivada dessa notícia no Internet Archive'
             self.fields['add_pdf_capture'].label = 'Adicionar uma nova captura de página dessa notícia em formato PDF'
@@ -58,6 +63,8 @@ class NewsAdminForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
         # operações adicionais sobre o modelo
+        title = cleaned_data.get(
+            'title', None)
         set_basic_info = cleaned_data.get(
             'set_basic_info', False)
         fetch_archived_url = cleaned_data.get(
@@ -69,9 +76,9 @@ class NewsAdminForm(forms.ModelForm):
         # TODO: verificar  slug vazia
         slug = cleaned_data.get('slug', None)
 
-        if not set_basic_info and self.instance.title == '':
+        if not set_basic_info and title == '':
             self.add_error(
-                'title', 'Se for inserir os dados manualmente, você precisa dar um título para a notícia')
+                'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
 
         # define em campos privados do modelo quais operações adicionais o método save() deve
         # realizar
@@ -80,20 +87,17 @@ class NewsAdminForm(forms.ModelForm):
         self.instance._add_pdf_capture = add_pdf_capture
 
         # ao inserir uma notícia apenas com a url, verifica se
-        # as informações inferidas automaticamente retornarão ao menos um título
+        # é possível ao menos obter um título para ela (obrigatório)
         if url and set_basic_info:
             try:
-                basic_info = NewsFetcher.fetch_basic_info(url)
-                cleaned_data['set_basic_info'] = False
+                title = NewsFetcher.fetch_web_title(url)
+                if not title:
+                    raise ValueError()
+            except ValueError:
+                self.add_error(
+                    'title', "Não foi possível inferir o título automaticamente, preencha ele manualmente.")
             except:
-                # Desmarque o checkbox depois de um erro
-                # TODO: isto não está funcionando.
-                cleaned_data['set_basic_info'] = False
                 self.add_error(None,
                                "Não foi possível determinar automaticamente informações sobre esta notícia no momento, por-favor insira os dados dela manualmente.")
-            else:
-                # Se mesmo após pegar as informações, faltar o título, peça o usuário para inseri-lo
-                if not basic_info['title']:
-                    self.add_error(
-                        'title', "Não foi possível inferir o título automaticamente, preencha ele manualmente.")
+
         return cleaned_data

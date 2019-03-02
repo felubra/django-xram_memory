@@ -6,7 +6,6 @@ from django.utils.text import slugify
 from django.conf import settings
 from django.db import models
 from .artifact import Artifact
-from django_rq import job
 
 from xram_memory.utils import FileValidator
 from easy_thumbnails.fields import ThumbnailerField
@@ -99,3 +98,8 @@ class Document(Artifact):
             self.file_size = self.file.size
         except:
             self.file_size = '0'
+
+    @property
+    def file_indexing(self):
+        if self.file:
+            return self.file.url

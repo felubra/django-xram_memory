@@ -30,11 +30,13 @@ class Artifact(TraceableEditorialModel):
     keywords = models.ManyToManyField(
         Keyword,
         verbose_name="Palavras-chave",
+        related_name="%(class)s",
         blank=True,
     )
     subjects = models.ManyToManyField(
         Subject,
         verbose_name="Assuntos",
+        related_name="%(class)s",
         blank=True,
     )
 
@@ -52,3 +54,27 @@ class Artifact(TraceableEditorialModel):
             raise ValueError(
                 "Não é possível criar um artefato sem título.")
         super().save(*args, **kwargs)
+
+    @property
+    def keywords_indexing(self):
+        """Tags for indexing.
+
+        Used in Elasticsearch indexing.
+        """
+        return [keyword.name for keyword in self.keywords.all()]
+
+    @property
+    def subjects_indexing(self):
+        """Tags for indexing.
+
+        Used in Elasticsearch indexing.
+        """
+        return [subject.name for subject in self.subjects.all()]
+
+    @property
+    def null_field_indexing(self):
+        """null_field for indexing.
+
+        Used in Elasticsearch indexing/tests of `isnull` functional filter.
+        """
+        return None

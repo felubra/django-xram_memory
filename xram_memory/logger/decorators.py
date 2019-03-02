@@ -22,12 +22,18 @@ def log_process(object_type, operation=None):
         @wraps(func)
         def logged(*_args, **_kwargs):
             try:
-                username = getattr(get_current_user(), 'username', '<anônimo>')
                 obj = _args[0]
+                try:
+                    username = getattr(get_current_user(),
+                                       'username', None)
+                    if not username:
+                        username = str(obj.modified_by)
+                except:
+                    username = '<anônimo>'
                 object_id = obj.pk if (isinstance(
                     obj, Model) and obj.pk is not None) else "(em criação)"
                 logger.info(
-                    'Início do processo para tentar {op} para o objeto {object_type} ({object_id}) sob o usuário {username}.'.format(
+                    '[{username} - {object_id} - {object_type}] Início: {op}.'.format(
                         op=op, object_type=object_type, object_id=object_id, username=username
                     )
                 )
@@ -36,13 +42,15 @@ def log_process(object_type, operation=None):
                 toc = default_timer()
             except Exception as err:
                 logger.error(
-                    'Falha ao tentar {op} para o objeto {object_type} ({object_id}) sob o usuário {username}: {err}.'.format(
-                        op=op, object_type=object_type, object_id=object_id, username=username, err=err)
+                    '[{username} - {object_id} - {object_type}] FALHA: {op}: {err}.'.format(
+                        op=op, object_type=object_type, object_id=object_id, username=username, err=err,
+                    )
                 )
+                raise
             else:
                 # TODO: informar se o processamento de func foi cacheado pela @lru_cache
                 logger.info(
-                    'Sucesso ao {op} para o objeto {object_type} ({object_id}) sob o usuário {username}. A operação demorou {time:.2f} segundos.'.format(
+                    '[{username} - {object_id} - {object_type}] Término: {op}: {time:.2f} s.'.format(
                         op=op, object_type=object_type, object_id=object_id, username=username, time=toc-tic
                     )
                 )

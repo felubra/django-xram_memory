@@ -1,11 +1,17 @@
 import requests
 import pdfkit
 
+import newspaper as newspaper3k
 from newspaper import Article
 from goose3 import Goose
 from goose3.image import Image
+from bs4 import BeautifulSoup
 from functools import lru_cache
 from xram_memory.lib import stopwords
+
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware
+from celery.contrib import rdb
 
 
 class NewsFetcher:
@@ -61,7 +67,7 @@ class NewsFetcher:
                 url, fetch_images=fetch_images)
         # ao menos um dos objetos deve estar preenchido
         if newspaper_article is None and goose_article is None:
-            raise(Exception(
+            raise(ValueError(
                 'Não foi possível extrair informações básicas sobre a notícia, pois nenhum dos extratores funcionou.'))
         # junte os objetos para tentar aproveitar de cada um alguma informação
         basic_info = NewsFetcher._merge_extractions(
@@ -98,6 +104,17 @@ class NewsFetcher:
                 news_dict["keywords"] = [
                     keyword for keyword in news_dict["keywords"] if keyword not in stopwords[news_dict["language"]]
                 ]
+            # Se a data de publicação veio como string, tente transformá-la num objeto datetime
+            if isinstance(news_dict['published_date'], str):
+                try:
+                    news_dict['published_date'] = parse_datetime(
+                        news_dict['published_date'])
+                except ValueError:
+                    news_dict['published_date'] = None
+            # Se a data de publicação não tem informações de fuso-horário, transforme-a para o fuso local
+            if (news_dict['published_date'] and not news_dict['published_date'].tzinfo):
+                news_dict['published_date'] = make_aware(
+                    news_dict['published_date'], timezone=None, is_dst=False)
             return news_dict
         except Exception as err:
             raise(
@@ -146,3 +163,21 @@ class NewsFetcher:
             return None
         finally:
             del raw_html
+
+    @staticmethod
+    @lru_cache(maxsize=2)
+    def fetch_web_title(url):
+        response = requests.get(url, allow_redirects=True)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content)
+        return soup.title.text
+
+    @staticmethod
+    @lru_cache(maxsize=2)
+    def build_newspapaper(url):
+        newspaper = newspaper3k.build(url)
+        newspaper.download()
+        newspaper.parse()
+        # TODO: retornar o objeto apropriado para o modelo, não o 'lowlevel' da biblioteca
+        # TODO: determinar o título com base no documento html
+        return newspaper

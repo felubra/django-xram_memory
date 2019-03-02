@@ -1,0 +1,109 @@
+from django.conf import settings
+from django_elasticsearch_dsl import DocType, Index, fields
+from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture, Newspaper
+from xram_memory.taxonomy.models import Keyword, Subject
+
+INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
+INDEX.settings(
+    number_of_shards=1,
+    number_of_replicas=1,
+    blocks={'read_only_allow_delete': False},
+    # read_only_allow_delete=False,
+    analysis={
+        "filter": {
+            "portuguese_stop": {
+                "type":       "stop",
+                "stopwords":  "_portuguese_"
+            },
+            "portuguese_stemmer": {
+                "type":       "stemmer",
+                "language":   "light_portuguese"
+            },
+            "snowball_portuguese": {
+                "type": "snowball",
+                "language":   "portuguese"
+            }
+        },
+        'analyzer': {
+            "rebuilt_portuguese": {
+                "tokenizer":  "standard",
+                "filter": [
+                    "lowercase",
+                    "portuguese_stop",
+                    "portuguese_stemmer"
+                ]
+            },
+            'html_strip': {
+                'tokenizer': "standard",
+                'filter': ["standard", "lowercase", "stop", "snowball"],
+                'char_filter': ["html_strip"]
+            },
+        },
+        "normalizer": {
+            "my_normalizer": {
+                "type": "custom",
+                "char_filter": [],
+                "filter": ["lowercase", "asciifolding"]
+            }
+        }
+
+    }
+)
+
+
+# TODO: indexar apenas notícias publicadas
+# TODO: remover stopwords com um normalizer
+@INDEX.doc_type
+class NewsDocument(DocType):
+    id = fields.IntegerField(attr='id')
+    url = fields.KeywordField()
+    # Campos de TraceableModel
+    created_at = fields.DateField()
+    modified_at = fields.DateField()
+    # Campos de TraceableEditorialModel
+    published = fields.BooleanField()
+    featured = fields.BooleanField()
+    # Campos de Artifact
+    title = fields.TextField(analyzer='rebuilt_portuguese')
+    teaser = fields.TextField(analyzer='rebuilt_portuguese')
+    keywords = fields.NestedField(properties={
+        'name': fields.KeywordField(),
+        'slug': fields.KeywordField()
+    })
+    subjects = fields.NestedField(properties={
+        'name': fields.KeywordField(),
+        'slug': fields.KeywordField()
+    })
+    pdf_captures = fields.NestedField(properties={
+        'pdf_document': fields.NestedField(properties={
+            'id': fields.IntegerField(index=False),
+            'file_size': fields.IntegerField(index=False),
+        }),
+        'pdf_capture_date': fields.DateField(index=False),
+    })
+
+    image_capture = fields.KeywordField(
+        attr='image_capture_indexing'
+    )
+    # Campos de News
+    published_date = fields.DateField()
+    published_year = fields.IntegerField(attr="published_year")
+    language = fields.KeywordField()
+    newspaper = fields.NestedField(properties={
+        'url': fields.KeywordField(),
+        'title': fields.KeywordField(),
+    })
+
+    def get_instances_from_related(self, related_instance):
+        if isinstance(related_instance, Keyword):
+            return related_instance.news.all()
+        elif isinstance(related_instance, Subject):
+            return related_instance.news.all()
+        elif isinstance(related_instance, Newspaper):
+            return related_instance.news.all()
+
+    class Meta(object):
+        model = News  # O modelo associado a este documento
+        parallel_indexing = True
+        related_models = [Keyword, Subject,
+                          NewsPDFCapture, NewsImageCapture, Newspaper]

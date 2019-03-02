@@ -33,21 +33,24 @@ class Common(Configuration):
         'django.contrib.messages',
         'whitenoise.runserver_nostatic',
         'django.contrib.staticfiles',
+        'django_elasticsearch_dsl',
 
         'django_extensions',
         'xram_memory.users',
         'xram_memory.taxonomy',
         'xram_memory.logger',
+        'xram_memory.search_indexes',
 
         'xram_memory.quill_widget',
         'xram_memory.artifact',
         'xram_memory.page',
         'easy_thumbnails',
-
-        'django_rq',
+        'rest_framework',
+        'corsheaders',
     ]
 
     MIDDLEWARE = [
+        'corsheaders.middleware.CorsMiddleware',
         'django.middleware.security.SecurityMiddleware',
         'whitenoise.middleware.WhiteNoiseMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
@@ -141,12 +144,22 @@ class Common(Configuration):
     IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
     VALID_FILE_UPLOAD_MIME_TYPES = (
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
+    VALID_FILE_UPLOAD_IMAGES_MIME_TYPES = (
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',)
 
     THUMBNAIL_SOURCE_GENERATORS = (
         'easy_thumbnails.source_generators.pil_image',
         'xram_memory.lib.file_previews.pdf_preview',
         'xram_memory.lib.file_previews.icon_preview',
     )
+
+    THUMBNAIL_ALIASES = {
+        '': {
+            'thumbnail': {
+                'size': (250, 250)
+            }
+        }
+    }
 
     STATICFILES_FINDERS = [
         'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -160,6 +173,22 @@ class Common(Configuration):
         'material-design-icons': ['navigation\\svg\\production\\ic_fullscreen*'],
         'quill': ['dist\\*'],
         'screenfull': ['dist\\*'],
+    }
+    ELASTICSEARCH_INDEX_NAMES = {
+        'xram_memory.search_indexes.documents.news': 'artifact_news',
+        'xram_memory.search_indexes.documents.document': 'artifact_document',
+    }
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': 'localhost:9200',
+            'timeout': 30,
+        },
+    }
+
+    REST_FRAMEWORK = {
+        'DEFAULT_PARSER_CLASSES': (
+            'rest_framework.parsers.JSONParser',
+        )
     }
 
 
@@ -202,6 +231,9 @@ class Development(Common):
             },
         },
     }
+    CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+
+    CORS_ORIGIN_ALLOW_ALL = True
 
 
 class Staging(Common):
