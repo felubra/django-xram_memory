@@ -28,16 +28,14 @@ class StaticPageAdmin(TraceableEditorialAdminModel):
         'modified_by',
         'created_at',
         'modified_at',
-        'published',
-        'featured',
+        'show_in_menu',
     )
     list_filter = (
         'created_by',
         'modified_by',
         'created_at',
         'modified_at',
-        'published',
-        'featured',
+        'show_in_menu',
     )
     prepopulated_fields = {'url': ('title', ), }
 
@@ -47,7 +45,7 @@ class StaticPageAdmin(TraceableEditorialAdminModel):
         }),
 
         ('Informações adicionais', {
-            'fields': ('url', 'image'),
+            'fields': ('url', 'image', 'show_in_menu',),
         }),
     )
     list_display_links = ('title', 'id',)

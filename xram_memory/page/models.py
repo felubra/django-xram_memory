@@ -36,6 +36,11 @@ class StaticPage(TraceableEditorialModel):
         null=True,
         blank=True,
     )
+    show_in_menu = models.BooleanField(
+        verbose_name="Mostrar no menu",
+        help_text='Mostrar um link para esta página no menu principal do site',
+        default=False
+    )
 
     def __str__(self):
         return self.title
