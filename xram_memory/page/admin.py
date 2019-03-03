@@ -27,11 +27,20 @@ class StaticPageAdminForm(forms.ModelForm):
                                     "#6b24b2", "#444444", "#5c0000", "#663d00", "#666600",
                                     "#003700", "#002966", "#3d1466"])
 
+        BODY_EDITOR_OPTIONS = {
+            'placeholder': 'Conteúdo da página...',
+            'data-toolbar': '''[
+                                [{"header":[2,3,4,5,6,false]}],
+                                ["bold","italic","underline","strike"],
+                                [{"align":["","center","right","justify"]}],
+                                [{"color":%s},{"background": %s},"blockquote"],
+                                ["link","image"],[{"list":"bullet"},{"list":"ordered"}],
+                                ["clean"]]''' % (EDITOR_COLORS, EDITOR_COLORS),
+            'data-formats': '''header,bold,italic,strike,underline,align,color,
+                                                background,blockquote,link,list,image'''
+        }
         widgets = {
-            'body': QuillWidget(attrs={'placeholder': 'Conteúdo da página...',
-                                       'data-toolbar': '[[{"header":[2,3,4,5,6,false]}],["bold","italic","underline","strike"],[{"align":["","center","right","justify"]}],[{"color":%s},{"background": %s},"blockquote"],["link","image"],[{"list":"bullet"},{"list":"ordered"}],["clean"]]' % (EDITOR_COLORS, EDITOR_COLORS),
-                                       'data-formats': 'header,bold,italic,strike,underline,align,color,background,blockquote,link,list,image'}),
-
+            'body': QuillWidget(attrs=BODY_EDITOR_OPTIONS),
         }
 
 
