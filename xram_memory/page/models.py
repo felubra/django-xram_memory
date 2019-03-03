@@ -21,6 +21,7 @@ class StaticPage(TraceableEditorialModel):
         help_text="Resumo ou chamada",
         null=True,
         blank=True,
+        validators=[no_empty_html],
     )
     url = models.CharField(
         verbose_name="Endereço",

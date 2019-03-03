@@ -39,8 +39,20 @@ class StaticPageAdminForm(forms.ModelForm):
             'data-formats': '''header,bold,italic,strike,underline,align,color,
                                                 background,blockquote,link,list,image'''
         }
+
+        TEASER_EDITOR_OPTIONS = {
+            'placeholder': 'Resumo ou chamada para esta página...',
+            'data-toolbar': '''[
+                                ["bold","italic","underline","strike"],
+                                [{"align":["","center","right","justify"]}],
+                                [{"color":%s},{"background": %s}],
+                                ["clean"]]''' % (EDITOR_COLORS, EDITOR_COLORS),
+            'data-formats': 'bold,italic,strike,underline,align,color,background'
+        }
+
         widgets = {
             'body': QuillWidget(attrs=BODY_EDITOR_OPTIONS),
+            'teaser': QuillWidget(attrs=TEASER_EDITOR_OPTIONS),
         }
 
 
