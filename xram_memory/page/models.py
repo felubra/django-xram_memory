@@ -54,3 +54,7 @@ class StaticPage(TraceableEditorialModel):
     def get_absolute_url(self):
         # Handle script prefix manually because we bypass reverse()
         return iri_to_uri(get_script_prefix().rstrip('/') + self.url)
+
+    class Meta:
+        verbose_name = "Página"
+        verbose_name_plural = "Páginas"
