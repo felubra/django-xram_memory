@@ -7,7 +7,7 @@ class DocumentSerializer(ModelSerializer):
     class Meta:
         model = Document
         fields = ('id', 'title', 'teaser', 'slug',
-                  'mime_type', 'file_size', 'file',)
+                  'mime_type', 'file_size', 'file', 'thumbnail',)
 
 
 class PDFCaptureSerializer(ModelSerializer):
