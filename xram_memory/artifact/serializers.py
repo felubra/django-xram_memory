@@ -7,14 +7,20 @@ class DocumentSerializer(ModelSerializer):
     class Meta:
         model = Document
         fields = ('id', 'title', 'teaser', 'slug',
-                  'mime_type', 'file_size', 'file',)
+                  'mime_type', 'file_size', 'file', 'thumbnail',)
+
+
+class SimpleDocumentSerializer(ModelSerializer):
+    class Meta:
+        model = Document
+        fields = ('id', 'title', 'mime_type', 'file_size',)
 
 
 class PDFCaptureSerializer(ModelSerializer):
     class Meta:
         model = NewsPDFCapture
         fields = ('pdf_document', 'pdf_capture_date',)
-    pdf_document = DocumentSerializer()
+    pdf_document = SimpleDocumentSerializer()
 
 
 class NewspaperSerializer(ModelSerializer):

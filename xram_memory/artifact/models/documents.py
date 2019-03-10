@@ -8,6 +8,8 @@ from django.db import models
 from .artifact import Artifact
 
 from xram_memory.utils import FileValidator
+from boltons.cacheutils import cachedproperty
+from easy_thumbnails.files import get_thumbnailer
 from easy_thumbnails.fields import ThumbnailerField
 
 
@@ -103,3 +105,11 @@ class Document(Artifact):
     def file_indexing(self):
         if self.file:
             return self.file.url
+
+    @cachedproperty
+    def thumbnail(self):
+        if self.file:
+            try:
+                return get_thumbnailer(self.file)['thumbnail'].url
+            except:
+                return None
