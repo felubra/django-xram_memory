@@ -141,7 +141,7 @@ class Common(Configuration):
     PDF_ARTIFACT_DIR = 'artifacts/documents/pdf_files/'
     IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
     VALID_FILE_UPLOAD_MIME_TYPES = (
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'application/zip')
     VALID_FILE_UPLOAD_IMAGES_MIME_TYPES = (
         'image/jpeg', 'image/png', 'image/gif', 'image/webp',)
 
