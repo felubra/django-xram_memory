@@ -45,6 +45,8 @@ class Common(Configuration):
         'xram_memory.artifact',
         'xram_memory.page',
         'easy_thumbnails',
+        'filer',
+        'mptt',
         'rest_framework',
         'corsheaders',
     ]
