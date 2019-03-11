@@ -41,7 +41,9 @@ class Common(Configuration):
         'xram_memory.logger',
         'xram_memory.search_indexes',
 
+        'xram_memory.quill_widget',
         'xram_memory.artifact',
+        'xram_memory.page',
         'easy_thumbnails',
         'rest_framework',
         'corsheaders',
@@ -168,6 +170,9 @@ class Common(Configuration):
     NPM_FILE_PATTERNS = {
         'file-icon-vectors': ['dist\\icons\\vivid\\*'],
         'stopwords-iso': ['stopwords-iso.json'],
+        'material-design-icons': ['navigation\\svg\\production\\ic_fullscreen*'],
+        'quill': ['dist\\*'],
+        'screenfull': ['dist\\*'],
     }
     ELASTICSEARCH_INDEX_NAMES = {
         'xram_memory.search_indexes.documents.news': 'artifact_news',

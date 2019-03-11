@@ -22,6 +22,9 @@
   "homepage": "https://github.com/felubra/django-xram_memory#readme",
   "dependencies": {
     "file-icon-vectors": "^1.0.0",
+    "material-design-icons": "^3.0.1",
+    "quill": "^1.3.6",
+    "screenfull": "^4.0.0",
     "stopwords-iso": "^0.4.0"
   }
 }

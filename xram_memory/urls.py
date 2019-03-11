@@ -6,6 +6,8 @@ from django.conf import settings
 from xram_memory.artifact.admin.forms.news_bulk import news_bulk_insertion
 from xram_memory.artifact.views import DocumentViewSet, NewsViewSet
 
+from .page.views import InMenuStaticPagesViewSet, StaticPageViewSet, FeaturedStaticPagesViewSet
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('admin/artifact/news/insert_bulk', news_bulk_insertion),
@@ -16,6 +18,12 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Endpoints da API
 urlpatterns = [
+    path('api/v1/pages/<int:pk>',
+         StaticPageViewSet.as_view({'get': 'retrieve'})),
+    path('api/v1/pages/in_menu',
+         InMenuStaticPagesViewSet.as_view({'get': 'listing'})),
+    path('api/v1/pages/featured',
+         FeaturedStaticPagesViewSet.as_view({'get': 'listing'})),
     path('api/v1/document/<int:pk>',
          DocumentViewSet.as_view({'get': 'retrieve'})),
     path('api/v1/news/<int:pk>',
