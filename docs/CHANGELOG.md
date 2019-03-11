@@ -2,6 +2,18 @@ Changelog
 =========
 
 
+0.5.1 (2019-03-11)
+------------------
+
+Corrigido
+~~~~~~~~~
+- Atualização de segurança do django (2.1.7) [Felipe Lube de Bragança]
+
+Outros
+~~~~~~
+- Chore: atualização do changelog. [Felipe Lube de Bragança]
+
+
 0.5.0 (2019-03-11)
 ------------------
 
