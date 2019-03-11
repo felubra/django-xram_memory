@@ -2,11 +2,145 @@ Changelog
 =========
 
 
+0.5.0 (2019-03-11)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- (page) nomes em português para o app e modelos. [Felipe Lube de
+  Bragança]
+- Campo teaser (page) com formatação rica. [Felipe Lube de Bragança]
+- Endpoints da api para obter páginas e conjuntos de páginas comuns.
+  [Felipe Lube de Bragança]
+- Campo para mostrar ou não um link para a página no menu principal.
+  [Felipe Lube de Bragança]
+- Substituição do django-bower pelo django-npm. [Felipe Lube de
+  Bragança]
+- Substituição do django-bower pelo django-npm. [Felipe Lube de
+  Bragança]
+- Botão maximizar no editor. [Felipe Lube de Bragança]
+- Botão para maximizar o editor. [Felipe Lube de Bragança]
+- Defina uma altura mínima para o editor. [Felipe Lube de Bragança]
+- Defina a barra de ferramentas e os formatos do editor. [Felipe Lube de
+  Bragança]
+- Utilize o formato json para definir o toolbar. [Felipe Lube de
+  Bragança]
+- Adicione a possibilidade de configurar os formatos. [Felipe Lube de
+  Bragança]
+- Adicione uma borda vermelha para o campo com erro. [Felipe Lube de
+  Bragança]
+- Use uma mensagem de erro em inglês que poderá ser traduzida. [Felipe
+  Lube de Bragança]
+- Utilize o validador de texto em html. [Felipe Lube de Bragança]
+- Testes para o validador. [Felipe Lube de Bragança]
+- Um validador simples para html sem conteúdo. [Felipe Lube de Bragança]
+- Adicione beautifulsoup4, usando para validar HTML. [Felipe Lube de
+  Bragança]
+- Use o widget do editor quilljs. [Felipe Lube de Bragança]
+- Atributos personalizados para controlar o editor; revisão código.
+  [Felipe Lube de Bragança]
+- Assets necessários para o widget funcionar dentro do próprio app.
+  [Felipe Lube de Bragança]
+- Implementação inicial do widget e util. em Notícia. [Felipe Lube de
+  Bragança]
+- Página: modelos e estruturas de admin. básicas. [Felipe Lube de
+  Bragança]
+- Adicione application/zip à lista de mimes suportados. [Felipe Lube de
+  Bragança]
+- Serializer simples para apenas o essencial sobre um documento. [Felipe
+  Lube de Bragança]
+- Suporte para thumbnails de documentos pela api. [Felipe Lube de
+  Bragança]
+- Reutilize uma propriedad usada pelo elastic_search na api. [Felipe
+  Lube de Bragança]
+- Feat (api): adicione campos com as capturas de página (imagem e pdf)
+  [Felipe Lube de Bragança]
+- Suporte ao CORS: em dev libere tudo. [Felipe Lube de Bragança]
+- Endpoints para a api para documentos e notícias. [Felipe Lube de
+  Bragança]
+- News: indexe o ano de publicação num campo próprio. [Felipe Lube de
+  Bragança]
+- Suporte ao CORS: em dev libere tudo. [Felipe Lube de Bragança]
+- Endpoints para a api para documentos e notícias. [Felipe Lube de
+  Bragança]
+- Não indexe certos ampos. [Felipe Lube de Bragança]
+- Analisadores da língua portuguesa na indexação. [Felipe Lube de
+  Bragança]
+- Tente novamente em caso de execção ConnectionError. [Felipe Lube de
+  Bragança]
+- Torne o campo body de news nullable. [Felipe Lube de Bragança]
+- Exceção ValueError se a análise do fetcher falhar. [Felipe Lube de
+  Bragança]
+- Script para baixar recursos necessários para o nltk funcionar. [Felipe
+  Lube de Bragança]
+- Versão 0.4.0. [Felipe Lube de Bragança]
+- Torne a geração de capturas uma transação atômica. [Felipe Lube de
+  Bragança]
+
+Corrigido
+~~~~~~~~~
+- Remoção de cores duplicadas na toolbar do editor. [Felipe Lube de
+  Bragança]
+- Defina as cores do editor numa variável para melhor legibilidade.
+  [Felipe Lube de Bragança]
+- Detecte a mudança para a tela cheia corretamente. [Felipe Lube de
+  Bragança]
+- Adicione os arquivos screenfull aos arquivos estáticos. [Felipe Lube
+  de Bragança]
+- Atualização do pipfile. [Felipe Lube de Bragança]
+- Altere a ordem dos métodos. [Felipe Lube de Bragança]
+- Remova o editor quill do formulário de notícias. [Felipe Lube de
+  Bragança]
+- Atualização no placeholder e definição dos botões da barra. [Felipe
+  Lube de Bragança]
+- Saída de atributos personalizados no template. [Felipe Lube de
+  Bragança]
+- String vazia ao invés de 'None' se o campo estiver em branco. [Felipe
+  Lube de Bragança]
+- Inclusão do campo url em NewspaperSerializer. [Felipe Lube de
+  Bragança]
+- Englobe blocos de captura em transações. [Felipe Lube de Bragança]
+- Corrija a busca por uma palavra-chave existente. [Felipe Lube de
+  Bragança]
+- Trabalhos duplicados para news quando estiver salvando um jornal.
+  [Felipe Lube de Bragança]
+- Atencipe a possibilidade de OSError pela ferramenta wkhtmltopdf.
+  [Felipe Lube de Bragança]
+
+Outros
+~~~~~~
+- Merge branch 'page_app' into dev. [Felipe Lube de Bragança]
+- Chore: atualização do package.json. [Felipe Lube de Bragança]
+- Style: variáveis legíveis para configurações do editor. [Felipe Lube
+  de Bragança]
+- Chore: merge from elastic_search. [Felipe Lube de Bragança]
+- Merge branch 'quill_widget' into page_app. [Felipe Lube de Bragança]
+- Revert "feat: botão para maximizar o editor" [Felipe Lube de Bragança]
+
+  This reverts commit b0cbf85eb2371704f6c59b0feb43a08055bd5cf7.
+- Merge branch 'quill_widget' into page_app. [Felipe Lube de Bragança]
+- Merge branch 'quill_widget' into page_app. [Felipe Lube de Bragança]
+- Merge branch 'quill_widget' into page_app. [Felipe Lube de Bragança]
+- Merge branch 'quill_widget' into page_app. [Felipe Lube de Bragança]
+- Merge branch 'quill_widget' into page_app. [Felipe Lube de Bragança]
+- Merge branch 'quill_widget' into page_app. [Felipe Lube de Bragança]
+- Merge branch 'quill_widget' into page_app. [Felipe Lube de Bragança]
+- Merge branch 'public_api' into elastic_search. [Felipe Lube de
+  Bragança]
+- Chore: merge from public_api. [Felipe Lube de Bragança]
+- Merge branch 'public_api' into elastic_search. [Felipe Lube de
+  Bragança]
+- Merge branch 'public_api' into elastic_search. [Felipe Lube de
+  Bragança]
+- Merge de origin/dev. [Felipe Lube de Bragança]
+
+
 0.4.0 (2019-02-25)
 ------------------
 
 Adicionado
 ~~~~~~~~~~
+- Versão 0.4.0. [Felipe Lube de Bragança]
 - + gitchangelog para fazer o changelog automaticamente. [Felipe Lube de
   Bragança]
 - Englobe certas operações numa transação. [Felipe Lube de Bragança]
