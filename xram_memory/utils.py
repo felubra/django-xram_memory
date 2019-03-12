@@ -148,7 +148,7 @@ def celery_is_avaliable():
         d = insp.stats()
         if not d:
             raise AttributeError
-    except (IOError, OperationalError, AttributeError):
+    except:
         return False
     else:
         return True
