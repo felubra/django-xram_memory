@@ -29,7 +29,7 @@ def newspaper_set_basic_info(newspaper_id):
 
 
 @shared_task(autoretry_for=(OperationalError, ConnectionError), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError, ValueError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
-def news_set_basic_info(news_id):
+def news_set_basic_info(news_id, sync=False):
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)
     try:
@@ -37,29 +37,19 @@ def news_set_basic_info(news_id):
         news.save()
 
         if getattr(news, '_image', None):
-            add_image_for_news.delay(news._image, news_id)
+            if sync:
+                add_image_for_news(news._image, news_id)
+            else:
+                add_image_for_news.delay(news._image, news_id)
         if getattr(news, '_keywords', None):
-            add_keywords_for_news.delay(news._keywords, news_id)
+            if sync:
+                add_keywords_for_news(news._keywords, news_id)
+            else:
+                add_keywords_for_news.delay(news._keywords, news_id)
     except:
         raise
     else:
         return news
-
-
-@shared_task(autoretry_for=(OperationalError, ConnectionError), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
-def news_add_archived_url(news_id):
-    News = apps.get_model('artifact', 'News')
-    news = News.objects.get(pk=news_id)
-    try:
-        news.fetch_archived_url()
-        news.save()
-    except:
-        raise
-    else:
-        if news.archived_news_url:
-            return news.archived_news_url
-        else:
-            return True
 
 
 @shared_task(autoretry_for=(OperationalError,), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, rate_limit="10/m",)
@@ -87,6 +77,22 @@ def add_image_for_news(image_url, news_id):
         raise
     else:
         return True
+
+
+@shared_task(autoretry_for=(OperationalError, ConnectionError), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, throws=(ValidationError,), time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")
+def news_add_archived_url(news_id):
+    News = apps.get_model('artifact', 'News')
+    news = News.objects.get(pk=news_id)
+    try:
+        news.fetch_archived_url()
+        news.save()
+    except:
+        raise
+    else:
+        if news.archived_news_url:
+            return news.archived_news_url
+        else:
+            return True
 
 
 @shared_task(throws=(OSError,), autoretry_for=(OperationalError, ConnectionError,), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, time_limit=PROCESSING_TASK_TIMEOUT, rate_limit="10/m")

@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 import xram_memory.artifact.tasks as background_tasks
+from xram_memory.utils import task_on_commit, SignalException
 from xram_memory.artifact.models import Document, News, Newspaper
 
 
@@ -63,44 +64,44 @@ def news_add_newspaper(sender, **kwargs):
 
 
 @receiver(post_save)
+@task_on_commit(background_tasks.newspaper_set_basic_info)
 def newspaper_add_basic_info(sender, **kwargs):
     instance = kwargs['instance']
     # Não entre em loop infinito
     if hasattr(instance, '_save_in_signal_newspaper_add_basic_info'):
-        return
+        raise SignalException
     if isinstance(instance, (Newspaper)) and not instance.has_basic_info:
-        transaction.on_commit(lambda instance=instance: background_tasks.newspaper_set_basic_info.delay(
-            instance.pk))
+        return (instance.pk,)
 
 
 @receiver(post_save)
+@task_on_commit(background_tasks.news_set_basic_info, sync_context=True)
 def news_add_basic_info(sender, **kwargs):
     instance = kwargs['instance']
     # Não agende a captura em pdf se o sinal foi enviado durante o cadastro de um jornal
     if hasattr(instance, '_save_in_signal_add_newspaper'):
-        return
+        raise SignalException
     if isinstance(instance, (News)) and getattr(instance, '_set_basic_info', False):
-        transaction.on_commit(lambda instance=instance:
-                              background_tasks.news_set_basic_info.delay(instance.pk))
+        return (instance.pk,)
 
 
 @receiver(post_save)
+@task_on_commit(background_tasks.news_add_archived_url)
 def news_add_archived_url(sender, **kwargs):
     instance = kwargs['instance']
     # Não agende a captura em pdf se o sinal foi enviado durante o cadastro de um jornal
     if hasattr(instance, '_save_in_signal_add_newspaper'):
-        return
+        raise SignalException
     if isinstance(instance, (News)) and getattr(instance, '_fetch_archived_url', False):
-        transaction.on_commit(lambda instance=instance:
-                              background_tasks.news_add_archived_url.delay(instance.pk))
+        return (instance.pk,)
 
 
 @receiver(post_save)
+@task_on_commit(background_tasks.news_add_pdf_capture)
 def news_add_pdf_capture(sender, **kwargs):
     instance = kwargs['instance']
     # Não agende a captura em pdf se o sinal foi enviado durante o cadastro de um jornal
     if hasattr(instance, '_save_in_signal_add_newspaper'):
-        return
+        raise SignalException
     if isinstance(instance, (News)) and getattr(instance, '_add_pdf_capture', False):
-        transaction.on_commit(lambda instance=instance:
-                              background_tasks.news_add_pdf_capture.delay(instance.pk))
+        return (instance.pk,)

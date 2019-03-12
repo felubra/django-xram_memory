@@ -1,8 +1,17 @@
+import re
+
+from functools import wraps, lru_cache
+from inspect import getfullargspec
+
 import magic
+
+from kombu import Connection
+from django.conf import settings
+from django.db import transaction
+from kombu.exceptions import OperationalError
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.core.exceptions import ValidationError
-import re
 from django.template.defaultfilters import slugify
 
 
@@ -124,3 +133,54 @@ class FileValidator(object):
 
     def __eq__(self, other):
         return isinstance(other, FileValidator)
+
+
+class SignalException(Exception):
+    pass
+
+
+def celery_is_avaliable():
+    try:
+        conn = Connection(settings.CELERY_BROKER_URL)
+        conn.ensure_connection(max_retries=3)
+        from celery.task.control import inspect
+        insp = inspect()
+        d = insp.stats()
+        if not d:
+            raise AttributeError
+    except (IOError, OperationalError, AttributeError):
+        return False
+    else:
+        return True
+
+
+def task_on_commit(task, sync_context=False, sync_failback=True):
+    '''
+    Executa uma tarefa após a execução de uma função decorada.
+    A função decorada deve retornar um valor que será usado como argumento para a tarefa.
+    '''
+    def decorate(func):
+        @wraps(func)
+        def decorated(*args, **kwargs):
+            try:
+                task_args = func(*args, **kwargs)
+            except SignalException:
+                return
+
+            if not task_args:
+                return
+
+            # TODO: cachear (?)
+            execute_async = celery_is_avaliable()
+
+            if execute_async:
+                transaction.on_commit(lambda task_args=task_args:
+                                      task.delay(*task_args))
+            elif sync_failback and not execute_async:
+                transaction.on_commit(lambda task_args=task_args, sync_context=sync_context:
+                                      task(*task_args, sync=True) if sync_context else task(*task_args))
+            else:
+                raise RuntimeError(
+                    "Falha ao executar {}: servidor de filas não está disponível.".format(func.__name__))
+        return decorated
+    return decorate
