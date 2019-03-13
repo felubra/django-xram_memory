@@ -36,7 +36,7 @@ def set_mimetype_filesize_for_documents(sender, **kwargs):
 # TODO: mover para o modelo da notícia
 def associate_newspaper(news_instance: News):
     """
-    Com base na URL da notícia, associa ela com um jornal existente ou cria este jornal e faz a associação.
+    Com base na URL da notícia, associa ela com um jornal existente ou cria este jornal e, por fim, faz a associação.
     """
     news_instance._save_in_signal = True
     try:
@@ -65,8 +65,7 @@ def associate_newspaper(news_instance: News):
 
 def try_task(task, args):
     """
-    Inspeciona uma tarefa do celery, que será executada sincronicamente, e emula o comportamento de tentativas dessa
-    biblioteca.
+    Emula o comportamento de tentar novamente do celery para uma tarefas que será executada sincronicamente.
     """
     expect_to_throw = tuple(getattr(task, 'throws', ()))
     autoretry_for = tuple(getattr(task, 'autoretry_for', ()))
@@ -106,6 +105,10 @@ def determine_additional_tasks_to_run(news_instance, execute_async=True):
 # Sinais para o processamento de News
 @receiver(post_save)
 def news_additional_processing(sender, **kwargs):
+    """
+    De acorodo com as opções selecionadas pelo usuário, executa ou agenda tarefas para obter informações adicionais
+    sobre determinada Notícia.
+    """
     instance = kwargs['instance']
     if hasattr(instance, '_save_in_signal'):
         return
@@ -130,6 +133,9 @@ def news_additional_processing(sender, **kwargs):
 # Sinais para o processamento de Newspaper
 @receiver(post_save)
 def newspaper_additional_processing(sender, **kwargs):
+    """
+    Agenda ou executa tarefa para obter informações básicas sobre um Jornal.
+    """
     instance = kwargs['instance']
     if hasattr(instance, '_save_in_signal'):
         return

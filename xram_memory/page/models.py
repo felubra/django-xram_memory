@@ -11,6 +11,9 @@ from xram_memory.quill_widget import no_empty_html
 
 
 class StaticPage(TraceableEditorialModel):
+    """
+    Um modelo para uma página estática.
+    """
     title = models.CharField(
         verbose_name="Título",
         help_text="Título",

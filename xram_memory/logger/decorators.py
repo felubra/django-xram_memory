@@ -13,6 +13,7 @@ from django.db.models import Model
 
 def log_process(object_type, operation=None):
     """
+    Decorador padrão para logar uma determinada ação associada a um Modelo da aplicação.
     TODO: inferir o nome humano do modelo automaticamente
     TODO: refatorar para dar mais robustez (blocos try)
     """

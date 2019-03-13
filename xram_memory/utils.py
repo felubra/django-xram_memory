@@ -155,11 +155,11 @@ def celery_is_avaliable():
 
 
 def task_on_commit(task, sync_context=False, sync_failback=True):
-    '''
+    """
     Executa uma tarefa após a execução de uma função decorada.
     A função decorada deve retornar um valor que será usado como argumento para a tarefa.
     Se função decorada invocar `SignalException` ou não retornar parâmetro algum, ela não será executada.
-    '''
+    """
     def decorate(func):
         @wraps(func)
         def decorated(*args, **kwargs):
