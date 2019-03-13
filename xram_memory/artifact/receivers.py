@@ -86,12 +86,12 @@ def try_task(task, args):
     retry_task(task, args)
 
 
-def determine_additional_tasks_to_run(news_instance):
+def determine_additional_tasks_to_run(news_instance, execute_async=True):
     """
     Com base nas opções definidas pelo usuário, determine quais tarefas de processamento adicional executar.
     """
     fields_and_task_info = {
-        '_set_basic_info': (background_tasks.news_set_basic_info, (news_instance.pk, True)),
+        '_set_basic_info': (background_tasks.news_set_basic_info, (news_instance.pk, not execute_async)),
         '_fetch_archived_url': (background_tasks.news_add_archived_url, (news_instance.pk,)),
         '_add_pdf_capture': (background_tasks.news_add_pdf_capture, (news_instance.pk,)),
     }
@@ -114,9 +114,10 @@ def news_additional_processing(sender, **kwargs):
         if not instance.newspaper:
             associate_newspaper(instance)
 
-        tasks = determine_additional_tasks_to_run(instance)
+        execute_async = celery_is_avaliable()
+        tasks = determine_additional_tasks_to_run(instance, execute_async)
         if len(tasks):
-            if celery_is_avaliable():
+            if execute_async:
                 transaction.on_commit(lambda instance=instance, tasks=tasks: group(
                     [task.s(*args) for task, args in tasks]).apply_async()
                 )
