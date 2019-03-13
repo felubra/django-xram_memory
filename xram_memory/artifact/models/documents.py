@@ -96,6 +96,9 @@ class Document(Artifact):
             self.mime_type = ''
 
     def determine_file_size(self):
+        """
+        Determina o tamanho do arquivo buscando a informação do campo `file`.
+        """
         try:
             self.file_size = self.file.size
         except:
@@ -103,11 +106,17 @@ class Document(Artifact):
 
     @property
     def file_indexing(self):
+        """
+        Propriedade usada para indexar a URL para este documento.
+        """
         if self.file:
             return self.file.url
 
     @cachedproperty
     def thumbnail(self):
+        """
+        Retorna a url para uma miniatura de visualização deste documento.
+        """
         if self.file:
             try:
                 return get_thumbnailer(self.file)['thumbnail'].url

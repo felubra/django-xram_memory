@@ -112,6 +112,9 @@ class News(Artifact):
 
     @log_process(operation="pegar o título", object_type="Notícia")
     def set_web_title(self):
+        """
+        Pega o título para a página desta notícia.
+        """
         self.title = NewsFetcher.fetch_web_title(self.url)
 
     @log_process(operation="verificar por uma versão no archive.org", object_type="Notícia")
@@ -231,6 +234,9 @@ class News(Artifact):
 
     @property
     def image_capture_indexing(self):
+        """
+        Retorna a url para uma captura de imagem desta notícia, se existente.
+        """
         try:
             if self.image_capture and self.image_capture.image_document and self.image_capture.image_document.file:
                 url = get_thumbnailer(self.image_capture.image_document.file)[
@@ -241,6 +247,9 @@ class News(Artifact):
 
     @property
     def published_year(self):
+        """
+        Retorna o ano de publicação desta notícia.
+        """
         try:
             # Tente retornar o ano da data de publicação
             return self.published_date.timetuple()[0]
