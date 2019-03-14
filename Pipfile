@@ -37,6 +37,8 @@ djangorestframework = "*"
 django-cors-headers = "*"
 boltons = "*"
 retrying = "*"
+tornado = ">=4.2.0,<6.0.0"
+redis = ">=3.2.0"
 
 [packages.pdfkit]
 editable = true
