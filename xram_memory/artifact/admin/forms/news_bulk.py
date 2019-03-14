@@ -24,6 +24,9 @@ class URLForm(forms.Form):
                                   help_text="Insira os endereços das notícias, um por linha")
 
     def clean_urls(self, *args, **kwargs):
+        """
+        Valida cada uma das urls informadas.
+        """
         urls = self.cleaned_data['urls']
         if not urls:
             raise ValidationError("É necessário informar uma URL.")
@@ -52,9 +55,12 @@ class URLForm(forms.Form):
 
 @staff_member_required
 def news_bulk_insertion(request):
+    """
+    Controller para a página de inserção em massa de notícias.
+    """
     admin_site = default_site
     if request.method == 'POST':
-        # crie um formulário preenchido com os dados enviados
+        # crie uma instância do formulário URLForm para validar os dados.
         form = URLForm(request.POST)
         if form.is_valid():
             # pegue as urls sanitizadas

@@ -55,6 +55,9 @@ INDEX.settings(
 # TODO: remover stopwords com um normalizer
 @INDEX.doc_type
 class NewsDocument(DocType):
+    """
+    Índice de pesquisa para o modelo News
+    """
     id = fields.IntegerField(attr='id')
     url = fields.KeywordField()
     # Campos de TraceableModel

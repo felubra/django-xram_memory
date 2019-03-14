@@ -15,6 +15,9 @@ except ImportError:
 
 
 def pdf_preview(source, exif_orientation=True, **options):
+    """
+    Com base num arquivo PDF de entrada, retorna uma imagem com a visualização da primeira página.
+    """
     if not source:
         return
 
