@@ -1,16 +1,16 @@
 import magic
 from pathlib import Path
-from django.core.files.base import ContentFile, File
-from django.utils.text import slugify
-
-from django.conf import settings
 from django.db import models
-from .artifact import Artifact
-
-from xram_memory.utils import FileValidator
+from django.conf import settings
+from django.utils.text import slugify
+from filer.fields.file import FilerFileField
 from boltons.cacheutils import cachedproperty
 from easy_thumbnails.files import get_thumbnailer
 from easy_thumbnails.fields import ThumbnailerField
+from django.core.files.base import ContentFile, File
+
+from xram_memory.utils import FileValidator
+from xram_memory.artifact.models import Artifact
 
 
 def get_file_path(instance, filename):
@@ -65,13 +65,7 @@ class Document(Artifact):
         editable=False,
         default=True,
     )
-    file = ThumbnailerField(
-        verbose_name="Arquivo",
-        upload_to=get_file_path,
-        # TODO: Considerar alterar o validador em si, pois qualquer alteração na lista de mimes requer uma nova migração
-        validators=[FileValidator(
-            content_types=settings.VALID_FILE_UPLOAD_MIME_TYPES)],
-    )
+    file = FilerFileField(related_name='document', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Documento"
@@ -91,7 +85,7 @@ class Document(Artifact):
         """
         try:
             self.mime_type = magic.from_buffer(
-                self.file.read(1024), mime=True)
+                self.file.file.read(1024), mime=True)
         except:
             self.mime_type = ''
 
@@ -100,7 +94,7 @@ class Document(Artifact):
         Determina o tamanho do arquivo buscando a informação do campo `file`.
         """
         try:
-            self.file_size = self.file.size
+            self.file_size = self.file.file.size
         except:
             self.file_size = '0'
 
