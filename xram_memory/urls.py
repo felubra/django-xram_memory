@@ -30,6 +30,11 @@ urlpatterns = [
          NewsViewSet.as_view({'get': 'retrieve'}))
 ] + urlpatterns
 
+# URLs canônicas para documentos do Filer
+urlpatterns = [
+    path('filer/', include('filer.urls')),
+] + urlpatterns
+
 
 if settings.DEBUG:
     import debug_toolbar

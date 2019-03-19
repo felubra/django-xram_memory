@@ -159,6 +159,11 @@ class Common(Configuration):
         '': {
             'thumbnail': {
                 'size': (250, 250)
+            },
+            'image_capture': {
+                'size': (670, 204),
+                'autocrop': True,
+                'crop': 'scale'
             }
         }
     }

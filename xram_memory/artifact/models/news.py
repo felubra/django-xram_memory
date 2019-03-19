@@ -1,24 +1,26 @@
-import tempfile
-from celery import group
-from django.conf import settings
-from django.core.files import File as DjangoFile
-from django.core.files.base import ContentFile
-from django.core.validators import URLValidator
+from xram_memory.artifact.models import Artifact, Document, Newspaper
+from xram_memory.artifact import tasks as background_tasks
+from xram_memory.artifact.news_fetcher import NewsFetcher
 from django.db import models, transaction, IntegrityError
-from django.db.models import Q
-from django.db.transaction import on_commit
+from xram_memory.logger.decorators import log_process
+from filer.utils.generate_filename import randomized
 from django.template.defaultfilters import slugify
 from easy_thumbnails.files import get_thumbnailer
-from filer.fields.file import FilerFileField
-from filer.models import File, Folder
-from filer.utils.generate_filename import randomized
-from pathlib import Path
-from xram_memory.artifact import tasks as background_tasks
-from xram_memory.artifact.models import Artifact, Document, Newspaper
-from xram_memory.artifact.news_fetcher import NewsFetcher
-from xram_memory.logger.decorators import log_process
+from django.core.files import File as DjangoFile
 from xram_memory.taxonomy.models import Keyword
+from django.core.validators import URLValidator
+from django.core.files.base import ContentFile
+from boltons.cacheutils import cachedproperty
+from filer.fields.file import FilerFileField
+from django.db.transaction import on_commit
+from filer.models import File as FilerFile
+from filer.models import File, Folder
+from django.conf import settings
+from django.db.models import Q
+from celery import group
+from pathlib import Path
 import datetime
+import tempfile
 import urllib
 import os
 
@@ -170,14 +172,8 @@ class News(Artifact):
             with transaction.atomic():
                 folder, _, = Folder.objects.get_or_create(
                     name="Capturas de notícias em PDF")
-                pdf_file = File.objects.create(file=django_file, name=filename,
-                                               folder=folder,  owner=self.modified_by)
-                # cria um novo documento do tipo PDF
-                # TODO: adicionar as tags da notícia
-                pdf_document = Document.objects.create(
-                    file=pdf_file, is_user_object=False, created_by=self.modified_by, title=filename,
-                    modified_by=self.modified_by)
-                # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
+                pdf_document = Document.objects.create(file=django_file, name=filename,
+                                                       folder=folder,  owner=self.modified_by, is_user_object=False)
                 NewsPDFCapture.objects.create(
                     news=self, pdf_document=pdf_document)
 
@@ -231,21 +227,32 @@ class News(Artifact):
                 with transaction.atomic():
                     folder, _, = Folder.objects.get_or_create(
                         name="Imagens de notícias")
-                    image_file = File.objects.create(file=django_file, name=filename,
-                                                     folder=folder,  owner=self.modified_by)
-                    image_document = Document.objects.create(
-                        file=image_file, is_user_object=False, created_by=self.modified_by,
-                        modified_by=self.modified_by)
+                    image_document = Document.objects.create(file=django_file, name=filename,
+                                                             folder=folder,  owner=self.modified_by,
+                                                             is_user_object=False)
                     NewsImageCapture.objects.create(
                         image_document=image_document, original_url=self._image, news=self)
 
-    @property
+    @cachedproperty
     def image_capture_indexing(self):
         """
         Retorna a url para uma captura de imagem desta notícia, se existente.
         """
         try:
-            if self.image_capture and self.image_capture.image_document and self.image_capture.image_document.file:
+            if self.image_capture:
+                url = get_thumbnailer(self.image_capture.image_document.file)[
+                    'image_capture'].url
+                return url
+        except:
+            return None
+
+    @cachedproperty
+    def thumbnail(self):
+        """
+        Retorna a url para uma miniatura de uma captura de página desta notícia, se existente.
+        """
+        try:
+            if self.image_capture:
                 url = get_thumbnailer(self.image_capture.image_document.file)[
                     'thumbnail'].url
                 return url
@@ -280,7 +287,7 @@ class NewsPDFCapture(models.Model):
         related_name="pdf_captures",
     )
     pdf_document = models.OneToOneField(
-        Document,
+        FilerFile,
         verbose_name="Documento PDF",
         on_delete=models.CASCADE,
     )
@@ -315,7 +322,7 @@ class NewsImageCapture(models.Model):
         related_name="image_capture"
     )
     image_document = models.OneToOneField(
-        Document,
+        FilerFile,
         verbose_name="Documento de imagem",
         on_delete=models.CASCADE,
     )

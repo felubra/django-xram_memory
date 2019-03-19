@@ -14,7 +14,7 @@ class DocumentViewSet(viewsets.ViewSet):
     """
 
     def retrieve(self, request, pk=None):
-        queryset = Document.objects.filter(published=True)
+        queryset = Document.objects.filter(is_public=True)
         document = get_object_or_404(queryset, pk=pk)
         serializer = DocumentSerializer(document)
         return Response(serializer.data)

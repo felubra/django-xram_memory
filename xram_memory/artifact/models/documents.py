@@ -1,47 +1,18 @@
 import magic
 from pathlib import Path
 from django.db import models
+from filer.models import File
+from .artifact import Artifact
 from django.conf import settings
 from django.utils.text import slugify
-from filer.fields.file import FilerFileField
+from xram_memory.utils import FileValidator
 from boltons.cacheutils import cachedproperty
+from django.core.files.base import ContentFile
 from easy_thumbnails.files import get_thumbnailer
 from easy_thumbnails.fields import ThumbnailerField
-from django.core.files.base import ContentFile, File
-
-from xram_memory.utils import FileValidator
-from xram_memory.artifact.models import Artifact
 
 
-def get_file_path(instance, filename):
-    """
-    Tenta salvar os arquivos em locais diferentes para tipos de arquivo diferentes e dar um prefixo
-    para um arquivo criado pelo usuário.
-    """
-    # Se esta é uma instância de ContentFile, extraia o mime type aqui
-    if isinstance(instance.file.file, ContentFile):
-        mime_type = magic.from_buffer(instance.file.file.read(1024), mime=True)
-    # senão, tente contar com o mime type inserido pela função validadora
-    else:
-        mime_type = getattr(instance.file.file, '_mime_type', '')
-
-    # adicione um prefixo no arquivo se um usuário criou ele
-    file_prefix = 'u_{user_id}'.format(
-        user_id=instance.created_by.id) if instance.is_user_object else 's_'
-
-    # salve cada arquivo de acordo com o seu mimetype, se disponível
-    if 'image/' in mime_type:
-        folder_name = getattr(settings, 'IMAGE_ARTIFACT_DIR', '')
-    elif mime_type == 'application/pdf':
-        folder_name = getattr(settings, 'PDF_ARTIFACT_DIR', '')
-    else:
-        folder_name = ''
-    filepath = Path(filename)
-    filename = slugify(filepath.stem) + filepath.suffix
-    return '{folder_name}{file_prefix}_{filename}'.format(file_prefix=file_prefix, folder_name=folder_name, filename=filename)
-
-
-class Document(Artifact):
+class Document(File):
     """
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
@@ -52,32 +23,16 @@ class Document(Artifact):
         blank=True,
         editable=False,
     )
-    file_size = models.fields.CharField(
-        verbose_name="Tamanho",
-        help_text="Tamanho do arquivo em bytes",
-        default='0',
-        editable=False,
-        max_length=100,
-    )
     is_user_object = models.BooleanField(
         verbose_name="Objeto criado pelo usuário?",
         help_text="Indica se o arquivo foi inserido diretamente por um usuário",
         editable=False,
         default=True,
     )
-    file = FilerFileField(related_name='document', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Documento"
         verbose_name_plural = "Documentos"
-
-    def __str__(self):
-        return self.title
-
-    def save(self, *args, **kwargs):
-        if not self.title:
-            self.title = self.file.name
-        super().save(*args, **kwargs)
 
     def determine_mime_type(self):
         """
@@ -86,17 +41,9 @@ class Document(Artifact):
         try:
             self.mime_type = magic.from_buffer(
                 self.file.file.read(1024), mime=True)
+            self.file.file.seek(0)
         except:
             self.mime_type = ''
-
-    def determine_file_size(self):
-        """
-        Determina o tamanho do arquivo buscando a informação do campo `file`.
-        """
-        try:
-            self.file_size = self.file.file.size
-        except:
-            self.file_size = '0'
 
     @property
     def file_indexing(self):
@@ -116,3 +63,16 @@ class Document(Artifact):
                 return get_thumbnailer(self.file)['thumbnail'].url
             except:
                 return None
+
+    @cachedproperty
+    def icon(self):
+        return self.thumbnail
+
+    def file_data_changed(self, post_init=False):
+        '''
+        Verifique com a classe pai se o arquivo foi modificado e, caso afirmativo, recalcule seu mime_type.
+        '''
+        changed = super().file_data_changed(post_init)
+        if changed:
+            self.determine_mime_type()
+        return changed
