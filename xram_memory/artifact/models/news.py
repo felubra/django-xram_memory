@@ -165,27 +165,21 @@ class News(Artifact):
         filename = hashlib.md5(uniq_filename.encode(
             'utf-8')).hexdigest() + '.pdf'
 
-        pdf_file_path = NewsFetcher.get_pdf_capture(self.url)
-        try:
-            with open(pdf_file_path, 'rb') as fd:
-                django_file = DjangoFile(fd, name=filename)
-                with transaction.atomic():
-                    folder, _, = Folder.objects.get_or_create(
-                        name="Capturas de notícias em PDF")
-                    pdf_file = File.objects.create(file=django_file, name=filename,
-                                                   folder=folder,  owner=self.modified_by)
-                    # cria um novo documento do tipo PDF
-                    # TODO: adicionar as tags da notícia
-                    pdf_document = Document.objects.create(
-                        file=pdf_file, is_user_object=False, created_by=self.modified_by, title=filename,
-                        modified_by=self.modified_by)
-                    # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
-                    NewsPDFCapture.objects.create(
-                        news=self, pdf_document=pdf_document)
-                django_file.close()
-        finally:
-            # apague o arquivo temporário criado por NewsFetcher.get_pdf_capture
-            os.remove(pdf_file_path)
+        with NewsFetcher.get_pdf_capture(self.url) as fd:
+            django_file = DjangoFile(fd, name=filename)
+            with transaction.atomic():
+                folder, _, = Folder.objects.get_or_create(
+                    name="Capturas de notícias em PDF")
+                pdf_file = File.objects.create(file=django_file, name=filename,
+                                               folder=folder,  owner=self.modified_by)
+                # cria um novo documento do tipo PDF
+                # TODO: adicionar as tags da notícia
+                pdf_document = Document.objects.create(
+                    file=pdf_file, is_user_object=False, created_by=self.modified_by, title=filename,
+                    modified_by=self.modified_by)
+                # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
+                NewsPDFCapture.objects.create(
+                    news=self, pdf_document=pdf_document)
 
     @log_process(operation="adicionar palavras-chave", object_type="Notícia")
     def add_fetched_keywords(self):
@@ -232,24 +226,18 @@ class News(Artifact):
             filename = hashlib.md5(uniq_filename.encode(
                 'utf-8')).hexdigest() + original_filename
 
-            image_file_path = NewsFetcher.fetch_image(self._image)
-            try:
-                with open(image_file_path, 'rb') as fd:
-                    django_file = DjangoFile(fd, name=filename)
-                    with transaction.atomic():
-                        folder, _, = Folder.objects.get_or_create(
-                            name="Imagens de notícias")
-                        image_file = File.objects.create(file=django_file, name=filename,
-                                                         folder=folder,  owner=self.modified_by)
-                        image_document = Document.objects.create(
-                            file=image_file, is_user_object=False, created_by=self.modified_by,
-                            modified_by=self.modified_by)
-                        NewsImageCapture.objects.create(
-                            image_document=image_document, original_url=self._image, news=self)
-                    django_file.close()
-            finally:
-                # apague o arquivo temporário criado por NewsFetcher.get_pdf_capture
-                os.remove(image_file_path)
+            with NewsFetcher.fetch_image(self._image) as fd:
+                django_file = DjangoFile(fd, name=filename)
+                with transaction.atomic():
+                    folder, _, = Folder.objects.get_or_create(
+                        name="Imagens de notícias")
+                    image_file = File.objects.create(file=django_file, name=filename,
+                                                     folder=folder,  owner=self.modified_by)
+                    image_document = Document.objects.create(
+                        file=image_file, is_user_object=False, created_by=self.modified_by,
+                        modified_by=self.modified_by)
+                    NewsImageCapture.objects.create(
+                        image_document=image_document, original_url=self._image, news=self)
 
     @property
     def image_capture_indexing(self):

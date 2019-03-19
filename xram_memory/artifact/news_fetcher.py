@@ -1,15 +1,16 @@
 import os
 import pdfkit
-import requests
 import tempfile
+import requests
 from goose3 import Goose
-from newspaper import Article
 from bs4 import BeautifulSoup
-from goose3.image import Image
+from newspaper import Article
 from celery.contrib import rdb
-from functools import lru_cache
+from goose3.image import Image
 import newspaper as newspaper3k
+from functools import lru_cache
 from xram_memory.lib import stopwords
+from contextlib import contextmanager
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 
@@ -35,31 +36,35 @@ class NewsFetcher:
         return ''
 
     @staticmethod
+    @contextmanager
     def get_pdf_capture(url):
         """
-        Captura a notícia em formato para impressão e em PDF
-        """
-        """
-        TODO: usar um gerenciador de contexto e um gerador
-        with tempfile.TemporaryFile() as fd:
-            yield pdfkit.from_url(url, file_path...
+        Captura uma página em pdf e, como gerenciador de contexto, retorna um ponteiro para o 
+        arquivo criado. Fecha e apaga o arquivo ao final.
         """
         fd, file_path, = tempfile.mkstemp()
         pdfkit.from_url(url, file_path, options={
             'print-media-type': None,
             'disable-javascript': None,
         })
-        os.close(fd)
-        return file_path
+        with open(fd, 'rb') as f:
+            yield f
+        os.remove(file_path)
 
     @staticmethod
+    @contextmanager
     def fetch_image(image_url):
+        """
+        Captura uma imagem de uma notícia e, como gerenciador de contexto, retorna um ponteiro para 
+        o arquivo criado. Fecha e apaga o arquivo ao final.
+        """
         fd, file_path, = tempfile.mkstemp()
         response = requests.get(image_url, allow_redirects=True)
         response.raise_for_status()
-        with open(fd, 'wb') as f:
+        with open(fd, 'rb+') as f:
             f.write(response.content)
-        return file_path
+            yield f
+        os.remove(file_path)
 
     @staticmethod
     @lru_cache(maxsize=2)
