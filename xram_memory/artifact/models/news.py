@@ -172,8 +172,9 @@ class News(Artifact):
             with transaction.atomic():
                 folder, _, = Folder.objects.get_or_create(
                     name="Capturas de notícias em PDF")
-                pdf_document = Document.objects.create(file=django_file, name=filename,
-                                                       folder=folder,  owner=self.modified_by, is_user_object=False)
+                pdf_document = Document.objects.create(file=django_file, name=filename, original_filename=filename,
+                                                       folder=folder,  owner=self.modified_by,
+                                                       is_user_object=False, is_public=True)
                 NewsPDFCapture.objects.create(
                     news=self, pdf_document=pdf_document)
 
@@ -228,8 +229,9 @@ class News(Artifact):
                     folder, _, = Folder.objects.get_or_create(
                         name="Imagens de notícias")
                     image_document = Document.objects.create(file=django_file, name=filename,
+                                                             original_filename=original_filename,
                                                              folder=folder,  owner=self.modified_by,
-                                                             is_user_object=False)
+                                                             is_user_object=False, is_public=True)
                     NewsImageCapture.objects.create(
                         image_document=image_document, original_url=self._image, news=self)
 
