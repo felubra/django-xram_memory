@@ -57,7 +57,13 @@ def try_task(task, args):
            retry_on_exception=need_to_retry_for, wait_exponential_multiplier=wait_exponential_multiplier,
            wait_exponential_max=wait_exponential_max)
     def retry_task(the_task, arguments):
-        the_task(*arguments)
+        try:
+            the_task(*arguments)
+        except Exception as e:
+            if isinstance(e, expect_to_throw):
+                pass
+            else:
+                raise
 
     retry_task(task, args)
 
