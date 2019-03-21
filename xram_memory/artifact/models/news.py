@@ -210,9 +210,10 @@ class News(Artifact):
         associa à uma nova captura de imagem de notícia (NewsImageCapture).
         """
         original_filename = Path(self._image).name
+        original_extension = Path(self._image).suffix
         import hashlib
         filename = hashlib.md5(self._image.encode(
-            'utf-8')).hexdigest()
+            'utf-8')).hexdigest() + original_extension
 
         with NewsFetcher.fetch_image(self._image) as fd:
             django_file = DjangoFile(fd, name=filename)
