@@ -195,7 +195,13 @@ class Common(Configuration):
     REST_FRAMEWORK = {
         'DEFAULT_PARSER_CLASSES': (
             'rest_framework.parsers.JSONParser',
-        )
+        ),
+        'DEFAULT_THROTTLE_CLASSES': (
+            'rest_framework.throttling.AnonRateThrottle',
+        ),
+        'DEFAULT_THROTTLE_RATES': {
+            'anon': '60/minute',
+        }
     }
     FILER_IMAGE_MODEL = 'filer.Image'
 

@@ -6,8 +6,6 @@ from filer.models import File
 from xram_memory.artifact.models import News
 from xram_memory.artifact.serializers import DocumentSerializer, NewsSerializer
 
-# TODO: Fazer o rate limit desses endpoints: https://www.django-rest-framework.org/api-guide/throttling/
-
 
 class DocumentViewSet(viewsets.ViewSet):
     """
