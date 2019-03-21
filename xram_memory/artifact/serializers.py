@@ -14,7 +14,7 @@ class DocumentSerializer(ModelSerializer):
 class SimpleDocumentSerializer(ModelSerializer):
     class Meta:
         model = File
-        fields = ('id', 'name', 'canonical_url')
+        fields = ('id', 'name', 'canonical_url', 'size',)
 
 
 class PDFCaptureSerializer(ModelSerializer):
