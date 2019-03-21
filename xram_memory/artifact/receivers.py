@@ -10,6 +10,27 @@ from celery import group
 import random
 
 
+@receiver(post_save)
+def set_mimetype_filesize_for_documents(sender, **kwargs):
+    """
+    Defina o tamanho e o tipo do arquivo para documentos.
+    """
+    instance = kwargs['instance']
+
+    if hasattr(instance, '_save_in_signal'):
+        return
+
+    if isinstance(instance, (Document)):
+        try:
+            instance.determine_mime_type()
+            # Adicione uma flag privada no modelo para evitar que esse handler execute
+            # de novo, já que vamos salvar o modelo novamente aqui
+            instance._save_in_signal = True
+            instance.save()
+        finally:
+            del instance._save_in_signal
+
+
 # TODO: mover para o modelo da notícia
 def associate_newspaper(news_instance: News):
     """

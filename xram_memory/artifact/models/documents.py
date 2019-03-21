@@ -67,12 +67,3 @@ class Document(File):
     @cachedproperty
     def icon(self):
         return self.thumbnail
-
-    def file_data_changed(self, post_init=False):
-        '''
-        Verifique com a classe pai se o arquivo foi modificado e, caso afirmativo, recalcule seu mime_type.
-        '''
-        changed = super().file_data_changed(post_init)
-        if changed:
-            self.determine_mime_type()
-        return changed
