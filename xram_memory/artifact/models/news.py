@@ -118,14 +118,14 @@ class News(Artifact):
         else:
             return bool(self.pdf_captures.count() > 0)
 
-    @log_process(operation="pegar o título", object_type="Notícia")
+    @log_process(operation="pegar o título")
     def set_web_title(self):
         """
         Pega o título para a página desta notícia.
         """
         self.title = NewsFetcher.fetch_web_title(self.url)
 
-    @log_process(operation="verificar por uma versão no archive.org", object_type="Notícia")
+    @log_process(operation="verificar por uma versão no archive.org")
     def fetch_archived_url(self):
         """
         Verifica se existe e adiciona a URL de uma versão arquivada desta notícia presente no
@@ -133,7 +133,7 @@ class News(Artifact):
         """
         self.archived_news_url = NewsFetcher.fetch_archived_url(self.url)
 
-    @log_process(operation="buscar informações básicas", object_type="Notícia")
+    @log_process(operation="buscar informações básicas")
     def set_basic_info(self):
         """
         Abre a página da notícia e tenta inferir e definir suas informações básicas.
@@ -149,7 +149,7 @@ class News(Artifact):
                 setattr(self, prop, value)
         return basic_info
 
-    @log_process(operation="adicionar uma captura em formato PDF", object_type="Notícia")
+    @log_process(operation="adicionar uma captura em formato PDF")
     def add_pdf_capture(self):
         """
         Captura a notícia em formato para impressão e em PDF.
@@ -191,7 +191,7 @@ class News(Artifact):
                 NewsPDFCapture.objects.create(
                     news=self, pdf_document=pdf_document)
 
-    @log_process(operation="adicionar palavras-chave", object_type="Notícia")
+    @log_process(operation="adicionar palavras-chave")
     def add_fetched_keywords(self):
         """
         Para cada uma das palavras-chave descobertas por set_basic_info(), crie uma palavra-chave no
@@ -212,7 +212,7 @@ class News(Artifact):
             if len(keywords):
                 self.keywords.add(*keywords)
 
-    @log_process(operation="baixar uma imagem", object_type="Notícia")
+    @log_process(operation="baixar uma imagem")
     def add_fetched_image(self):
         """
         Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e arquivo e o
