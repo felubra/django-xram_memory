@@ -211,12 +211,8 @@ class News(Artifact):
         """
         original_filename = Path(self._image).name
         import hashlib
-            uniq_filename = (
-                str(datetime.datetime.now().date()) + '_' +
-                str(datetime.datetime.now().time()).replace(':', '.')
-            )
-            filename = hashlib.md5(uniq_filename.encode(
-                'utf-8')).hexdigest() + original_filename
+        filename = hashlib.md5(self._image.encode(
+            'utf-8')).hexdigest()
 
         with NewsFetcher.fetch_image(self._image) as fd:
             django_file = DjangoFile(fd, name=filename)
