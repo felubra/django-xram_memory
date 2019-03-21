@@ -8,7 +8,6 @@ class Artifact(TraceableEditorialModel):
     """
     Classe abstrata para todos os objetos-artefato do acervo
     """
-    # TODO: lidar com a exigência do título
     title = models.CharField(
         verbose_name="Título",
         help_text="Título",
@@ -21,10 +20,9 @@ class Artifact(TraceableEditorialModel):
         null=True,
         blank=True,
     )
-    # TODO: adicionar um help_text para `slug`
     slug = models.SlugField(
-        verbose_name="Slug",
-        help_text="",
+        verbose_name="Endereço",
+        help_text="Parte do endereço pelo qual este artefato poderá ser acessado",
         blank=True,
     )
     keywords = models.ManyToManyField(
@@ -48,7 +46,7 @@ class Artifact(TraceableEditorialModel):
 
     def save(self, *args, **kwargs):
         # gera uma slug única, considerando as slugs de outros artefatos
-        # TODO: somente gerar uma slug nova se não houver slug definida ou conflito de slugs
+
         unique_slugify(self, self.title)
         if not self.title:
             raise ValueError(

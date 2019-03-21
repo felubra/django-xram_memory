@@ -18,7 +18,6 @@ class NewsAdminForm(forms.ModelForm):
     """
     # TODO: fazer com que os campos abaixo não sejam logados em revisões de conteúdo?
     # TODO: definir os campos que este formulário aceitará: https://docs.djangoproject.com/en/2.1/topics/forms/modelforms/#selecting-the-fields-to-use
-    # TODO: chamar o campo 'slug' de Endereço e gerar uma URL para o endereço da notícia com template no form
 
     # campos para definir operações adicionais para a notícia durante e após o salvamento
     set_basic_info = forms.BooleanField(
@@ -82,7 +81,7 @@ class NewsAdminForm(forms.ModelForm):
                     'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
             if not slug:
                 self.add_error(
-                    'slug', 'Se você optou por inserir os dados manualmente, é informar uma slug')
+                    'slug', 'Se você optou por inserir os dados manualmente, é informar um endereço')
 
         # define em campos privados do modelo quais operações adicionais o método save() deve
         # realizar
