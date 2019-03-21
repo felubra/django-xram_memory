@@ -174,11 +174,20 @@ class News(Artifact):
             with transaction.atomic():
                 folder, _, = Folder.objects.get_or_create(
                     name="Capturas de notícias em PDF")
-                pdf_document, _ = (FilerFile.objects
-                                   .get_or_create(file=django_file, name=filename,
-                                                  original_filename=filename,
-                                                  folder=folder,  owner=self.modified_by,
-                                                  is_public=True))
+                new_pdf_document = FilerFile(file=django_file, name=filename,
+                                             original_filename=filename,
+                                             folder=folder,  owner=self.modified_by,
+                                             is_public=True)
+                # Reaproveite um arquivo já existente, com base no seu hash, de forma que um arquivo possa ser utilizado
+                # várias vezes, por várias capturas. Ao que parece, contudo o wkhtmltopdf sempre gera arquivos
+                # diferentes...
+                try:
+                    pdf_document = FilerFile.objects.get(
+                        sha1=new_pdf_document.sha1)
+                except FilerFile.DoesNotExist:
+                    new_pdf_document.save()
+                    pdf_document = new_pdf_document
+
                 NewsPDFCapture.objects.create(
                     news=self, pdf_document=pdf_document)
 
@@ -221,17 +230,25 @@ class News(Artifact):
                 # tente apagar todas as imagens associadas a esta notícia, pois só pode haver uma
                 try:
                     captures_for_this_news = self.image_capture
-                    captures_for_this_news.image_document.delete()
-                except (NewsImageCapture.DoesNotExist, Image.DoesNotExist,):
+                    captures_for_this_news.delete()
+                except (NewsImageCapture.DoesNotExist):
                     pass  # Não existem imagens associadas a esta notícia
                 folder, _, = Folder.objects.get_or_create(
                     name="Imagens de notícias")
-                # TODO: reaproveitar arquivo já existente, com base na url original
-                image_document, _ = (Image.objects
-                                     .get_or_create(file=django_file, name=filename,
-                                                    original_filename=original_filename,
-                                                    folder=folder,  owner=self.modified_by,
-                                                    is_public=True))
+
+                new_image_document = Image(file=django_file, name=filename,
+                                           original_filename=original_filename,
+                                           folder=folder,  owner=self.modified_by,
+                                           is_public=True)
+                # Reaproveite um arquivo já existente, com base no seu hash, de forma que um arquivo possa ser utilizado
+                # várias vezes, por várias capturas.
+                try:
+                    image_document = Image.objects.get(
+                        sha1=new_image_document.sha1)
+                except Image.DoesNotExist:
+                    new_image_document.save()
+                    image_document = new_image_document
+
                 NewsImageCapture.objects.create(
                     image_document=image_document, original_url=self._image, news=self)
 
