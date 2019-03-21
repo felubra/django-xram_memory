@@ -221,8 +221,8 @@ class News(Artifact):
                 # tente apagar todas as imagens associadas a esta notícia, pois só pode haver uma
                 try:
                     captures_for_this_news = self.image_capture
-                    captures_for_this_news.delete()
-                except NewsImageCapture.DoesNotExist:
+                    captures_for_this_news.image_document.delete()
+                except (NewsImageCapture.DoesNotExist, Image.DoesNotExist,):
                     pass  # Não existem imagens associadas a esta notícia
                 folder, _, = Folder.objects.get_or_create(
                     name="Imagens de notícias")
