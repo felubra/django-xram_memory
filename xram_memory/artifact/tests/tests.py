@@ -18,7 +18,7 @@ from django.template.response import TemplateResponse
 from xram_memory.users.models import User
 from xram_memory.taxonomy.models import Keyword
 
-from xram_memory.artifact.models import Artifact, News, Document
+from xram_memory.artifact.models import Artifact, News
 from xram_memory.artifact.admin import NewsAdmin
 
 from xram_memory.artifact.news_fetcher import NewsFetcher

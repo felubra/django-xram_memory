@@ -1,4 +1,4 @@
-from xram_memory.artifact.models import Document, News, Newspaper
+from xram_memory.artifact.models import News, Newspaper
 import xram_memory.artifact.tasks as background_tasks
 from xram_memory.utils import celery_is_avaliable
 from django.db.models.signals import post_save
@@ -8,27 +8,6 @@ from urllib.parse import urlsplit
 from retrying import retry
 from celery import group
 import random
-
-
-@receiver(post_save)
-def set_mimetype_filesize_for_documents(sender, **kwargs):
-    """
-    Defina o tamanho e o tipo do arquivo para documentos.
-    """
-    instance = kwargs['instance']
-
-    if hasattr(instance, '_save_in_signal'):
-        return
-
-    if isinstance(instance, (Document)):
-        try:
-            instance.determine_mime_type()
-            # Adicione uma flag privada no modelo para evitar que esse handler execute
-            # de novo, já que vamos salvar o modelo novamente aqui
-            instance._save_in_signal = True
-            instance.save()
-        finally:
-            del instance._save_in_signal
 
 
 # TODO: mover para o modelo da notícia

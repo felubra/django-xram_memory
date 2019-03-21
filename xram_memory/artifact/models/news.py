@@ -1,26 +1,28 @@
-from xram_memory.artifact.models import Artifact, Document, Newspaper
+from xram_memory.artifact.models import Artifact, Newspaper
 from xram_memory.artifact import tasks as background_tasks
-from xram_memory.artifact.news_fetcher import NewsFetcher
 from django.db import models, transaction, IntegrityError
+from xram_memory.artifact.news_fetcher import NewsFetcher
 from xram_memory.logger.decorators import log_process
 from filer.utils.generate_filename import randomized
 from django.template.defaultfilters import slugify
 from easy_thumbnails.files import get_thumbnailer
 from django.core.files import File as DjangoFile
-from xram_memory.taxonomy.models import Keyword
 from django.core.validators import URLValidator
+from xram_memory.taxonomy.models import Keyword
 from django.core.files.base import ContentFile
+from filer.fields.image import FilerImageField
 from boltons.cacheutils import cachedproperty
 from filer.fields.file import FilerFileField
 from django.db.transaction import on_commit
+from filer.models.imagemodels import Image
 from filer.models import File as FilerFile
 from filer.models import File, Folder
 from django.conf import settings
 from django.db.models import Q
 from celery import group
 from pathlib import Path
-import datetime
 import tempfile
+import datetime
 import urllib
 import os
 
@@ -172,11 +174,11 @@ class News(Artifact):
             with transaction.atomic():
                 folder, _, = Folder.objects.get_or_create(
                     name="Capturas de notícias em PDF")
-                pdf_document, _ = (Document.objects
+                pdf_document, _ = (FilerFile.objects
                                    .get_or_create(file=django_file, name=filename,
                                                   original_filename=filename,
                                                   folder=folder,  owner=self.modified_by,
-                                                  is_user_object=False, is_public=True))
+                                                  is_public=True))
                 NewsPDFCapture.objects.create(
                     news=self, pdf_document=pdf_document)
 
@@ -204,20 +206,11 @@ class News(Artifact):
     @log_process(operation="baixar uma imagem", object_type="Notícia")
     def add_fetched_image(self):
         """
-        Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e cria uma
-        instância dela como documento de artefato (Document) e captura de imagem de notícia
-        (NewsImageCapture).
+        Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e arquivo e o
+        associa à uma nova captura de imagem de notícia (NewsImageCapture).
         """
-        # TODO: validar se a url da imagem é válida
-        # TODO: fortificar esse código, último except pode falhar
-        try:
-            captured_image = NewsImageCapture.objects.get(
-                original_url=self._image, news=self)
-            if captured_image:
-                return
-        except NewsImageCapture.DoesNotExist:
-            original_filename = Path(self._image).name
-            import hashlib
+        original_filename = Path(self._image).name
+        import hashlib
             uniq_filename = (
                 str(datetime.datetime.now().date()) + '_' +
                 str(datetime.datetime.now().time()).replace(':', '.')
@@ -225,18 +218,25 @@ class News(Artifact):
             filename = hashlib.md5(uniq_filename.encode(
                 'utf-8')).hexdigest() + original_filename
 
-            with NewsFetcher.fetch_image(self._image) as fd:
-                django_file = DjangoFile(fd, name=filename)
-                with transaction.atomic():
-                    folder, _, = Folder.objects.get_or_create(
-                        name="Imagens de notícias")
-                    image_document, _ = (Document.objects
-                                         .get_or_create(file=django_file, name=filename,
-                                                        original_filename=original_filename,
-                                                        folder=folder,  owner=self.modified_by,
-                                                        is_user_object=False, is_public=True))
-                    NewsImageCapture.objects.create(
-                        image_document=image_document, original_url=self._image, news=self)
+        with NewsFetcher.fetch_image(self._image) as fd:
+            django_file = DjangoFile(fd, name=filename)
+            with transaction.atomic():
+                # tente apagar todas as imagens associadas a esta notícia, pois só pode haver uma
+                try:
+                    captures_for_this_news = self.image_capture
+                    captures_for_this_news.delete()
+                except NewsImageCapture.DoesNotExist:
+                    pass  # Não existem imagens associadas a esta notícia
+                folder, _, = Folder.objects.get_or_create(
+                    name="Imagens de notícias")
+                # TODO: reaproveitar arquivo já existente, com base na url original
+                image_document, _ = (Image.objects
+                                     .get_or_create(file=django_file, name=filename,
+                                                    original_filename=original_filename,
+                                                    folder=folder,  owner=self.modified_by,
+                                                    is_public=True))
+                NewsImageCapture.objects.create(
+                    image_document=image_document, original_url=self._image, news=self)
 
     @cachedproperty
     def image_capture_indexing(self):
@@ -282,7 +282,7 @@ class News(Artifact):
 
 class NewsPDFCapture(models.Model):
     """
-    Um captura que associa um documento PDF (PDFDocument) com uma Notícia (News)
+    Um captura que associa um arquivo em PDF com uma Notícia (News)
     """
     news = models.ForeignKey(
         News,
@@ -291,10 +291,10 @@ class NewsPDFCapture(models.Model):
         null=True,
         related_name="pdf_captures",
     )
-    pdf_document = models.OneToOneField(
-        FilerFile,
+    pdf_document = FilerFileField(
         verbose_name="Documento PDF",
         on_delete=models.CASCADE,
+        related_name="pdf_captures"
     )
     pdf_capture_date = models.DateTimeField(
         auto_now_add=True,
@@ -326,10 +326,10 @@ class NewsImageCapture(models.Model):
         null=True,
         related_name="image_capture"
     )
-    image_document = models.OneToOneField(
-        FilerFile,
+    image_document = FilerImageField(
         verbose_name="Documento de imagem",
         on_delete=models.CASCADE,
+        related_name="image_capture"
     )
     image_capture_date = models.DateTimeField(
         verbose_name="Data de captura",

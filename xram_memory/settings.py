@@ -197,6 +197,7 @@ class Common(Configuration):
             'rest_framework.parsers.JSONParser',
         )
     }
+    FILER_IMAGE_MODEL = 'filer.Image'
 
 
 class Development(Common):
