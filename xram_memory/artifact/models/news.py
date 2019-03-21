@@ -103,7 +103,6 @@ class News(Artifact):
     def has_basic_info(self):
         """
         Indica se esta notícia tem ao menos alguns campos preenchidos, ou seja, informações básicas.
-        TODO: acrescentar campos de relacionamento e não verificar eles se o objeto for novo.
         """
         return (bool(self.title) or bool(self.teaser) or bool(self.body) or bool(self.authors) or
                 bool(self.published_date))
@@ -153,7 +152,6 @@ class News(Artifact):
     def add_pdf_capture(self):
         """
         Captura a notícia em formato para impressão e em PDF.
-        TODO: salvar e usar diretamente o arquivo, não lidar com um buffer de conteúdo.
         """
         # TODO: checar se o diretório existe, se existem permissões para salvar etc
         # TODO: usar o System check framework

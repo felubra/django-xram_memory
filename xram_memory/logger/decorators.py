@@ -53,7 +53,6 @@ def log_process(operation=None):
                 )
                 raise
             else:
-                # TODO: informar se o processamento de func foi cacheado pela @lru_cache
                 logger.info(
                     '[{username} - {object_id} - {object_type}] Término: {op}: {time:.2f} s.'.format(
                         op=op, object_type=object_type, object_id=object_id, username=username, time=toc-tic

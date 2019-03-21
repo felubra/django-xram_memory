@@ -52,7 +52,6 @@ INDEX.settings(
 
 
 # TODO: indexar apenas notícias publicadas
-# TODO: remover stopwords com um normalizer
 @INDEX.doc_type
 class NewsDocument(DocType):
     """
