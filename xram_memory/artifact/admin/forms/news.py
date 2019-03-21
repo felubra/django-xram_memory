@@ -74,12 +74,15 @@ class NewsAdminForm(forms.ModelForm):
             'add_pdf_capture', False)
 
         url = cleaned_data.get('url', None)
-        # TODO: verificar  slug vazia
         slug = cleaned_data.get('slug', None)
 
-        if not set_basic_info and title == '':
-            self.add_error(
-                'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
+        if not set_basic_info:
+            if not title:
+                self.add_error(
+                    'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
+            if not slug:
+                self.add_error(
+                    'slug', 'Se você optou por inserir os dados manualmente, é informar uma slug')
 
         # define em campos privados do modelo quais operações adicionais o método save() deve
         # realizar
@@ -96,7 +99,7 @@ class NewsAdminForm(forms.ModelForm):
                     raise ValueError()
             except ValueError:
                 self.add_error(
-                    'title', "Não foi possível inferir o título automaticamente, preencha ele manualmente.")
+                    'title', "Não foi possível determinar um título automaticamente, preencha ele manualmente.")
             except:
                 self.add_error(None,
                                "Não foi possível determinar automaticamente informações sobre esta notícia no momento, por-favor insira os dados dela manualmente.")
