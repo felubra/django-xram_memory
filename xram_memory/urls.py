@@ -36,6 +36,9 @@ urlpatterns = [
 ] + urlpatterns
 
 
+urlpatterns = [path('tags_input/', include('tags_input.urls',
+                                           namespace='tags_input'))] + urlpatterns
+
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [

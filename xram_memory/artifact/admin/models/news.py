@@ -4,6 +4,7 @@ from django.template.defaultfilters import slugify
 from xram_memory.base_models import TraceableEditorialAdminModel
 from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
 from xram_memory.taxonomy.models import Subject, Keyword
+from tags_input import admin as tags_input_admin
 
 from ..forms.news import NewsPDFCaptureStackedInlineForm, NewsAdminForm, NewsImageCaptureStackedInlineForm
 
@@ -19,7 +20,7 @@ class NewsImageCaptureInline(admin.StackedInline):
 
 
 @admin.register(News)
-class NewsAdmin(TraceableEditorialAdminModel):
+class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
     INSERT_FIELDSETS = (
         ('Informações básicas', {
             'fields': ('url', 'title',   'archived_news_url')
@@ -64,6 +65,9 @@ class NewsAdmin(TraceableEditorialAdminModel):
     date_hierarchy = 'modified_at'
     prepopulated_fields = {"slug": ("title",)}
     change_list_template = "news_changelist.html"
+
+    def get_tag_fields(self):
+        return ['subjects', 'keywords']
 
     def get_readonly_fields(self, request, obj=None):
         if obj and obj.slug:

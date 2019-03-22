@@ -49,6 +49,7 @@ class Common(Configuration):
         'mptt',
         'rest_framework',
         'corsheaders',
+        'tags_input',
     ]
 
     MIDDLEWARE = [
@@ -205,6 +206,17 @@ class Common(Configuration):
     }
 
     FILER_FILE_MODELS = ['artifact.Document']
+
+    TAGS_INPUT_MAPPINGS = {
+        'taxonomy.Keyword': {
+            'field': 'name',
+            'create_missing': True,
+        },
+        'taxonomy.Subject': {
+            'field': 'name',
+            'create_missing': True,
+        },
+    }
 
 
 class Development(Common):
