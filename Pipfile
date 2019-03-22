@@ -38,7 +38,7 @@ django-cors-headers = "*"
 boltons = "*"
 django-filer = "*"
 django-mptt = ">=0.6"
-easy_thumbnails = ">=2.0"
+easy_thumbnails = ">=2.6.0"
 django-polymorphic = ">=0.7"
 Pillow = ">=2.3.0"
 tornado = ">=4.2.0,<6.0.0"
@@ -53,11 +53,6 @@ ref = "master"
 [packages.django-currentuser]
 editable = true
 git = "https://github.com/PaesslerAG/django-currentuser"
-ref = "master"
-
-[packages.easy-thumbnails]
-editable = true
-git = "https://github.com/SmileyChris/easy-thumbnails"
 ref = "master"
 
 [packages.celery]
