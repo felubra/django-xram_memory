@@ -28,9 +28,6 @@ class DocumentAdmin(FileAdmin):
     )
     date_hierarchy = 'uploaded_at'
     search_fields = ('name',)
-    formfield_overrides = {
-        ThumbnailerField: {'widget': ImageClearableFileInput},
-    }
 
 
 DocumentAdmin.readonly_fields = DocumentAdmin.readonly_fields + ('mime_type',)
