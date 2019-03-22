@@ -44,6 +44,7 @@ Pillow = ">=2.3.0"
 tornado = ">=4.2.0,<6.0.0"
 redis = ">=3.2.0"
 retrying = "*"
+django-elasticsearch-dsl = "*"
 
 [packages.pdfkit]
 editable = true
