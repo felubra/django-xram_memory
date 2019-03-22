@@ -45,6 +45,8 @@ class Common(Configuration):
         'xram_memory.artifact',
         'xram_memory.page',
         'easy_thumbnails',
+        'xram_memory.apps.FilerConfig',
+        'mptt',
         'rest_framework',
         'corsheaders',
     ]
@@ -157,6 +159,11 @@ class Common(Configuration):
         '': {
             'thumbnail': {
                 'size': (250, 250)
+            },
+            'image_capture': {
+                'size': (670, 204),
+                'autocrop': True,
+                'crop': 'scale'
             }
         }
     }
@@ -188,8 +195,16 @@ class Common(Configuration):
     REST_FRAMEWORK = {
         'DEFAULT_PARSER_CLASSES': (
             'rest_framework.parsers.JSONParser',
-        )
+        ),
+        'DEFAULT_THROTTLE_CLASSES': (
+            'rest_framework.throttling.AnonRateThrottle',
+        ),
+        'DEFAULT_THROTTLE_RATES': {
+            'anon': '60/minute',
+        }
     }
+
+    FILER_FILE_MODELS = ['artifact.Document']
 
 
 class Development(Common):

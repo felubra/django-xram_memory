@@ -11,10 +11,9 @@ from django_currentuser.middleware import (
 from django.db.models import Model
 
 
-def log_process(object_type, operation=None):
+def log_process(operation=None):
     """
     Decorador padrão para logar uma determinada ação associada a um Modelo da aplicação.
-    TODO: inferir o nome humano do modelo automaticamente
     TODO: refatorar para dar mais robustez (blocos try)
     """
     def decorate(func):
@@ -31,8 +30,13 @@ def log_process(object_type, operation=None):
                         username = str(obj.modified_by)
                 except:
                     username = '<anônimo>'
-                object_id = obj.pk if (isinstance(
-                    obj, Model) and obj.pk is not None) else "(em criação)"
+                if (isinstance(obj, Model)):
+                    object_id = '(em criação)' if obj.pk is None else obj.pk
+                    object_type = obj._meta.verbose_name.title()
+                else:
+                    object_id = '(id não disponível)'
+                    object_type = '(Artefato)'
+
                 logger.info(
                     '[{username} - {object_id} - {object_type}] Início: {op}.'.format(
                         op=op, object_type=object_type, object_id=object_id, username=username
@@ -49,7 +53,6 @@ def log_process(object_type, operation=None):
                 )
                 raise
             else:
-                # TODO: informar se o processamento de func foi cacheado pela @lru_cache
                 logger.info(
                     '[{username} - {object_id} - {object_type}] Término: {op}: {time:.2f} s.'.format(
                         op=op, object_type=object_type, object_id=object_id, username=username, time=toc-tic

@@ -23,9 +23,15 @@ def icon_preview(source, exif_orientation=True, **options):
 
     # retorne o caminho completo de um ícone do pacote file-icon-vectors
     def get_icon(icon_name):
-        icon_file = finders.find(
-            'file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name))
-        return icon_file
+        try:
+            icon_file = finders.find(
+                'file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name))
+            if icon_file is None:
+                raise ValueError
+            return icon_file
+        except ValueError:
+            return finders.find(
+                'file-icon-vectors/dist/icons/vivid/BLANK.svg'.format(icon=icon_name))
 
     # aqui é suficiente pegar o mimetype do arquivo usando a biblioteca embutida do python, já que o arquivo já foi
     # enviado e, portanto, teve seu mimetype validado.

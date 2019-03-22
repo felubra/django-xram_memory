@@ -18,13 +18,12 @@ class NewsAdminForm(forms.ModelForm):
     """
     # TODO: fazer com que os campos abaixo não sejam logados em revisões de conteúdo?
     # TODO: definir os campos que este formulário aceitará: https://docs.djangoproject.com/en/2.1/topics/forms/modelforms/#selecting-the-fields-to-use
-    # TODO: chamar o campo 'slug' de Endereço e gerar uma URL para o endereço da notícia com template no form
 
     # campos para definir operações adicionais para a notícia durante e após o salvamento
     set_basic_info = forms.BooleanField(
         label="Tentar inferir informações sobre essa notícia automaticamente",
         required=False,
-        help_text="Apenas com o endereço da notícia preenchido, o sistema tentará buscar informações básicas sobre esta notícia",
+        help_text="Apenas com o endereço da notícia preenchido, o sistema preencherá os outros campos automaticamente",
     )
     fetch_archived_url = forms.BooleanField(
         label="Procurar uma versão arquivada dessa notícia automaticamente no Internet Archive",
@@ -33,7 +32,7 @@ class NewsAdminForm(forms.ModelForm):
     )
     add_pdf_capture = forms.BooleanField(
         label="Capturar a página dessa notícia em formato PDF",
-        help_text="O sistema tentará capturar uma versão da página dessa notícia em PDF",
+        help_text="Se marcado, o sistema fará uma captura da página dessa notícia em PDF",
         required=False,
     )
 
@@ -49,11 +48,12 @@ class NewsAdminForm(forms.ModelForm):
         self.initial['fetch_archived_url'] = not self.instance.archived_news_url
         self.initial['add_pdf_capture'] = not self.instance.has_pdf_capture
 
-        if self.instance.pk:
-            # altere as descrições para os campos acima de acordo com o estado do modelo
-            # TODO: utilizar a propriedades conforme acima para definir as descrições
-            # TODO: atualizar as descrições abaixo para 'obter as informações automaticamente etc.'
-            self.fields['set_basic_info'].label = 'Tentar inferir informações sobre essa notícia novamente'
+        if self.instance.pk is None:
+            self.fields['set_basic_info'].label = 'Obter informações sobre essa notícia automaticamente'
+            self.fields['fetch_archived_url'].label = 'Procurar por uma versão arquivada dessa notícia no <a href="https://archive.org/">Internet Archive</a>'
+            self.fields['add_pdf_capture'].label = 'Fazer uma captura dessa notícia em formato PDF'
+        else:
+            self.fields['set_basic_info'].label = 'Obter informações sobre essa notícia novamente'
             self.fields['fetch_archived_url'].label = 'Procurar novamente por uma versão arquivada dessa notícia no Internet Archive'
             self.fields['add_pdf_capture'].label = 'Adicionar uma nova captura de página dessa notícia em formato PDF'
 
@@ -73,12 +73,15 @@ class NewsAdminForm(forms.ModelForm):
             'add_pdf_capture', False)
 
         url = cleaned_data.get('url', None)
-        # TODO: verificar  slug vazia
         slug = cleaned_data.get('slug', None)
 
-        if not set_basic_info and title == '':
-            self.add_error(
-                'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
+        if not set_basic_info:
+            if not title:
+                self.add_error(
+                    'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
+            if not slug:
+                self.add_error(
+                    'slug', 'Se você optou por inserir os dados manualmente, é informar um endereço')
 
         # define em campos privados do modelo quais operações adicionais o método save() deve
         # realizar
@@ -95,7 +98,7 @@ class NewsAdminForm(forms.ModelForm):
                     raise ValueError()
             except ValueError:
                 self.add_error(
-                    'title', "Não foi possível inferir o título automaticamente, preencha ele manualmente.")
+                    'title', "Não foi possível determinar um título automaticamente, preencha ele manualmente.")
             except:
                 self.add_error(None,
                                "Não foi possível determinar automaticamente informações sobre esta notícia no momento, por-favor insira os dados dela manualmente.")

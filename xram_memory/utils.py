@@ -122,8 +122,6 @@ class FileValidator(object):
         if self.content_types:
             # Leia os primeiros 1024 bytes dos dados para determinar seu tipo com a libmagic
             content_type = magic.from_buffer(data.read(1024), mime=True)
-            # Guarde a informação sobre o tipo para ser obtida por get_file_path, isso efetivamente
-            # validará o modelo toda vez que ele for inserido pela interface administrativa
             data.file._mime_type = content_type
             data.seek(0)
             if content_type not in self.content_types:

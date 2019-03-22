@@ -36,9 +36,15 @@ beautifulsoup4 = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
 boltons = "*"
-retrying = "*"
+django-filer = "*"
+django-mptt = ">=0.6"
+easy_thumbnails = ">=2.6.0"
+django-polymorphic = ">=0.7"
+Pillow = ">=2.3.0"
 tornado = ">=4.2.0,<6.0.0"
 redis = ">=3.2.0"
+retrying = "*"
+django-elasticsearch-dsl = "*"
 
 [packages.pdfkit]
 editable = true
@@ -50,13 +56,8 @@ editable = true
 git = "https://github.com/PaesslerAG/django-currentuser"
 ref = "master"
 
-[packages.easy-thumbnails]
-editable = true
-git = "https://github.com/SmileyChris/easy-thumbnails"
-ref = "master"
-
 [packages.celery]
 editable = true
-git = "https://github.com/PaesslerAG/django-currentuser"
+git = "https://github.com/celery/celery"
 ref = "master"
 extras = [ "redis",]

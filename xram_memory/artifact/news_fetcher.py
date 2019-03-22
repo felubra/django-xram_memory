@@ -1,17 +1,18 @@
-import requests
+import os
 import pdfkit
-
-import newspaper as newspaper3k
-from newspaper import Article
+import tempfile
+import requests
 from goose3 import Goose
-from goose3.image import Image
 from bs4 import BeautifulSoup
+from newspaper import Article
+from celery.contrib import rdb
+from goose3.image import Image
+import newspaper as newspaper3k
 from functools import lru_cache
 from xram_memory.lib import stopwords
-
-from django.utils.dateparse import parse_datetime
+from contextlib import contextmanager
 from django.utils.timezone import make_aware
-from celery.contrib import rdb
+from django.utils.dateparse import parse_datetime
 
 
 class NewsFetcher:
@@ -35,20 +36,35 @@ class NewsFetcher:
         return ''
 
     @staticmethod
+    @contextmanager
     def get_pdf_capture(url):
         """
-        Captura a notícia em formato para impressão e em PDF
+        Captura uma página em pdf e, como gerenciador de contexto, retorna um ponteiro para o 
+        arquivo criado. Fecha e apaga o arquivo ao final.
         """
-        return pdfkit.from_url(url, False, options={
+        fd, file_path, = tempfile.mkstemp()
+        pdfkit.from_url(url, file_path, options={
             'print-media-type': None,
             'disable-javascript': None,
         })
+        with open(fd, 'rb') as f:
+            yield f
+        os.remove(file_path)
 
     @staticmethod
+    @contextmanager
     def fetch_image(image_url):
+        """
+        Captura uma imagem de uma notícia e, como gerenciador de contexto, retorna um ponteiro para 
+        o arquivo criado. Fecha e apaga o arquivo ao final.
+        """
+        fd, file_path, = tempfile.mkstemp()
         response = requests.get(image_url, allow_redirects=True)
         response.raise_for_status()
-        return response.content
+        with open(fd, 'rb+') as f:
+            f.write(response.content)
+            yield f
+        os.remove(file_path)
 
     @staticmethod
     @lru_cache(maxsize=2)

@@ -6,14 +6,14 @@ from xram_memory.taxonomy.serializers import KeywordSerializer, SubjectSerialize
 class DocumentSerializer(ModelSerializer):
     class Meta:
         model = Document
-        fields = ('id', 'title', 'teaser', 'slug',
-                  'mime_type', 'file_size', 'file', 'thumbnail',)
+        fields = ('id', 'name', 'description', 'canonical_url',
+                  'mime_type', 'size', 'thumbnail',)
 
 
 class SimpleDocumentSerializer(ModelSerializer):
     class Meta:
         model = Document
-        fields = ('id', 'title', 'mime_type', 'file_size',)
+        fields = ('id', 'name', 'mime_type', 'size',)
 
 
 class PDFCaptureSerializer(ModelSerializer):
@@ -35,9 +35,10 @@ class NewsSerializer(ModelSerializer):
         model = News
         fields = ('id', 'title', 'teaser', 'slug',
                   'url', 'archived_news_url', 'authors', 'body', 'published_date', 'language', 'newspaper', 'keywords',
-                  'subjects', 'pdf_captures', 'image_capture')
+                  'subjects', 'pdf_captures', 'image_capture', 'thumbnail')
     newspaper = NewspaperSerializer()
     keywords = KeywordSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     pdf_captures = PDFCaptureSerializer(many=True)
     image_capture = CharField(source='image_capture_indexing')
+    thumbnail = CharField()
