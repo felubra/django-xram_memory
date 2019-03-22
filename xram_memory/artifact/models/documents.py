@@ -67,3 +67,8 @@ class Document(File):
     @cachedproperty
     def icon(self):
         return self.thumbnail
+
+    @classmethod
+    def matches_file_type(cls, iname, ifile, request):
+        # Este será o modelo genérico para todos os tipos de arquivo, em substituição ao do Filer
+        return True
