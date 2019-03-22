@@ -62,6 +62,6 @@ ref = "master"
 
 [packages.celery]
 editable = true
-git = "https://github.com/PaesslerAG/django-currentuser"
+git = "https://github.com/celery/celery"
 ref = "master"
 extras = [ "redis",]
