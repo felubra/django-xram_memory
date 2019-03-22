@@ -1,28 +1,26 @@
-from xram_memory.artifact.models import Artifact, Newspaper
+from xram_memory.artifact.models import Artifact, Document, Newspaper
 from xram_memory.artifact import tasks as background_tasks
-from django.db import models, transaction, IntegrityError
 from xram_memory.artifact.news_fetcher import NewsFetcher
+from django.db import models, transaction, IntegrityError
 from xram_memory.logger.decorators import log_process
 from filer.utils.generate_filename import randomized
 from django.template.defaultfilters import slugify
 from easy_thumbnails.files import get_thumbnailer
 from django.core.files import File as DjangoFile
-from django.core.validators import URLValidator
 from xram_memory.taxonomy.models import Keyword
+from django.core.validators import URLValidator
 from django.core.files.base import ContentFile
-from filer.fields.image import FilerImageField
 from boltons.cacheutils import cachedproperty
 from filer.fields.file import FilerFileField
 from django.db.transaction import on_commit
-from filer.models.imagemodels import Image
 from filer.models import File as FilerFile
 from filer.models import File, Folder
 from django.conf import settings
 from django.db.models import Q
 from celery import group
 from pathlib import Path
-import tempfile
 import datetime
+import tempfile
 import urllib
 import os
 
@@ -172,17 +170,17 @@ class News(Artifact):
             with transaction.atomic():
                 folder, _, = Folder.objects.get_or_create(
                     name="Capturas de notícias em PDF")
-                new_pdf_document = FilerFile(file=django_file, name=filename,
-                                             original_filename=filename,
-                                             folder=folder,  owner=self.modified_by,
-                                             is_public=True)
+                new_pdf_document = Document(file=django_file, name=filename,
+                                            original_filename=filename,
+                                            folder=folder,  owner=self.modified_by,
+                                            is_public=True)
                 # Reaproveite um arquivo já existente, com base no seu hash, de forma que um arquivo possa ser utilizado
                 # várias vezes, por várias capturas. Ao que parece, contudo o wkhtmltopdf sempre gera arquivos
                 # diferentes...
                 try:
-                    pdf_document = FilerFile.objects.get(
+                    pdf_document = Document.objects.get(
                         sha1=new_pdf_document.sha1)
-                except FilerFile.DoesNotExist:
+                except Document.DoesNotExist:
                     new_pdf_document.save()
                     pdf_document = new_pdf_document
 
@@ -213,8 +211,9 @@ class News(Artifact):
     @log_process(operation="baixar uma imagem")
     def add_fetched_image(self):
         """
-        Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e arquivo e o
-        associa à uma nova captura de imagem de notícia (NewsImageCapture).
+        Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e cria uma
+        instância dela como documento de artefato (Document) e captura de imagem de notícia
+        (NewsImageCapture).
         """
         original_filename = Path(self._image).name
         original_extension = Path(self._image).suffix
@@ -234,16 +233,16 @@ class News(Artifact):
                 folder, _, = Folder.objects.get_or_create(
                     name="Imagens de notícias")
 
-                new_image_document = Image(file=django_file, name=filename,
-                                           original_filename=original_filename,
-                                           folder=folder,  owner=self.modified_by,
-                                           is_public=True)
+                new_image_document = Document(file=django_file, name=filename,
+                                              original_filename=original_filename,
+                                              folder=folder,  owner=self.modified_by,
+                                              is_public=True)
                 # Reaproveite um arquivo já existente, com base no seu hash, de forma que um arquivo possa ser utilizado
                 # várias vezes, por várias capturas.
                 try:
-                    image_document = Image.objects.get(
+                    image_document = Document.objects.get(
                         sha1=new_image_document.sha1)
-                except Image.DoesNotExist:
+                except Document.DoesNotExist:
                     new_image_document.save()
                     image_document = new_image_document
 
@@ -294,7 +293,7 @@ class News(Artifact):
 
 class NewsPDFCapture(models.Model):
     """
-    Um captura que associa um arquivo em PDF com uma Notícia (News)
+    Um captura que associa um documento PDF (PDFDocument) com uma Notícia (News)
     """
     news = models.ForeignKey(
         News,
@@ -303,10 +302,10 @@ class NewsPDFCapture(models.Model):
         null=True,
         related_name="pdf_captures",
     )
-    pdf_document = FilerFileField(
+    pdf_document = models.OneToOneField(
+        FilerFile,
         verbose_name="Documento PDF",
         on_delete=models.CASCADE,
-        related_name="pdf_captures"
     )
     pdf_capture_date = models.DateTimeField(
         auto_now_add=True,
@@ -338,10 +337,10 @@ class NewsImageCapture(models.Model):
         null=True,
         related_name="image_capture"
     )
-    image_document = FilerImageField(
+    image_document = models.OneToOneField(
+        FilerFile,
         verbose_name="Documento de imagem",
         on_delete=models.CASCADE,
-        related_name="image_capture"
     )
     image_capture_date = models.DateTimeField(
         verbose_name="Data de captura",

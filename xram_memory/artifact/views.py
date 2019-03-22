@@ -2,8 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from filer.models import File
-from xram_memory.artifact.models import News
+from xram_memory.artifact.models import Document, News
 from xram_memory.artifact.serializers import DocumentSerializer, NewsSerializer
 
 
@@ -13,7 +12,7 @@ class DocumentViewSet(viewsets.ViewSet):
     """
 
     def retrieve(self, request, pk=None):
-        queryset = File.objects.filter(is_public=True)
+        queryset = Document.objects.filter(is_public=True)
         document = get_object_or_404(queryset, pk=pk)
         serializer = DocumentSerializer(document)
         return Response(serializer.data)

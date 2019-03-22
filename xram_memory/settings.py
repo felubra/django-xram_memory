@@ -203,7 +203,6 @@ class Common(Configuration):
             'anon': '60/minute',
         }
     }
-    FILER_IMAGE_MODEL = 'filer.Image'
 
 
 class Development(Common):

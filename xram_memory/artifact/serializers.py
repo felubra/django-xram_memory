@@ -1,20 +1,19 @@
-from filer.models import File
 from rest_framework.serializers import ModelSerializer, CharField
-from xram_memory.artifact.models import News, Newspaper, NewsPDFCapture, NewsImageCapture
+from xram_memory.artifact.models import Document, News, Newspaper, NewsPDFCapture, NewsImageCapture
 from xram_memory.taxonomy.serializers import KeywordSerializer, SubjectSerializer
 
 
 class DocumentSerializer(ModelSerializer):
     class Meta:
-        model = File
-        fields = ('id', 'name', 'description',
-                  'canonical_url', 'size',)
+        model = Document
+        fields = ('id', 'name', 'description', 'canonical_url',
+                  'mime_type', 'size', 'thumbnail',)
 
 
 class SimpleDocumentSerializer(ModelSerializer):
     class Meta:
-        model = File
-        fields = ('id', 'name', 'canonical_url', 'size',)
+        model = Document
+        fields = ('id', 'name', 'mime_type', 'size',)
 
 
 class PDFCaptureSerializer(ModelSerializer):
