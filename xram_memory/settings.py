@@ -45,7 +45,7 @@ class Common(Configuration):
         'xram_memory.artifact',
         'xram_memory.page',
         'easy_thumbnails',
-        'filer',
+        'xram_memory.apps.FilerConfig',
         'mptt',
         'rest_framework',
         'corsheaders',
@@ -203,6 +203,8 @@ class Common(Configuration):
             'anon': '60/minute',
         }
     }
+
+    FILER_FILE_MODELS = ['artifact.Document']
 
 
 class Development(Common):
