@@ -6,6 +6,7 @@ from .artifact import Artifact
 from django.conf import settings
 from django.utils.text import slugify
 from xram_memory.utils import FileValidator
+from filer import settings as filer_settings
 from boltons.cacheutils import cachedproperty
 from django.core.files.base import ContentFile
 from easy_thumbnails.files import get_thumbnailer
@@ -63,6 +64,20 @@ class Document(File):
                 return get_thumbnailer(self.file)['thumbnail'].url
             except:
                 return None
+
+    @property
+    def icons(self):
+        if self.file.file:
+            try:
+                thumbnails = dict(
+                    (size, self.file.get_thumbnail({
+                        'size': (int(size), int(size)),
+                        'crop': 'scale'
+                    }).url)
+                    for size in filer_settings.FILER_ADMIN_ICON_SIZES)
+                return thumbnails
+            except:
+                return 'file'
 
     @cachedproperty
     def icon(self):
