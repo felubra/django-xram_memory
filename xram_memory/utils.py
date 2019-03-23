@@ -14,6 +14,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
+from django.contrib.staticfiles import finders
 
 
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None,
@@ -184,6 +185,19 @@ def task_on_commit(task, sync_context=False, sync_failback=True):
                     "Falha ao executar {}: servidor de filas não está disponível.".format(func.__name__))
         return decorated
     return decorate
+
+
+# retorne o caminho completo de um ícone do pacote file-icon-vectors
+def get_file_icon(icon_name):
+    try:
+        icon_file = finders.find(
+            'file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name))
+        if icon_file is None:
+            raise ValueError
+        return icon_file
+    except ValueError:
+        return finders.find(
+            'file-icon-vectors/dist/icons/vivid/BLANK.svg'.format(icon=icon_name))
 
 
 class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesStorage):
