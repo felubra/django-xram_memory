@@ -163,4 +163,5 @@ TODO: remover esse !important
 
 div.submit-row {
   position: sticky;
+  bottom: 0;
 }
