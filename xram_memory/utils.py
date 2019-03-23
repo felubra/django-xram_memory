@@ -2,6 +2,7 @@ import re
 
 from functools import wraps, lru_cache
 from inspect import getfullargspec
+from whitenoise.storage import CompressedManifestStaticFilesStorage
 
 import magic
 
@@ -183,3 +184,16 @@ def task_on_commit(task, sync_context=False, sync_failback=True):
                     "Falha ao executar {}: servidor de filas não está disponível.".format(func.__name__))
         return decorated
     return decorate
+
+
+class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesStorage):
+    """
+    Override the replacement patterns to match URL-encoded quotations.
+    Patch: https://code.djangoproject.com/ticket/21080#comment:12
+    """
+    patterns = (
+        ("*.css", (
+            r"""(url\((?:['"]|%22|%27){0,1}\s*(.*?)(?:['"]|%22|%27){0,1}\))""",
+            (r"""(@import\s*["']\s*(.*?)["'])""", """@import url("%s")"""),
+        )),
+    )

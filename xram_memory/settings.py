@@ -128,7 +128,7 @@ class Common(Configuration):
     # https://docs.djangoproject.com/en/2.1/howto/static-files/
     STATIC_URL = '/static/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = 'xram_memory.utils.PatchedCompressedManifestStaticFilesStorage'
 
     AUTH_USER_MODEL = 'users.User'
 
@@ -176,11 +176,11 @@ class Common(Configuration):
     ]
     NPM_ROOT_PATH = BASE_DIR
     NPM_FILE_PATTERNS = {
-        'file-icon-vectors': ['dist\\icons\\vivid\\*'],
+        'file-icon-vectors': ['dist/icons/vivid/*'],
         'stopwords-iso': ['stopwords-iso.json'],
-        'material-design-icons': ['navigation\\svg\\production\\ic_fullscreen*'],
-        'quill': ['dist\\*'],
-        'screenfull': ['dist\\*'],
+        'material-design-icons': ['navigation/svg/production/ic_fullscreen*'],
+        'quill': ['dist/*'],
+        'screenfull': ['dist/*'],
     }
     ELASTICSEARCH_INDEX_NAMES = {
         'xram_memory.search_indexes.documents.news': 'artifact_news',
