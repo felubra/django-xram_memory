@@ -14,7 +14,7 @@ class NewsPDFCaptureInline(admin.TabularInline):
     form = NewsPDFCaptureStackedInlineForm
 
 
-class NewsImageCaptureInline(admin.StackedInline):
+class NewsImageCaptureInline(admin.TabularInline):
     model = NewsImageCapture
     form = NewsImageCaptureStackedInlineForm
 
