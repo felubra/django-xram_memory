@@ -33,7 +33,7 @@ class News(Artifact):
     de página (NewsPDFCapture) e uma imagem associada a notícia (NewsImageCapture).
     """
     url = models.URLField(
-        verbose_name="Endereço",
+        verbose_name="Endereço original",
         help_text="Endereço original da notícia",
         max_length=255,
         unique=True,
