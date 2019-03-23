@@ -302,8 +302,7 @@ class NewsPDFCapture(models.Model):
         null=True,
         related_name="pdf_captures",
     )
-    pdf_document = models.OneToOneField(
-        FilerFile,
+    pdf_document = FilerFileField(
         verbose_name="Documento PDF",
         on_delete=models.CASCADE,
     )
@@ -337,8 +336,7 @@ class NewsImageCapture(models.Model):
         null=True,
         related_name="image_capture"
     )
-    image_document = models.OneToOneField(
-        FilerFile,
+    image_document = FilerFileField(
         verbose_name="Documento de imagem",
         on_delete=models.CASCADE,
     )
