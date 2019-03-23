@@ -4,12 +4,12 @@ from xram_memory.artifact.news_fetcher import NewsFetcher
 
 
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class NewsImageCaptureStackedInlineForm(forms.ModelForm):
-    pass
+    class Meta:
+        exclude = ('original_url',)
 
 
 class NewsAdminForm(forms.ModelForm):
