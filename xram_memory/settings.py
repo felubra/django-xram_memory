@@ -178,7 +178,12 @@ class Common(Configuration):
     NPM_FILE_PATTERNS = {
         'file-icon-vectors': ['dist/icons/vivid/*'],
         'stopwords-iso': ['stopwords-iso.json'],
-        'material-design-icons': ['navigation/svg/production/ic_fullscreen*'],
+        'material-design-icons': [
+            'navigation/svg/production/ic_fullscreen*',
+            'action/svg/production/ic_info_24px*',
+            'image/svg/production/ic_picture_as_pdf_24px*',
+            'image/svg/production/ic_filter_24px*',
+        ],
         'quill': ['dist/*'],
         'screenfull': ['dist/*'],
     }

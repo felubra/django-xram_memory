@@ -3,6 +3,7 @@ from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResp
 from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.admin.sites import site as default_site, AdminSite
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from xram_memory.base_models import TraceableEditorialAdminModel
 from xram_memory.taxonomy.models import Subject, Keyword
 from django.template.response import TemplateResponse
@@ -11,9 +12,11 @@ from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError
 from tags_input import admin as tags_input_admin
 from django.core.validators import URLValidator
+from django.contrib.staticfiles import finders
 from django.db.utils import IntegrityError
-from django.contrib import messages
+from django.utils.html import format_html
 from django.shortcuts import render
+from django.contrib import messages
 from django.contrib import admin
 from django.urls import reverse
 from django.urls import path
@@ -103,6 +106,7 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
     list_display = (
         'id',
         'title',
+        'captures',
     )
     list_display_links = ('title', 'id',)
     inlines = [
@@ -112,6 +116,34 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
     search_fields = ('title',)
     date_hierarchy = 'modified_at'
     prepopulated_fields = {"slug": ("title",)}
+
+    def captures(self, obj):
+        icons_and_captures = {
+            'action/svg/production/ic_info_24px.svg': (obj.has_basic_info, 'Tem informações básicas', 'Sem informações básicas',),
+            'image/svg/production/ic_picture_as_pdf_24px.svg': (obj.has_pdf_capture, 'Tem captura em pdf', 'Sem captura em pdf',),
+            'image/svg/production/ic_filter_24px.svg': (obj.has_image, 'Tem imagem', 'Sem imagem',),
+        }
+
+        def get_google_icon(icon_path):
+            return static(
+                'material-design-icons/{}'.format(icon_path))
+
+        icon_elements = [
+            '''<img
+                src="{icon_src}"
+                title="{img_title}"
+                alt="{img_title}"
+                class="capture_status_icon {capture_status}"
+                />'''.format(
+                icon_src=get_google_icon(icon_name),
+                img_title=info[1] if info[0] == True else info[2],
+                capture_status='' if info[0] == True else 'missing'
+            )
+            for icon_name, info in icons_and_captures.items()
+        ]
+        html = format_html(''.join(icon_elements))
+        return html
+    captures.short_description = 'Capturas'
 
     def get_tag_fields(self):
         return ['subjects', 'keywords']

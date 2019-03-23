@@ -113,7 +113,21 @@ class News(Artifact):
         if self.pk is None:
             return False
         else:
-            return bool(self.pdf_captures.count() > 0)
+            return self.pdf_captures.count() > 0
+
+    @property
+    def has_image(self):
+        """
+        Indica se esta notícia tem uma imagem associada.
+        """
+        if self.pk is None:
+            return False
+        else:
+            try:
+                image_capture = self.image_capture
+                return image_capture is not None
+            except:
+                return False
 
     @log_process(operation="pegar o título")
     def set_web_title(self):

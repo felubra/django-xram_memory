@@ -165,3 +165,7 @@ div.submit-row {
   position: sticky;
   bottom: 0;
 }
+
+img.capture_status_icon.missing {
+  opacity: 0.5;
+}
