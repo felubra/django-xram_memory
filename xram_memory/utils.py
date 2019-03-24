@@ -15,6 +15,7 @@ from django.utils.deconstruct import deconstructible
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 from django.contrib.staticfiles import finders
+from functools import lru_cache
 
 
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None,
@@ -187,8 +188,9 @@ def task_on_commit(task, sync_context=False, sync_failback=True):
     return decorate
 
 
-# retorne o caminho completo de um ícone do pacote file-icon-vectors
+@lru_cache(maxsize=16)
 def get_file_icon(icon_name):
+    """ retorne o caminho completo de um ícone do pacote file-icon-vectors"""
     try:
         icon_file = finders.find(
             'file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name))
