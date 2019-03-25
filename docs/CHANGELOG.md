@@ -2,6 +2,184 @@ Changelog
 =========
 
 
+(unreleased)
+------------
+
+Adicionado
+~~~~~~~~~~
+- Centralize o logo na tela de login. [Felipe Lube de Bragança]
+- Mostre o logo na interface administrativa. [Felipe Lube de Bragança]
+- Ícones de status das capturas usando a fonte material-icons. [Felipe
+  Lube de Bragança]
+- Feat: decore a função io intensiva  get_file_icon() com @lru_cache.
+  [Felipe Lube de Bragança]
+- Indicação das capturas de um item na Lista de notícias. [Felipe Lube
+  de Bragança]
+- Botão para inserir múltiplas notícias  lado-a-lado com outro botão.
+  [Felipe Lube de Bragança]
+
+  - Movida a view para inserção múltima para NewsAdmin
+- Flutue a linha de açẽos do formulário de edição/adição. [Felipe Lube
+  de Bragança]
+- Utilize os campos do filer nos modelos de captura. [Felipe Lube de
+  Bragança]
+- Exclua o campo original_url em NewsImageCaptureStackedInlineForm.
+  [Felipe Lube de Bragança]
+- Unificação dos campos de captura em TabularInline. [Felipe Lube de
+  Bragança]
+- Integração inicial com o django-tags-input. [Felipe Lube de Bragança]
+
+Corrigido
+~~~~~~~~~
+- Corrija o tamanho do texto de ajuda. [Felipe Lube de Bragança]
+- Mova get_file_icon para utils.py. [Felipe Lube de Bragança]
+- Correção de problemas na geração de arquivos estáticos - Utilize uma
+  versão modificada de ManifestStaticFilesStorage para suportar
+  corretamente o parsing de arquivo css com comentários - Utilize
+  caminhos em formato POSIX em NPM_FILE_PATTERNS. [Felipe Lube de
+  Bragança]
+- Tagsinput: sem altura 40px e placeholder pt. [Felipe Lube de Bragança]
+- Correção no nome do campo url. [Felipe Lube de Bragança]
+- Não verifique por uma slug no modo de edição. [Felipe Lube de
+  Bragança]
+
+Outros
+~~~~~~
+- Merge pull request #41 from felubra/admin_fixes. [Felipe Lübe de
+  Bragança]
+
+  Closes #32
+
+
+0.7.0 (2019-03-22)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- Remova o widget customizado em DocumentAdmin. [Felipe Lube de
+  Bragança]
+- Icon_preview: retorne ícone de arquivo em branco como failback.
+  [Felipe Lube de Bragança]
+- Document: modelo do app Filer com nossas customizações. [Felipe Lube
+  de Bragança]
+- Traduza o nome padrão do app filer no admin. [Felipe Lube de Bragança]
+- Adote um ratelimit global para os endpoints da API. [Felipe Lube de
+  Bragança]
+- Renomeie, para o usuário, o campo slug para endereço. [Felipe Lube de
+  Bragança]
+- NewsAdminForm: valide a presença duma slug no modo manual. [Felipe
+  Lube de Bragança]
+- NewsAdminForm: descrições diferentes de acordo com estado modelo.
+  [Felipe Lube de Bragança]
+- Feat: @log_process: infira o nome humano do modelo automaticamente.
+  [Felipe Lube de Bragança]
+- Reaproveite arquivos de capturas já realizadas. [Felipe Lube de
+  Bragança]
+- Nome de arquivo da captura de imagem é hash da url. [Felipe Lube de
+  Bragança]
+- Use os modelos do django-filer, sem modelos customizados nossos.
+  [Felipe Lube de Bragança]
+
+  BREAKING CHANGE:
+  - remoção do modelo Documento (Document)
+  - capturas tem associação com os arquivos (moelos do Filer)
+- Ao criar uma captura, reaproveite o documento se ele já existir.
+  [Felipe Lube de Bragança]
+- Template padrão do filer para exibir documentos na int. admin. [Felipe
+  Lube de Bragança]
+- Try_task: permita exceções silenciosas. [Felipe Lube de Bragança]
+- Modelo Document herdado de File (django-filer) [Felipe Lube de
+  Bragança]
+
+  BREAKING CHANGE:
+  - Caminhos para arquivo serão os canônicos definidos pelo Filer
+  - Campo image_capture (News) usa um novo tamanho de imagem (670x204)
+  - O tipo do arquivo do documento será computado não mais por um sinal
+  - Atualização dos serializers com a mudança de alguns campos
+  - Simplif. de add_pdf_capture e add_fetched_image, com modelo herdado
+- Refatoração de funções com uso de gerenciadores de contexto. [Felipe
+  Lube de Bragança]
+
+  - funções add_fetched_image e add_pdf_capture
+  - fechamento e exclusão do arquivos temporários
+  - documentação
+- Integração básica com o filer para as capturas. [Felipe Lube de
+  Bragança]
+- Configuração incial para uso do django-filer. [Felipe Lube de
+  Bragança]
+- Adicione django-filer e dependências. [Felipe Lube de Bragança]
+
+Corrigido
+~~~~~~~~~
+- Correção na versão dos pacotes tornado e redis, que não estão fixos.
+  [Felipe Lube de Bragança]
+- Fix (chore): correção na instalação do easy_thumbnails. [Felipe Lube
+  de Bragança]
+- Correção no pacote do celery no Pipfile. [Felipe Lube de Bragança]
+- Retorne com o campo size em SimpleDocumentSerializer. [Felipe Lube de
+  Bragança]
+- Apague o arquivo de imagem da captura (e ela) [Felipe Lube de
+  Bragança]
+- Adicione a extensão no arquivo de imagem. [Felipe Lube de Bragança]
+- Retorno à definição do mime_type via sinal. [Felipe Lube de Bragança]
+- Propriedades adicionais do documento quando da criação da captura.
+  [Felipe Lube de Bragança]
+- Atualização do redis e workarround para fazer o flower funcionar.
+  [Felipe Lube de Bragança]
+- Refeitura de todas migrações. [Felipe Lube de Bragança]
+
+Outros
+~~~~~~
+- Merge branch 'django-filer' into dev. [Felipe Lube de Bragança]
+- Merge branch 'dev' into django-filer. [Felipe Lube de Bragança]
+- Document: gere miniaturas necessárias à listagem dos arquivos. [Felipe
+  Lube de Bragança]
+- Chore: readicione o perdido django-elasticsearch-dsl. [Felipe Lube de
+  Bragança]
+- Revert "feat: use os modelos do django-filer, sem modelos customizados
+  nossos" [Felipe Lube de Bragança]
+
+  This reverts commit bc980135da610046e05b48d9ede46990a3dfa7e3.
+- Chore: remoção de TODOS que não serão implementados mais/já foram.
+  [Felipe Lube de Bragança]
+- Chore: merge de dev. [Felipe Lube de Bragança]
+
+
+0.6.0 (2019-03-13)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- Feat (doc): ampliação da documentação. [Felipe Lube de Bragança]
+- Lógica dos sinais mais simples com execução síncrona como failback -
+  apenas um sinal para cada entidade (news e newspaper) - refatoração do
+  código em funções separadas - execução síncrona se o servidor de filas
+  não estiver disponível - agendamento de tarefas quando o servidor de
+  filas estiver disponível - uma única verificação quanto ao servidor de
+  filas - emulação do comportamento de tentativas do celery quando
+  síncrono - utilização da biblioteca retrying para a emulação acima -
+  qualquer erro em celery_is_avaliable deverá retornar False -
+  unificação do nome da flag para indicar salvamento em sinal. [Felipe
+  Lube de Bragança]
+- Execute diretamente tarefas se celery não estiver disponível. [Felipe
+  Lube de Bragança]
+
+Corrigido
+~~~~~~~~~
+- Passe o tipo de execução para a tarefa news_set_basic_info. [Felipe
+  Lube de Bragança]
+- Fix (doc): fale sobre SignalException em @task_on_commit. [Felipe Lube
+  de Bragança]
+
+Outros
+~~~~~~
+- Merge pull request #38 from felubra/sync_failback. [Felipe Lübe de
+  Bragança]
+
+  Implementa #28
+- Chore: atualização do changelog. [Felipe Lube de Bragança]
+
+
 0.5.1 (2019-03-11)
 ------------------
 
