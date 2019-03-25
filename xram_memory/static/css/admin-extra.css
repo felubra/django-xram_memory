@@ -3,6 +3,7 @@
 */
 
 @import url("https://fonts.googleapis.com/css?family=Cabin:400,400i,700,700i");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
 body {
   font-family: "Cabin", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans",
@@ -166,6 +167,15 @@ div.submit-row {
   bottom: 0;
 }
 
-img.capture_status_icon.missing {
-  opacity: 0.5;
+
+div.captures_info {
+  text-align: center;
+}
+
+i.capture_status_icon {
+  color: #333;
+}
+
+i.capture_status_icon.missing {
+  color: #ccc;
 }
