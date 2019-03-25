@@ -15,6 +15,9 @@ python-magic-bin = "==0.4.14"
 flower = "*"
 gitchangelog = "*"
 gevent = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-django = "*"
 
 [packages]
 dj-database-url = "==0.5.0"
