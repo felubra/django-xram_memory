@@ -223,6 +223,8 @@ class Common(Configuration):
         },
     }
 
+    CELERY_BROKER_URL = values.Value('')
+
 
 class Development(Common):
     """
