@@ -1,5 +1,5 @@
+from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
 from ..forms.news import NewsPDFCaptureStackedInlineForm, NewsAdminForm, NewsImageCaptureStackedInlineForm
-from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseRedirect
 from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.admin.sites import site as default_site, AdminSite
@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 from xram_memory.artifact.tasks import add_news_task
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError
+from xram_memory.utils import celery_is_avaliable
 from tags_input import admin as tags_input_admin
 from django.core.validators import URLValidator
 from django.contrib.staticfiles import finders
@@ -182,28 +183,40 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
         """
         Controller para a página de inserção em massa de notícias.
         """
-        if request.method == 'POST':
-            # crie uma instância do formulário URLForm para validar os dados.
-            form = URLForm(request.POST)
-            if form.is_valid():
-                # pegue as urls sanitizadas
-                urls, = form.cleaned_data.values()
-                # agende a execução de 5 tarefas por vez para criar notícias com base urls
-                urls_and_user_id = ((url, request.user.id) for url in urls)
-                add_news_task.throws = (IntegrityError,)
-                add_news_task.chunks(urls_and_user_id, 5).group().apply_async()
-                logger.info(
-                    'O usuário {username} solicitou a inserção de {n} notícia(s) de uma só vez pela interface administrativa.'.format(
-                        username=request.user.username, n=len(urls)
+        if celery_is_avaliable():
+            if request.method == 'POST':
+                # crie uma instância do formulário URLForm para validar os dados.
+                form = URLForm(request.POST)
+                if form.is_valid():
+                    # pegue as urls sanitizadas
+                    urls, = form.cleaned_data.values()
+                    # agende a execução de 5 tarefas por vez para criar notícias com base urls
+                    urls_and_user_id = ((url, request.user.id) for url in urls)
+                    add_news_task.throws = (IntegrityError,)
+                    add_news_task.chunks(
+                        urls_and_user_id, 5).group().apply_async()
+                    logger.info(
+                        'O usuário {username} solicitou a inserção de {n} notícia(s) de uma só vez pela interface administrativa.'.format(
+                            username=request.user.username, n=len(urls)
+                        )
                     )
-                )
-                # dê um aviso das urls inseridas
-                messages.add_message(request, messages.INFO,
-                                     '{} endereço(s) de notícia adicionado(s) à fila para criação.'.format(len(urls)))
-                # redirecione para a página inicial
-                return HttpResponseRedirect(reverse("admin:artifact_news_changelist"))
+                    # dê um aviso das urls inseridas
+                    messages.add_message(request, messages.INFO,
+                                         '{} endereço(s) de notícia adicionado(s) à fila para criação.'.format(len(urls)))
+                    # redirecione para a página inicial
+                    return HttpResponseRedirect(reverse("admin:artifact_news_changelist"))
+                else:
+                    # renderize novamente o formulário para dar oportunidade do usuário corrigir os erros
+                    context = dict(
+                        # Include common variables for rendering the admin template.
+                        self.admin_site.each_context(request),
+                        form=form,
+                        title='Inserir notícias',
+                    )
+                    return TemplateResponse(request, "news_bulk_insertion.html", context)
             else:
-                # renderize novamente o formulário para dar oportunidade do usuário corrigir os erros
+                # crie um formulário vazio
+                form = URLForm()
                 context = dict(
                     # Include common variables for rendering the admin template.
                     self.admin_site.each_context(request),
@@ -212,12 +225,6 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
                 )
                 return TemplateResponse(request, "news_bulk_insertion.html", context)
         else:
-            # crie um formulário vazio
-            form = URLForm()
-            context = dict(
-                # Include common variables for rendering the admin template.
-                self.admin_site.each_context(request),
-                form=form,
-                title='Inserir notícias',
-            )
-            return TemplateResponse(request, "news_bulk_insertion.html", context)
+            messages.add_message(request, messages.ERROR,
+                                 'Não é possível usar esta funcionalidade no momento, porque o servidor de filas não está disponível. Se o erro persistir, contate o administrador.')
+            return HttpResponseRedirect(reverse("admin:artifact_news_changelist"))
