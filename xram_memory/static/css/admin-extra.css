@@ -178,3 +178,8 @@ i.capture_status_icon {
 i.capture_status_icon.missing {
   color: #ccc;
 }
+
+body.login #branding {
+  text-align: center;
+  float: none;
+}
