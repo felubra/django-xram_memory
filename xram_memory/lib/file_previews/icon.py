@@ -6,7 +6,7 @@ from tempfile import mktemp
 from django.utils.six import BytesIO
 from tempfile import gettempdir
 from pdf2image import convert_from_path, convert_from_bytes
-from django.contrib.staticfiles import finders
+from xram_memory.utils import get_file_icon
 
 try:
     from PIL import Image
@@ -21,25 +21,13 @@ def icon_preview(source, exif_orientation=True, **options):
     if not source:
         return
 
-    # retorne o caminho completo de um ícone do pacote file-icon-vectors
-    def get_icon(icon_name):
-        try:
-            icon_file = finders.find(
-                'file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name))
-            if icon_file is None:
-                raise ValueError
-            return icon_file
-        except ValueError:
-            return finders.find(
-                'file-icon-vectors/dist/icons/vivid/BLANK.svg'.format(icon=icon_name))
-
     # aqui é suficiente pegar o mimetype do arquivo usando a biblioteca embutida do python, já que o arquivo já foi
     # enviado e, portanto, teve seu mimetype validado.
     mimetype, _ = mimetypes.guess_type(source.path)
     extension = mimetypes.guess_extension(
         mimetype)[1:] if mimetypes.guess_extension(mimetype) is not None else 'blank'
 
-    svg_icon = get_icon(extension)
+    svg_icon = get_file_icon(extension)
 
     # crie um arquivo temporário para guardar o png convertido, leia ele e retorne o objeto PIL Image
     temp_file = mktemp()

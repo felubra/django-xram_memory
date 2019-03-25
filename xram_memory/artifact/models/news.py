@@ -33,7 +33,7 @@ class News(Artifact):
     de página (NewsPDFCapture) e uma imagem associada a notícia (NewsImageCapture).
     """
     url = models.URLField(
-        verbose_name="Endereço",
+        verbose_name="Endereço original",
         help_text="Endereço original da notícia",
         max_length=255,
         unique=True,
@@ -113,7 +113,21 @@ class News(Artifact):
         if self.pk is None:
             return False
         else:
-            return bool(self.pdf_captures.count() > 0)
+            return self.pdf_captures.count() > 0
+
+    @property
+    def has_image(self):
+        """
+        Indica se esta notícia tem uma imagem associada.
+        """
+        if self.pk is None:
+            return False
+        else:
+            try:
+                image_capture = self.image_capture
+                return image_capture is not None
+            except:
+                return False
 
     @log_process(operation="pegar o título")
     def set_web_title(self):
@@ -302,8 +316,7 @@ class NewsPDFCapture(models.Model):
         null=True,
         related_name="pdf_captures",
     )
-    pdf_document = models.OneToOneField(
-        FilerFile,
+    pdf_document = FilerFileField(
         verbose_name="Documento PDF",
         on_delete=models.CASCADE,
     )
@@ -337,8 +350,7 @@ class NewsImageCapture(models.Model):
         null=True,
         related_name="image_capture"
     )
-    image_document = models.OneToOneField(
-        FilerFile,
+    image_document = FilerFileField(
         verbose_name="Documento de imagem",
         on_delete=models.CASCADE,
     )

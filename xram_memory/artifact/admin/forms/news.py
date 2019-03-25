@@ -4,12 +4,12 @@ from xram_memory.artifact.news_fetcher import NewsFetcher
 
 
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class NewsImageCaptureStackedInlineForm(forms.ModelForm):
-    pass
+    class Meta:
+        exclude = ('original_url',)
 
 
 class NewsAdminForm(forms.ModelForm):
@@ -79,7 +79,7 @@ class NewsAdminForm(forms.ModelForm):
             if not title:
                 self.add_error(
                     'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
-            if not slug:
+            if not slug and self.instance.pk is None:
                 self.add_error(
                     'slug', 'Se você optou por inserir os dados manualmente, é informar um endereço')
 

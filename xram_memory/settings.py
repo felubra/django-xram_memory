@@ -49,6 +49,7 @@ class Common(Configuration):
         'mptt',
         'rest_framework',
         'corsheaders',
+        'tags_input',
     ]
 
     MIDDLEWARE = [
@@ -127,7 +128,7 @@ class Common(Configuration):
     # https://docs.djangoproject.com/en/2.1/howto/static-files/
     STATIC_URL = '/static/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = 'xram_memory.utils.PatchedCompressedManifestStaticFilesStorage'
 
     AUTH_USER_MODEL = 'users.User'
 
@@ -175,11 +176,16 @@ class Common(Configuration):
     ]
     NPM_ROOT_PATH = BASE_DIR
     NPM_FILE_PATTERNS = {
-        'file-icon-vectors': ['dist\\icons\\vivid\\*'],
+        'file-icon-vectors': ['dist/icons/vivid/*'],
         'stopwords-iso': ['stopwords-iso.json'],
-        'material-design-icons': ['navigation\\svg\\production\\ic_fullscreen*'],
-        'quill': ['dist\\*'],
-        'screenfull': ['dist\\*'],
+        'material-design-icons': [
+            'navigation/svg/production/ic_fullscreen*',
+            'action/svg/production/ic_info_24px*',
+            'image/svg/production/ic_picture_as_pdf_24px*',
+            'image/svg/production/ic_filter_24px*',
+        ],
+        'quill': ['dist/*'],
+        'screenfull': ['dist/*'],
     }
     ELASTICSEARCH_INDEX_NAMES = {
         'xram_memory.search_indexes.documents.news': 'artifact_news',
@@ -205,6 +211,17 @@ class Common(Configuration):
     }
 
     FILER_FILE_MODELS = ['artifact.Document']
+
+    TAGS_INPUT_MAPPINGS = {
+        'taxonomy.Keyword': {
+            'field': 'name',
+            'create_missing': True,
+        },
+        'taxonomy.Subject': {
+            'field': 'name',
+            'create_missing': True,
+        },
+    }
 
 
 class Development(Common):

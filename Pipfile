@@ -45,6 +45,7 @@ tornado = ">=4.2.0,<6.0.0"
 redis = ">=3.2.0"
 retrying = "*"
 django-elasticsearch-dsl = "*"
+django-tags-input = "*"
 
 [packages.pdfkit]
 editable = true
