@@ -159,7 +159,10 @@ class Common(Configuration):
     THUMBNAIL_ALIASES = {
         '': {
             'thumbnail': {
-                'size': (250, 250)
+                'size': (250, 250),
+                'autocrop': True,
+                'crop': 'smart',
+                'upscale': True
             },
             'image_capture': {
                 'size': (670, 204),
