@@ -15,6 +15,7 @@ python-magic-bin = "==0.4.14"
 flower = "*"
 gitchangelog = "*"
 gevent = "*"
+greenlet = "*"
 
 [packages]
 dj-database-url = "==0.5.0"
@@ -47,6 +48,7 @@ redis = ">=3.2.0"
 retrying = "*"
 django-elasticsearch-dsl = "*"
 django-tags-input = "*"
+greenlet = "*"
 
 [packages.pdfkit]
 editable = true
