@@ -158,6 +158,12 @@ class Common(Configuration):
 
     THUMBNAIL_ALIASES = {
         '': {
+            'document_thumbnail': {
+                'size': (250, 250),
+                'autocrop': True,
+                'crop': 'scale',
+                'upscale': False,
+            },
             'thumbnail': {
                 'size': (250, 250),
                 'background': '#f3f1f1',

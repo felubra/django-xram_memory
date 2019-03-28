@@ -61,7 +61,7 @@ class Document(File):
         """
         if self.file:
             try:
-                return get_thumbnailer(self.file)['thumbnail'].url
+                return get_thumbnailer(self.file)['document_thumbnail'].url
             except:
                 return None
 
