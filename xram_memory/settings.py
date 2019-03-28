@@ -160,9 +160,9 @@ class Common(Configuration):
         '': {
             'thumbnail': {
                 'size': (250, 250),
+                'background': '#f3f1f1',
                 'autocrop': True,
                 'crop': 'smart',
-                'upscale': True
             },
             'image_capture': {
                 'size': (670, 204),
