@@ -3,24 +3,24 @@
 from django.db import migrations
 from django.conf import settings
 
-DEFAULT_FOLDERS = (
-    settings.FOLDER_NAME_PDF_CAPTURES,
-    settings.FOLDER_NAME_IMAGE_CAPTURES,
-)
+DEFAULT_FOLDERS = settings.DEFAULT_FOLDERS
 
 
 def create_default_folders(apps, schema_editor):
     Folder = apps.get_model('filer', 'Folder')
 
-    for folder_name in DEFAULT_FOLDERS:
-        Folder.objects.get_or_create(name=folder_name)
+    for i, folder in enumerate(DEFAULT_FOLDERS):
+        Folder.objects.get_or_create(**folder)
 
 
 def reverse_create_default_folders(apps, schema_editor):
     Folder = apps.get_model('filer', 'Folder')
 
-    for folder_name in DEFAULT_FOLDERS:
-        Folder.objects.filter(name=folder_name).delete()
+    for i, folder in enumerate(DEFAULT_FOLDERS):
+        try:
+            Folder.objects.filter(**folder).delete()
+        except Folder.DoesNotExist:
+            pass
 
 
 class Migration(migrations.Migration):

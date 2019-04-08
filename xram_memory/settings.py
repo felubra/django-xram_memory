@@ -234,8 +234,47 @@ class Common(Configuration):
 
     CELERY_BROKER_URL = values.Value('')
 
-    FOLDER_NAME_PDF_CAPTURES = 'Capturas de notícias em PDF'
-    FOLDER_NAME_IMAGE_CAPTURES = 'Imagens de notícias'
+    FOLDER_CAPTURES = {
+        'name': 'Capturas automáticas',
+        'lft': 1,
+        'rght': 2,
+        'tree_id': 1,
+        'level': 0,
+        'id': 1
+    }
+
+    FOLDER_PHOTO_ALBUM = {
+        'name': 'Álbuns de fotos',
+        'lft': 1,
+        'rght': 2,
+        'tree_id': 2,
+        'level': 0,
+    }
+
+    FOLDER_PDF_CAPTURES = {
+        'name': 'Capturas de notícias em PDF',
+        'lft': 1,
+        'rght': 2,
+        'tree_id': 1,
+        'level': 1,
+        'parent_id': 1
+    }
+
+    FOLDER_IMAGE_CAPTURES = {
+        'name': 'Imagens de notícias',
+        'lft': 1,
+        'rght': 2,
+        'tree_id': 1,
+        'level': 1,
+        'parent_id': 1
+    }
+
+    DEFAULT_FOLDERS = (
+        FOLDER_CAPTURES,
+        FOLDER_PHOTO_ALBUM,
+        FOLDER_PDF_CAPTURES,
+        FOLDER_IMAGE_CAPTURES,
+    )
 
 
 class Development(Common):
