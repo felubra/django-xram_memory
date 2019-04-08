@@ -234,6 +234,9 @@ class Common(Configuration):
 
     CELERY_BROKER_URL = values.Value('')
 
+    FOLDER_NAME_PDF_CAPTURES = 'Capturas de notícias em PDF'
+    FOLDER_NAME_IMAGE_CAPTURES = 'Imagens de notícias'
+
 
 class Development(Common):
     """

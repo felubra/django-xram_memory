@@ -183,7 +183,7 @@ class News(Artifact):
             django_file = DjangoFile(fd, name=filename)
             with transaction.atomic():
                 folder, _, = Folder.objects.get_or_create(
-                    name="Capturas de notícias em PDF")
+                    name=settings.FOLDER_NAME_PDF_CAPTURES)
                 new_pdf_document = Document(file=django_file, name=filename,
                                             original_filename=filename,
                                             folder=folder,  owner=self.modified_by,
@@ -245,7 +245,7 @@ class News(Artifact):
                 except (NewsImageCapture.DoesNotExist):
                     pass  # Não existem imagens associadas a esta notícia
                 folder, _, = Folder.objects.get_or_create(
-                    name="Imagens de notícias")
+                    name=settings.FOLDER_NAME_IMAGE_CAPTURES)
 
                 new_image_document = Document(file=django_file, name=filename,
                                               original_filename=original_filename,
