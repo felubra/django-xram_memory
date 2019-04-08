@@ -243,7 +243,7 @@ class Common(Configuration):
         'id': 1
     }
 
-    FOLDER_PHOTO_ALBUM = {
+    FOLDER_PHOTO_ALBUMS = {
         'name': 'Álbuns de fotos',
         'lft': 1,
         'rght': 2,
@@ -271,7 +271,7 @@ class Common(Configuration):
 
     DEFAULT_FOLDERS = (
         FOLDER_CAPTURES,
-        FOLDER_PHOTO_ALBUM,
+        FOLDER_PHOTO_ALBUMS,
         FOLDER_PDF_CAPTURES,
         FOLDER_IMAGE_CAPTURES,
     )
