@@ -1,9 +1,9 @@
-from rest_framework import viewsets
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404, get_list_or_404
-
-from .models import StaticPage
 from .serializers import StaticPageSerializer, SimpleStaticPageSerializer
+from django.shortcuts import get_object_or_404, get_list_or_404
+from rest_framework.response import Response
+from rest_framework import viewsets
+from .models import StaticPage
+
 
 # TODO: Fazer o rate limit desses endpoints: https://www.django-rest-framework.org/api-guide/throttling/
 
