@@ -87,3 +87,9 @@ class Document(File):
     def matches_file_type(cls, iname, ifile, request):
         # Este será o modelo genérico para todos os tipos de arquivo, em substituição ao do Filer
         return True
+
+    def save(self, *args, **kwargs):
+        # Se o documento não tiver nome, use o nome do arquivo
+        if not self.name:
+            self.name = self.label
+        super().save(*args, **kwargs)
