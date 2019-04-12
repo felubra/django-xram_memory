@@ -18,9 +18,9 @@ class Document(File):
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
     IMAGE_DOCUMENT_THUMBNAILS_ALIASES = [
-        'max-width-1280',
-        'max-width-640',
-        'max-width-360',
+        '1280',
+        '640',
+        '360',
     ]
     mime_type = models.fields.CharField(
         verbose_name="Tipo",

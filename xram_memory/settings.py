@@ -175,16 +175,16 @@ class Common(Configuration):
                 'autocrop': True,
                 'crop': 'scale'
             },
-            'max-width-1280': {
-                'size': (1280, 720),
+            '1280': {
+                'size': (1280, 1280),
                 'crop': 'scale'
             },
-            'max-width-640': {
-                'size': (640, 480),
+            '640': {
+                'size': (640, 360),
                 'crop': 'scale'
             },
-            'max-width-360': {
-                'size': (360, 240),
+            '360': {
+                'size': (360, 360),
                 'crop': 'scale'
             }
         }
