@@ -9,7 +9,7 @@ class DocumentSerializer(ModelSerializer):
     class Meta:
         model = Document
         fields = ('id', 'name', 'description', 'canonical_url',
-                  'mime_type', 'size', 'thumbnail',)
+                  'mime_type', 'size', 'thumbnail', 'thumbnails')
 
 
 class SimpleDocumentSerializer(ModelSerializer):

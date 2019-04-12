@@ -17,6 +17,11 @@ class Document(File):
     """
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
+    IMAGE_DOCUMENT_THUMBNAILS_ALIASES = [
+        'max-width-1280',
+        'max-width-640',
+        'max-width-360',
+    ]
     mime_type = models.fields.CharField(
         verbose_name="Tipo",
         help_text="Tipo do arquivo",
@@ -59,11 +64,28 @@ class Document(File):
         """
         Retorna a url para uma miniatura de visualização deste documento.
         """
+        return self.thumbnails['document_thumbnail']
+
+    @cachedproperty
+    def thumbnails(self):
+        """
+        Retorna uma lista de thumbnails geradas
+        """
+        thumbnails_aliases = ['document_thumbnail']
+        generated_thumbnails = {}
         if self.file:
+            if getattr(self, 'mime_type', None) and 'image/' in self.mime_type:
+                thumbnails_aliases = thumbnails_aliases + \
+                    self.IMAGE_DOCUMENT_THUMBNAILS_ALIASES
             try:
-                return get_thumbnailer(self.file)['document_thumbnail'].url
+                for alias in thumbnails_aliases:
+                    generated_thumbnails[alias] = get_thumbnailer(self.file)[
+                        alias].url
             except:
-                return None
+                return {}
+            else:
+                return generated_thumbnails
+        return {}
 
     @property
     def icons(self):
