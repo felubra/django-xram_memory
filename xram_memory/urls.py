@@ -28,7 +28,7 @@ urlpatterns = [
          NewsViewSet.as_view({'get': 'retrieve'})),
     path('api/v1/albums',
          AlbumViewSet.as_view({'get': 'listing'})),
-    path('api/v1/albums/<int:pk>',
+    path('api/v1/album/<int:pk>',
          AlbumViewSet.as_view({'get': 'retrieve'})),
 ] + urlpatterns
 
