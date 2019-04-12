@@ -21,7 +21,7 @@ class SimpleDocumentSerializer(ModelSerializer):
 class SimpleDocumentSerializerWithThumbnail(ModelSerializer):
     class Meta:
         model = Document
-        fields = ('id', 'name', 'mime_type', 'size', 'thumbnail')
+        fields = ('id', 'name', 'mime_type', 'size', 'thumbnail', 'thumbnails')
 
 
 class PDFCaptureSerializer(ModelSerializer):
