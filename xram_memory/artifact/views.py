@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_list_or_404
 from filer.models import Folder, File
 from rest_framework import viewsets
+from django.db.models import Count
 from django.conf import settings
 
 
@@ -34,6 +35,7 @@ class NewsViewSet(viewsets.ViewSet):
 
 
 class AlbumViewSet(viewsets.ViewSet):
+    # TODO: filtrar, pelo mimetype, os arquivos das pastas para apenas retornar imagens
     @cachedproperty
     def _main_photoalbums_folder(self):
         return Folder.objects.get(
@@ -44,8 +46,8 @@ class AlbumViewSet(viewsets.ViewSet):
         Lista os álbuns, ou seja, uma pasta que é subpasta da pasta 'Álbuns de fotos'
         """
         photo_albums_folder = self._main_photoalbums_folder
-        queryset = Folder.objects.filter(
-            parent=photo_albums_folder).order_by("-modified_at")
+        queryset = Folder.objects.annotate(num_files=Count("all_files")).filter(
+            parent=photo_albums_folder, num_files__gt=0).order_by("-modified_at")
         albums = get_list_or_404(queryset)
         serializer = SimplePhotoAlbumFolderSerializer(albums, many=True)
         return Response(serializer.data)
@@ -55,8 +57,8 @@ class AlbumViewSet(viewsets.ViewSet):
         Retorna um álbum com as fotos
         """
         photo_albums_folder = self._main_photoalbums_folder
-        queryset = Folder.objects.filter(
-            parent=photo_albums_folder, pk=pk)
+        queryset = Folder.objects.annotate(num_files=Count("all_files")).filter(
+            parent=photo_albums_folder, num_files__gt=0, pk=pk)
         album = get_object_or_404(queryset)
         serializer = PhotoAlbumFolderSerializer(album)
         return Response(serializer.data)
