@@ -258,6 +258,8 @@ class News(Artifact):
                     new_image_document.save()
                     image_document = new_image_document
 
+                _ = image_document.thumbnail # força a geração de um thumbnail para esta captura
+
                 NewsImageCapture.objects.create(
                     image_document=image_document, original_url=self._image, news=self)
 

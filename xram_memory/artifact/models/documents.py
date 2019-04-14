@@ -64,7 +64,12 @@ class Document(File):
         """
         Retorna a url para uma miniatura de visualização deste documento.
         """
-        return self.thumbnails['document_thumbnail']
+        if self.file:
+            try:
+                return get_thumbnailer(self.file)['document_thumbnail'].url
+            except:
+                return ''
+        return ''
 
     @cachedproperty
     def thumbnails(self):
