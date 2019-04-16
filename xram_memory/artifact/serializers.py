@@ -54,7 +54,7 @@ class NewsSerializer(ModelSerializer):
 
 
 class PhotoAlbumFolderSerializer(ModelSerializer):
-    photos = SimpleDocumentSerializerWithThumbnail(source="files", many=True)
+    photos = DocumentSerializer(source="files", many=True)
 
     class Meta:
         model = Folder
