@@ -30,6 +30,11 @@ class Newspaper(Artifact):
         validators=[FileValidator(
             content_types=settings.VALID_FILE_UPLOAD_IMAGES_MIME_TYPES)],
     )
+    published = None
+    featured = None
+    slug = None
+    keywords = None
+    subjects = None
     # Remova os campos abaixo herdados de Artifact
     teaser = None
     keywords = None
@@ -44,3 +49,7 @@ class Newspaper(Artifact):
     @property
     def has_basic_info(self):
         return self.title != self.url
+
+    class Meta:
+        verbose_name = "Site de notícias"
+        verbose_name_plural = "Sites de notícias"
