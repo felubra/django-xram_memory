@@ -1,15 +1,25 @@
-from django.db import models
-from django.conf import settings
-from django.core.validators import URLValidator
-
-from easy_thumbnails.fields import ThumbnailerField
-
-from xram_memory.utils import FileValidator
-from xram_memory.artifact.models import Artifact
 from xram_memory.artifact.news_fetcher import NewsFetcher
+from easy_thumbnails.fields import ThumbnailerField
+from xram_memory.base_models import TraceableModel
+from django.core.files import File as DjangoFile
+from django.core.validators import URLValidator
+from xram_memory.utils import FileValidator
+from django.conf import settings
+from django.db import models
+from pathlib import Path
+import requests
+import tempfile
+import favicon
+import os
 
 
-class Newspaper(Artifact):
+class Newspaper(TraceableModel):
+    title = models.CharField(
+        verbose_name="Título",
+        help_text="Título",
+        max_length=255,
+        blank=True,
+    )
     url = models.URLField(
         verbose_name="Endereço",
         help_text="Endereço do site",
@@ -30,15 +40,9 @@ class Newspaper(Artifact):
         validators=[FileValidator(
             content_types=settings.VALID_FILE_UPLOAD_IMAGES_MIME_TYPES)],
     )
-    published = None
-    featured = None
-    slug = None
-    keywords = None
-    subjects = None
-    # Remova os campos abaixo herdados de Artifact
-    teaser = None
-    keywords = None
-    subjects = None
+
+    def __str__(self):
+        return self.title
     # TODO: campo brand ('marca')
 
     def set_basic_info(self):
