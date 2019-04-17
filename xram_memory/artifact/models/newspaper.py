@@ -50,6 +50,22 @@ class Newspaper(TraceableModel):
         newspaper = NewsFetcher.build_newspapaper(self.url)
         self.description, self.title = newspaper.description, newspaper.brand
 
+    def set_logo_from_favicon(self):
+        if self.url:
+            icons = [icon for icon in favicon.get(
+                self.url) if icon.format != 'ico']
+            icon = icons[0]
+            file_ext = Path(icon.url).suffix
+            response = requests.get(icon.url, stream=True)
+            fd, file_path, = tempfile.mkstemp()
+            filename = self.title + '_logo' + file_ext
+            with open(fd, 'wb+') as image:
+                for chunk in response.iter_content(1024):
+                    image.write(chunk)
+                django_file = DjangoFile(image, name=filename)
+                self.logo.save(filename, django_file)
+            os.remove(file_path)
+
     @property
     def has_basic_info(self):
         return self.title != self.url

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2c37e4c658131764d1d530b1ce1833f376b5357874ba80712bb60f3d0ee561c7"
+            "sha256": "3a9ded6587ac93d403b1ee5da7f74411c91d46d633e6e59f2c3af59c920a6e19"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -292,6 +292,14 @@
                 "sha256:d6d974cd2289543a3350690494a43fe9996485b8dc6f1d8758cb56bee01244bd"
             ],
             "version": "==6.1.0"
+        },
+        "favicon": {
+            "hashes": [
+                "sha256:3e1913cab726bd23c02105dadab47f2e7ec39b45f12e6fbe106ee16c8d595006",
+                "sha256:a769ab2a6693f03aceac4de01b1774cbc5241e41902e6c26a6ec7e91ca3ae38a"
+            ],
+            "index": "pypi",
+            "version": "==0.5.1"
         },
         "feedfinder2": {
             "hashes": [
