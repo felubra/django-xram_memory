@@ -17,3 +17,7 @@ class NewspaperAdmin(admin.ModelAdmin):
     )
     list_filter = ('created_at', 'modified_at', )
     date_hierarchy = 'created_at'
+    list_select_related = (
+        'created_by',
+        'modified_by',
+    )

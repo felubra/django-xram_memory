@@ -15,8 +15,8 @@ from django.core.validators import URLValidator
 from django.contrib.staticfiles import finders
 from django.db.utils import IntegrityError
 from django.utils.html import format_html
-from django.shortcuts import render
 from django.contrib import messages
+from django.shortcuts import render
 from django.contrib import admin
 from django.urls import reverse
 from django.urls import path
@@ -106,6 +106,8 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
     list_display = (
         'id',
         'title',
+        'created_at',
+        'modified_at',
         'captures',
     )
     list_display_links = ('title', 'id',)
@@ -116,6 +118,9 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
     search_fields = ('title',)
     date_hierarchy = 'modified_at'
     prepopulated_fields = {"slug": ("title",)}
+    list_select_related = (
+        'image_capture',
+    )
 
     def captures(self, obj):
         def missing_label(status):

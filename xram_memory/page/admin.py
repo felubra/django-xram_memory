@@ -85,6 +85,10 @@ class StaticPageAdmin(TraceableEditorialAdminModel):
     formfield_overrides = {
         ThumbnailerImageField: {'widget': ImageClearableFileInput},
     }
+    list_select_related = (
+        'created_by',
+        'modified_by',
+    )
 
     def get_fieldsets(self, request, obj):
         """

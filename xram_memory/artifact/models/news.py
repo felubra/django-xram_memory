@@ -1,7 +1,7 @@
 from xram_memory.artifact.models import Artifact, Document, Newspaper
 from xram_memory.artifact import tasks as background_tasks
-from xram_memory.artifact.news_fetcher import NewsFetcher
 from django.db import models, transaction, IntegrityError
+from xram_memory.artifact.news_fetcher import NewsFetcher
 from xram_memory.logger.decorators import log_process
 from filer.utils.generate_filename import randomized
 from django.template.defaultfilters import slugify
@@ -14,6 +14,7 @@ from boltons.cacheutils import cachedproperty
 from filer.fields.file import FilerFileField
 from django.db.transaction import on_commit
 from filer.models import File as FilerFile
+from django.db.models import Prefetch
 from filer.models import File, Folder
 from django.conf import settings
 from django.db.models import Q
@@ -113,7 +114,9 @@ class News(Artifact):
         if self.pk is None:
             return False
         else:
-            return self.pdf_captures.count() > 0
+            return self.pdf_captures.prefetch_related(Prefetch(
+                "news"
+            )).all().count() > 0
 
     @property
     def has_image(self):
@@ -258,7 +261,7 @@ class News(Artifact):
                     new_image_document.save()
                     image_document = new_image_document
 
-                _ = image_document.thumbnail # força a geração de um thumbnail para esta captura
+                _ = image_document.thumbnail  # força a geração de um thumbnail para esta captura
 
                 NewsImageCapture.objects.create(
                     image_document=image_document, original_url=self._image, news=self)

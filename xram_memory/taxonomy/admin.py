@@ -16,6 +16,10 @@ class TaxonomyItemAdmin(TraceableAdminModel):
     list_filter = ('created_by', 'modified_by', 'created_at', 'modified_at')
     search_fields = ('name',)
     date_hierarchy = 'created_at'
+    list_select_related = (
+        'created_by',
+        'modified_by',
+    )
 
     def get_fieldsets(self, request, obj):
         super().get_fieldsets(request, obj)
