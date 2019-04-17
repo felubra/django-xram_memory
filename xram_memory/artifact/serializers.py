@@ -1,19 +1,28 @@
-from rest_framework.serializers import ModelSerializer, CharField
 from xram_memory.artifact.models import Document, News, Newspaper, NewsPDFCapture, NewsImageCapture
+from rest_framework.serializers import ModelSerializer, CharField, IntegerField, Serializer, Field
 from xram_memory.taxonomy.serializers import KeywordSerializer, SubjectSerializer
+from boltons.cacheutils import cachedproperty
+from filer.models import Folder, File
 
 
 class DocumentSerializer(ModelSerializer):
     class Meta:
         model = Document
         fields = ('id', 'name', 'description', 'canonical_url',
-                  'mime_type', 'size', 'thumbnail',)
+                  'mime_type', 'size', 'thumbnail', 'thumbnails')
 
 
 class SimpleDocumentSerializer(ModelSerializer):
     class Meta:
         model = Document
         fields = ('id', 'name', 'mime_type', 'size',)
+
+
+class SimpleDocumentSerializerWithThumbnail(ModelSerializer):
+    class Meta:
+        model = Document
+        fields = ('id', 'name', 'mime_type', 'size',
+                  'thumbnail', 'thumbnails', 'canonical_url')
 
 
 class PDFCaptureSerializer(ModelSerializer):
@@ -42,3 +51,18 @@ class NewsSerializer(ModelSerializer):
     pdf_captures = PDFCaptureSerializer(many=True)
     image_capture = CharField(source='image_capture_indexing')
     thumbnail = CharField()
+
+
+class PhotoAlbumFolderSerializer(ModelSerializer):
+    photos = DocumentSerializer(source="files", many=True)
+
+    class Meta:
+        model = Folder
+        fields = ('id',  'name', 'created_at',
+                  'modified_at', 'photos', 'file_count')
+
+
+class SimplePhotoAlbumFolderSerializer(ModelSerializer):
+    class Meta:
+        model = Folder
+        fields = ('id', 'name', 'created_at', 'modified_at', 'file_count')

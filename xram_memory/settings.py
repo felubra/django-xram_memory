@@ -174,6 +174,18 @@ class Common(Configuration):
                 'size': (670, 204),
                 'autocrop': True,
                 'crop': 'scale'
+            },
+            '1280': {
+                'size': (1280, 1280),
+                'crop': 'scale'
+            },
+            '640': {
+                'size': (640, 360),
+                'crop': 'scale'
+            },
+            '360': {
+                'size': (360, 360),
+                'crop': 'scale'
             }
         }
     }
@@ -233,6 +245,48 @@ class Common(Configuration):
     }
 
     CELERY_BROKER_URL = values.Value('')
+
+    FOLDER_CAPTURES = {
+        'name': 'Capturas automáticas',
+        'lft': 1,
+        'rght': 2,
+        'tree_id': 1,
+        'level': 0,
+        'id': 1
+    }
+
+    FOLDER_PHOTO_ALBUMS = {
+        'name': 'Álbuns de fotos',
+        'lft': 1,
+        'rght': 2,
+        'tree_id': 2,
+        'level': 0,
+    }
+
+    FOLDER_PDF_CAPTURES = {
+        'name': 'Capturas de notícias em PDF',
+        'lft': 1,
+        'rght': 2,
+        'tree_id': 1,
+        'level': 1,
+        'parent_id': 1
+    }
+
+    FOLDER_IMAGE_CAPTURES = {
+        'name': 'Imagens de notícias',
+        'lft': 1,
+        'rght': 2,
+        'tree_id': 1,
+        'level': 1,
+        'parent_id': 1
+    }
+
+    DEFAULT_FOLDERS = (
+        FOLDER_CAPTURES,
+        FOLDER_PHOTO_ALBUMS,
+        FOLDER_PDF_CAPTURES,
+        FOLDER_IMAGE_CAPTURES,
+    )
 
 
 class Development(Common):

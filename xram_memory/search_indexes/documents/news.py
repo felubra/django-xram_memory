@@ -103,6 +103,10 @@ class NewsDocument(DocType):
             return related_instance.news.all()
         elif isinstance(related_instance, Newspaper):
             return related_instance.news.all()
+        elif isinstance(related_instance, NewsImageCapture):
+            return related_instance.news
+        elif isinstance(related_instance, NewsPDFCapture):
+            return related_instance.news
 
     class Meta(object):
         model = News  # O modelo associado a este documento

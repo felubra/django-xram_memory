@@ -1,11 +1,11 @@
+from .page.views import InMenuStaticPagesViewSet, StaticPageViewSet, FeaturedStaticPagesViewSet
+from xram_memory.artifact.views import DocumentViewSet, NewsViewSet, AlbumViewSet
+from django.conf.urls.static import static
+from django.urls import include, path
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
-from django.conf.urls.static import static
 from django.conf import settings
-from xram_memory.artifact.views import DocumentViewSet, NewsViewSet
 
-from .page.views import InMenuStaticPagesViewSet, StaticPageViewSet, FeaturedStaticPagesViewSet
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,7 +25,11 @@ urlpatterns = [
     path('api/v1/document/<int:pk>',
          DocumentViewSet.as_view({'get': 'retrieve'})),
     path('api/v1/news/<int:pk>',
-         NewsViewSet.as_view({'get': 'retrieve'}))
+         NewsViewSet.as_view({'get': 'retrieve'})),
+    path('api/v1/albums',
+         AlbumViewSet.as_view({'get': 'listing'})),
+    path('api/v1/album/<int:pk>',
+         AlbumViewSet.as_view({'get': 'retrieve'})),
 ] + urlpatterns
 
 # URLs canônicas para documentos do Filer

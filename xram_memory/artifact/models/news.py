@@ -182,8 +182,7 @@ class News(Artifact):
         with NewsFetcher.get_pdf_capture(self.url) as fd:
             django_file = DjangoFile(fd, name=filename)
             with transaction.atomic():
-                folder, _, = Folder.objects.get_or_create(
-                    name="Capturas de notícias em PDF")
+                folder = Folder.objects.get(**settings.FOLDER_PDF_CAPTURES)
                 new_pdf_document = Document(file=django_file, name=filename,
                                             original_filename=filename,
                                             folder=folder,  owner=self.modified_by,
@@ -244,8 +243,7 @@ class News(Artifact):
                     captures_for_this_news.delete()
                 except (NewsImageCapture.DoesNotExist):
                     pass  # Não existem imagens associadas a esta notícia
-                folder, _, = Folder.objects.get_or_create(
-                    name="Imagens de notícias")
+                folder = Folder.objects.get(**settings.FOLDER_IMAGE_CAPTURES)
 
                 new_image_document = Document(file=django_file, name=filename,
                                               original_filename=original_filename,
@@ -259,6 +257,8 @@ class News(Artifact):
                 except Document.DoesNotExist:
                     new_image_document.save()
                     image_document = new_image_document
+
+                _ = image_document.thumbnail # força a geração de um thumbnail para esta captura
 
                 NewsImageCapture.objects.create(
                     image_document=image_document, original_url=self._image, news=self)

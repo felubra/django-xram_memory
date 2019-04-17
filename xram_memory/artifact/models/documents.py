@@ -17,6 +17,11 @@ class Document(File):
     """
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
+    IMAGE_DOCUMENT_THUMBNAILS_ALIASES = [
+        '1280',
+        '640',
+        '360',
+    ]
     mime_type = models.fields.CharField(
         verbose_name="Tipo",
         help_text="Tipo do arquivo",
@@ -63,7 +68,29 @@ class Document(File):
             try:
                 return get_thumbnailer(self.file)['document_thumbnail'].url
             except:
-                return None
+                return ''
+        return ''
+
+    @cachedproperty
+    def thumbnails(self):
+        """
+        Retorna uma lista de thumbnails geradas
+        """
+        thumbnails_aliases = ['document_thumbnail']
+        generated_thumbnails = {}
+        if self.file:
+            if getattr(self, 'mime_type', None) and 'image/' in self.mime_type:
+                thumbnails_aliases = thumbnails_aliases + \
+                    self.IMAGE_DOCUMENT_THUMBNAILS_ALIASES
+            try:
+                for alias in thumbnails_aliases:
+                    generated_thumbnails[alias] = get_thumbnailer(self.file)[
+                        alias].url
+            except:
+                return {}
+            else:
+                return generated_thumbnails
+        return {}
 
     @property
     def icons(self):
@@ -87,3 +114,9 @@ class Document(File):
     def matches_file_type(cls, iname, ifile, request):
         # Este será o modelo genérico para todos os tipos de arquivo, em substituição ao do Filer
         return True
+
+    def save(self, *args, **kwargs):
+        # Se o documento não tiver nome, use o nome do arquivo
+        if not self.name:
+            self.name = self.label
+        super().save(*args, **kwargs)
