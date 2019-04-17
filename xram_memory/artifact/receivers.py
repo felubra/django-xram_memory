@@ -144,10 +144,24 @@ def newspaper_additional_processing(sender, **kwargs):
     instance = kwargs['instance']
     if hasattr(instance, '_save_in_signal'):
         return
-    if isinstance(instance, Newspaper) and not instance.has_basic_info:
-        if celery_is_avaliable():
-            transaction.on_commit(
-                lambda instance=instance: background_tasks.newspaper_set_basic_info.delay(instance.pk))
+    if isinstance(instance, Newspaper):
+        execute_async = celery_is_avaliable()
+        fields_and_tasks_info = {
+            '_set_basic_info': (background_tasks.newspaper_set_basic_info, (instance.pk,)),
+            '_fetch_logo': (background_tasks.newspaper_set_logo_from_favicon, (instance.pk,)),
+        }
+        tasks = determine_additional_tasks_to_run(
+            fields_and_tasks_info, instance)
+
+        # esse sinal não veio de um formulário administrativo
+        if not len(tasks) and not hasattr(instance, '_set_basic_info') and not instance.has_basic_info:
+            tasks.append(fields_and_tasks_info['_set_basic_info'])
+
+        if execute_async:
+            transaction.on_commit(lambda instance=instance, tasks=tasks: group(
+                [task.s(*args) for task, args in tasks]).apply_async()
+            )
         else:
-            transaction.on_commit(
-                lambda instance=instance: try_task(background_tasks.newspaper_set_basic_info, (instance.pk,)))
+            for task, args in tasks:
+                transaction.on_commit(
+                    lambda task=task, args=args: try_task(task, args))
