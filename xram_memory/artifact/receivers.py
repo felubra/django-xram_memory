@@ -89,19 +89,14 @@ def try_task(task, args):
     retry_task(task, args)
 
 
-def determine_additional_tasks_to_run(news_instance, execute_async=True):
+def determine_additional_tasks_to_run(fields_and_tasks_info, instance):
     """
     Com base nas opções definidas pelo usuário, determine quais tarefas de processamento adicional executar.
     """
-    fields_and_task_info = {
-        '_set_basic_info': (background_tasks.news_set_basic_info, (news_instance.pk, not execute_async)),
-        '_fetch_archived_url': (background_tasks.news_add_archived_url, (news_instance.pk,)),
-        '_add_pdf_capture': (background_tasks.news_add_pdf_capture, (news_instance.pk,)),
-    }
     tasks = []
 
-    for field, task_info in fields_and_task_info.items():
-        if getattr(news_instance, field, False):
+    for field, task_info in fields_and_tasks_info.items():
+        if getattr(instance, field, False):
             tasks.append(task_info)
 
     return tasks
@@ -122,7 +117,13 @@ def news_additional_processing(sender, **kwargs):
             associate_newspaper(instance)
 
         execute_async = celery_is_avaliable()
-        tasks = determine_additional_tasks_to_run(instance, execute_async)
+        fields_and_tasks_info = {
+            '_set_basic_info': (background_tasks.news_set_basic_info, (instance.pk, not execute_async)),
+            '_fetch_archived_url': (background_tasks.news_add_archived_url, (instance.pk,)),
+            '_add_pdf_capture': (background_tasks.news_add_pdf_capture, (instance.pk,)),
+        }
+        tasks = determine_additional_tasks_to_run(
+            fields_and_tasks_info, instance)
         if len(tasks):
             if execute_async:
                 transaction.on_commit(lambda instance=instance, tasks=tasks: group(
