@@ -190,7 +190,7 @@ class NewsFetcher:
 
     @staticmethod
     @lru_cache(maxsize=2)
-    def build_newspapaper(url):
+    def build_newspaper(url):
         newspaper = newspaper3k.build(url)
         newspaper.download()
         newspaper.parse()

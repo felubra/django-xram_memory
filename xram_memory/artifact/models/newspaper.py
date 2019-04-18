@@ -50,7 +50,7 @@ class Newspaper(TraceableModel):
     @log_process(operation="adicionar informações básicas para um jornal")
     def set_basic_info(self):
         # TODO: pegar o título correto, não a marca
-        newspaper = NewsFetcher.build_newspapaper(self.url)
+        newspaper = NewsFetcher.build_newspaper(self.url)
         self.description, self.title = newspaper.description, newspaper.brand
 
     @log_process(operation="adicionar um logo para um jornal")
