@@ -79,7 +79,7 @@ class Newspaper(TraceableModel):
 
     @property
     def has_basic_info(self):
-        return self.title != self.url
+        return self.title and self.title != self.url
 
     @property
     def has_logo(self):
