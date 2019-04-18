@@ -9,7 +9,7 @@ def no_empty_html(value):
     """
     Um simples validador que converte html em texto para verificar se o texto não está em branco.
     """
-    soup = BeautifulSoup(value)
+    soup = BeautifulSoup(value, features="lxml")
     if not soup.get_text().strip():
         raise ValidationError(_('This field is required.'))
 
