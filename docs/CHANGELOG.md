@@ -2,11 +2,53 @@ Changelog
 =========
 
 
-(unreleased)
-------------
+0.8.0 (2019-04-21)
+------------------
 
 Adicionado
 ~~~~~~~~~~
+- Testes básicos para newspaper. [Felipe Lube de Bragança]
+- Formulários e ações adm para adm de Jornais - Formulário
+  administrativo para o Jornal com possibilidade de adicionar info e
+  logo (closes #48) - Ações em massa para lidar com logotipos de
+  formulário (closes #48) - Tarefa para adicionar logotipo a Jornal -
+  Logue ações de Jornal - set_logo_from_favicon mais robusta - flag para
+  verificar se o jornal tem um logo. [Felipe Lube de Bragança]
+- Generalização de determine_additional_tasks_to_run. [Felipe Lube de
+  Bragança]
+- Otimização de consultas à modelos relacionados. [Felipe Lube de
+  Bragança]
+- Newspaper: grave um logotipo de um favicon capturado - closes #48.
+  [Felipe Lube de Bragança]
+- Remoção de python-magic-bin - pacote estava travando o lock. [Felipe
+  Lube de Bragança]
+- Cacheie o objeto da pasta de álbuns. [Felipe Lube de Bragança]
+- Retorne os thumbnails disponíveis para cada foto do álbum. [Felipe
+  Lube de Bragança]
+- Geração de pré-visualizações adicionais para documentos de imagem.
+  [Felipe Lube de Bragança]
+- Endpoint para os álbuns, que nada são do que pastas. [Felipe Lube de
+  Bragança]
+- Defina as pastas como dicionários / estrutura hierárquica. [Felipe
+  Lube de Bragança]
+- Migração de dados para criar pastas-padrão. [Felipe Lube de Bragança]
+- Utilize constantes para os nomes das pastas. [Felipe Lube de Bragança]
+- Remova campos não usados pelo jornal. [Felipe Lube de Bragança]
+- Interface administrativa básica para jornais / sites. [Felipe Lube de
+  Bragança]
+- Comando administrativo para apagar miniaturas do app artifact. [Felipe
+  Lube de Bragança]
+- Miniatura específica para documentos. [Felipe Lube de Bragança]
+- Closes #34: verificações adicionais antes de iniciar a aplicação -
+  Testes devem acontecer apenas com o 'check --deploy' - Verifique
+  conexão com o Elasticsearch - Verifique libmagic, wkhtmltopdf, ntlk e
+  seu corpus. [Felipe Lube de Bragança]
+- Pool de execução do celery no windows mudado para gevent. [Felipe Lube
+  de Bragança]
+- Suporte definição de CELERY_BROKER_URL via variável ambiente. [Felipe
+  Lube de Bragança]
+- Closes #40 : não permita inserção múltipla sem servidor de filas.
+  [Felipe Lube de Bragança]
 - Centralize o logo na tela de login. [Felipe Lube de Bragança]
 - Mostre o logo na interface administrativa. [Felipe Lube de Bragança]
 - Ícones de status das capturas usando a fonte material-icons. [Felipe
@@ -31,6 +73,31 @@ Adicionado
 
 Corrigido
 ~~~~~~~~~
+- Correção em has_basic_info, deve haver ao menos um título. [Felipe
+  Lube de Bragança]
+- Invoque o BeautifulSoup com um parser definido. [Felipe Lube de
+  Bragança]
+- Correção em nome de função. [Felipe Lube de Bragança]
+- Correção na herança de Newspaper. [Felipe Lube de Bragança]
+- Utilize o serializer do documento inteiro em
+  PhotoAlbumFolderSerializer. [Felipe Lube de Bragança]
+- Forneça a url do arquivo original também. [Felipe Lube de Bragança]
+- Fix(closes #45): Uma pasta vazia não pode ser considerada como álbum.
+  [Felipe Lube de Bragança]
+- Force a geração e a indexação correta do thumbnail da notícia. [Felipe
+  Lube de Bragança]
+- Simplificação nos nomes dos tamanhos. [Felipe Lube de Bragança]
+- Correção na url do álbum individual. [Felipe Lube de Bragança]
+- Se o documento não tiver nome, use o nome do arquivo. [Felipe Lube de
+  Bragança]
+- Correção no nome da constante. [Felipe Lube de Bragança]
+- Correção na criação das pastas quando das criação das capturas.
+  [Felipe Lube de Bragança]
+- Reconfiguração do thumbnail gerado para notícias. [Felipe Lube de
+  Bragança]
+- Adicione greenlet, necessário à execução do celery no windows. [Felipe
+  Lube de Bragança]
+- Acerte a geração de thumbnails. [Felipe Lube de Bragança]
 - Corrija o tamanho do texto de ajuda. [Felipe Lube de Bragança]
 - Mova get_file_icon para utils.py. [Felipe Lube de Bragança]
 - Correção de problemas na geração de arquivos estáticos - Utilize uma
@@ -45,6 +112,16 @@ Corrigido
 
 Outros
 ~~~~~~
+- Chore: atualização de pacotes. [Felipe Lube de Bragança]
+- Merge branch 'photo_album' into newspaper_admin. [Felipe Lube de
+  Bragança]
+- Chore: refeitura do pipfile, dessa vez mais conservador. [Felipe Lube
+  de Bragança]
+- Merge pull request #42 from felubra/app_checks. [Felipe Lübe de
+  Bragança]
+
+  feat: closes #34: verificações adicionais antes de iniciar a aplicação
+- Chore: atualização do changelog. [Felipe Lube de Bragança]
 - Merge pull request #41 from felubra/admin_fixes. [Felipe Lübe de
   Bragança]
 
