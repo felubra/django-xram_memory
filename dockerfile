@@ -15,7 +15,7 @@ RUN set -ex; \
 RUN set -ex; \
   apt-get update; \
   apt-get install ./wkhtmltox.deb -f --no-install-recommends -y; \
-  apt-get install curl gnupg -yq; \
+  apt-get install curl gnupg python3-dev default-libmysqlclient-dev -yq; \
   curl -sL https://deb.nodesource.com/setup_8.x | bash; \
   apt-get install nodejs -yq; \
   rm -rf /var/lib/apt/lists/;

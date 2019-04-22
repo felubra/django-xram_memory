@@ -55,3 +55,4 @@ redis = "~=3.2.1"
 pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",ref = "master"}
 django-currentuser = {editable = true,git = "https://github.com/PaesslerAG/django-currentuser",ref = "master"}
 favicon = "*"
+mysqlclient = "*"

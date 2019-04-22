@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3a9ded6587ac93d403b1ee5da7f74411c91d46d633e6e59f2c3af59c920a6e19"
+            "sha256": "1e66bc3d221a91112205269bd45ada85935e0842a769c997e5695a03e67b25f5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -427,6 +427,15 @@
                 "sha256:ff424b01d090ffe1947ec7432b07f536912e0300458f9a7f48ea217dd8362b86"
             ],
             "version": "==4.3.3"
+        },
+        "mysqlclient": {
+            "hashes": [
+                "sha256:425e733b05e359a714d6007c0fc44582be66b63e5a3df0a50949274ae16f4bc6",
+                "sha256:62e4770b6a797b9416bcf70488365b7d6b9c9066878108499c559293bb464380",
+                "sha256:f257d250f2675d0ef99bd318906f3cfc05cef4a2f385ea695ff32a3f04b9f9a7"
+            ],
+            "index": "pypi",
+            "version": "==1.4.2.post1"
         },
         "newspaper3k": {
             "hashes": [
