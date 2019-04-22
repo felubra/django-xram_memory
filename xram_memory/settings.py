@@ -329,7 +329,7 @@ class Development(Common):
             },
         },
     }
-    CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+    CELERY_BROKER_URL = values.Value('redis://127.0.0.1:6379/0')
 
     CORS_ORIGIN_ALLOW_ALL = True
 
