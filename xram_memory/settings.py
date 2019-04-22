@@ -295,7 +295,8 @@ class Development(Common):
     """
     DEBUG = True
 
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.99.100']
+    ALLOWED_HOSTS = values.ListValue(
+        ['localhost', '127.0.0.1', '[::1]', '192.168.99.100', 'xram-memory.local'])
 
     INTERNAL_IPS = [
         '127.0.0.1'
@@ -359,4 +360,3 @@ class Production(Staging):
     """
     The in-production settings.
     """
-    pass
