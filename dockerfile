@@ -11,10 +11,10 @@ COPY Pipfile* package*.json ./
 RUN set -ex; \
   pip install pipenv; \
   pip install nltk; \
-  curl https://raw.githubusercontent.com/codelucas/newspaper/master/download_corpora.py | python3;
+  curl https://raw.githubusercontent.com/codelucas/newspaper/master/download_corpora.py | python3; \
+  curl -f -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb > wkhtmltox.deb;
 
 RUN set -ex; \
-  curl -f -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb > wkhtmltox.deb; \
   apt-get update; \
   apt-get install ./wkhtmltox.deb -f --no-install-recommends -y; \
   rm wkhtmltox.deb ; \
