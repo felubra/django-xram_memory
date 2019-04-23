@@ -214,7 +214,7 @@ class Common(Configuration):
     }
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': 'localhost:9200',
+            'hosts': values.Value('localhost:9200', True, environ_name="ELASTICSEARCH_HOST", environ_prefix="DJANGO"),
             'timeout': 30,
         },
     }
