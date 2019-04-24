@@ -1,6 +1,7 @@
 #!/bin/bash
-python manage.py migrate                  # Aplique as migrações de banco de dados
+set -e;
 python manage.py collectstatic --noinput -i jquery-ui*  # Colete os arquivos estáticos
+python manage.py migrate                  # Aplique as migrações de banco de dados
 
 # Inicie os processos do gunicorn
 echo Starting Gunicorn.
