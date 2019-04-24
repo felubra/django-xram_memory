@@ -12,7 +12,9 @@ RUN set -ex; \
   pip install pipenv; \
   pip install nltk; \
   curl https://raw.githubusercontent.com/codelucas/newspaper/master/download_corpora.py | python3; \
-  curl -f -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb > wkhtmltox.deb;
+  curl -f -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb > wkhtmltox.deb; \
+  curl -sL https://deb.nodesource.com/setup_8.x | bash ;
+
 
 RUN set -ex; \
   apt-get update; \
