@@ -215,6 +215,7 @@ class Common(Configuration):
     ELASTICSEARCH_DSL = {
         'default': {
             'hosts': values.Value('localhost:9200', True, environ_name="ELASTICSEARCH_HOST", environ_prefix="DJANGO"),
+            'http_auth': values.TupleValue(environ_name="ELASTICSEARCH_CREDENTIALS", environ_prefix="DJANGO"),
             'timeout': 30,
         },
     }
