@@ -183,10 +183,13 @@ class NewsFetcher:
     @staticmethod
     @lru_cache(maxsize=2)
     def fetch_web_title(url):
-        response = requests.get(url, allow_redirects=True)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, features="lxml")
-        return soup.title.text
+        try:
+            response = requests.get(url, allow_redirects=True)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, features="lxml")
+            return soup.title.text
+        except AttributeError:
+            return url
 
     @staticmethod
     @lru_cache(maxsize=2)
