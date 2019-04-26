@@ -137,7 +137,7 @@ class News(Artifact):
         """
         Pega o título para a página desta notícia.
         """
-        self.title = NewsFetcher.fetch_web_title(self.url)
+        self.title = NewsFetcher.fetch_web_title(self.url)[:255]
 
     @log_process(operation="verificar por uma versão no archive.org")
     def fetch_archived_url(self):
@@ -235,7 +235,7 @@ class News(Artifact):
         original_extension = Path(self._image).suffix
         import hashlib
         filename = hashlib.md5(self._image.encode(
-            'utf-8')).hexdigest() + original_extension
+            'utf-8')).hexdigest() + original_extension[:4]
 
         with NewsFetcher.fetch_image(self._image) as fd:
             django_file = DjangoFile(fd, name=filename)
