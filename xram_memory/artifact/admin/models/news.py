@@ -6,6 +6,7 @@ from django.contrib.admin.sites import site as default_site, AdminSite
 from xram_memory.base_models import TraceableEditorialAdminModel
 from xram_memory.taxonomy.models import Subject, Keyword
 from django.template.response import TemplateResponse
+from django.views.decorators.cache import never_cache
 from xram_memory.artifact.tasks import add_news_task
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError
@@ -15,8 +16,8 @@ from django.core.validators import URLValidator
 from django.contrib.staticfiles import finders
 from django.db.utils import IntegrityError
 from django.utils.html import format_html
-from django.contrib import messages
 from django.shortcuts import render
+from django.contrib import messages
 from django.contrib import admin
 from django.urls import reverse
 from django.urls import path
@@ -184,6 +185,7 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
         ]
         return my_urls + urls
 
+    @never_cache
     def bulk_insertion(self, request):
         """
         Controller para a página de inserção em massa de notícias.
