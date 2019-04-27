@@ -14,11 +14,13 @@ REQUIRED_CORPORA = [
     'stopwords'
 ]
 
+
 def main():
     for each in REQUIRED_CORPORA:
         print(('Downloading "{0}"'.format(each)))
-        nltk.download(each)
+        nltk.download(each, download_dir='/usr/share/nltk_data')
     print("Finished.")
+
 
 if __name__ == '__main__':
     main()

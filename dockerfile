@@ -1,17 +1,19 @@
 FROM python:3
 
 ENV PYTHONUNBUFFERED=1
+ENV NLTK_DATA=/usr/share/nltk_data
 
 LABEL author=felipe.lubra@gmail.com
 
 WORKDIR /app
 
-COPY Pipfile* package*.json ./
+COPY scripts/download_corpora.py Pipfile* package*.json ./
 
 RUN set -ex; \
   pip install pipenv; \
   pip install nltk; \
-  curl https://raw.githubusercontent.com/codelucas/newspaper/master/download_corpora.py | python3; \
+  python ./download_corpora.py; \
+  rm ./download_corpora.py; \
   curl -f -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb > wkhtmltox.deb; \
   curl -sL https://deb.nodesource.com/setup_8.x | bash ;
 
