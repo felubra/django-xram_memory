@@ -244,7 +244,7 @@ class Common(Configuration):
             'create_missing': True,
         },
     }
-
+    FILE_UPLOAD_MAX_MEMORY_SIZE = 10621440
     CELERY_BROKER_URL = values.Value('')
 
     FOLDER_CAPTURES = {
