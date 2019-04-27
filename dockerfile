@@ -34,4 +34,6 @@ COPY . .
 
 EXPOSE 8000
 
+USER www-data
+
 ENTRYPOINT ["/app/entrypoint.sh"]
