@@ -322,7 +322,7 @@ class Development(Common):
         'loggers': {
             '': {
                 'handlers': ['console'],
-                'level': 'INFO',
+                'level': 'ERROR',
             },
             'django': {
                 'handlers': ['console'],
