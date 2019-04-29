@@ -16,19 +16,23 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Endpoints da API
 urlpatterns = [
-    path('api/v1/pages/<int:pk>',
-         StaticPageViewSet.as_view({'get': 'retrieve'})),
+    # Páginas
     path('api/v1/pages/in_menu',
          InMenuStaticPagesViewSet.as_view({'get': 'listing'})),
     path('api/v1/pages/featured',
          FeaturedStaticPagesViewSet.as_view({'get': 'listing'})),
-    path('api/v1/document/<int:pk>',
+    path('api/v1/pages/<str:url>',
+         StaticPageViewSet.as_view({'get': 'retrieve'})),
+    # Documentos
+    path('api/v1/document/<str:document_id>',
          DocumentViewSet.as_view({'get': 'retrieve'})),
-    path('api/v1/news/<int:pk>',
+    # Notícias
+    path('api/v1/news/<str:slug>',
          NewsViewSet.as_view({'get': 'retrieve'})),
+    # Álbuns
     path('api/v1/albums',
          AlbumViewSet.as_view({'get': 'listing'})),
-    path('api/v1/album/<int:pk>',
+    path('api/v1/album/<str:album_id>',
          AlbumViewSet.as_view({'get': 'retrieve'})),
 ] + urlpatterns
 

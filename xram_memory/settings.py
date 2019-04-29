@@ -289,6 +289,11 @@ class Common(Configuration):
         FOLDER_IMAGE_CAPTURES,
     )
 
+    HASHID_FIELD_SALT = values.Value(
+        '4OkZKanuMWUU4EO92FcDmwXkn6PbksGAIClUcG4S')
+    HASHID_FIELD_LOOKUP_EXCEPTION = False
+    HASHID_FIELD_ALLOW_INT_LOOKUP = False
+
 
 class Development(Common):
     """

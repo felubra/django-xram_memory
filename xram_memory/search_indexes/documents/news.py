@@ -83,7 +83,7 @@ class NewsDocument(DocType):
         }),
         'pdf_capture_date': fields.DateField(index=False),
     })
-
+    slug = fields.KeywordField()
     thumbnail = fields.KeywordField(
         attr='thumbnail'
     )

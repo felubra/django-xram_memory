@@ -4,6 +4,7 @@ from django.db import models
 from filer.models import File
 from .artifact import Artifact
 from django.conf import settings
+from hashid_field import HashidField
 from django.utils.text import slugify
 from xram_memory.utils import FileValidator
 from filer import settings as filer_settings
@@ -35,6 +36,11 @@ class Document(File):
         editable=False,
         default=True,
     )
+    document_id = HashidField(
+        verbose_name="Código do documento",
+        help_text="Código através do qual os visitantes do site podem acessar esse documento.",
+        null=True
+    )
 
     class Meta:
         verbose_name = "Documento"
@@ -50,6 +56,10 @@ class Document(File):
             self.file.file.seek(0)
         except:
             self.mime_type = ''
+
+    def set_document_id(self):
+        if self.pk is not None and self.document_id is None:
+            self.document_id = self.pk
 
     @property
     def file_indexing(self):
@@ -120,3 +130,9 @@ class Document(File):
         if not self.name:
             self.name = self.label
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        if self.document_id is not None:
+            return self.document_id.hashid
+        else:
+            return super().__str__()
