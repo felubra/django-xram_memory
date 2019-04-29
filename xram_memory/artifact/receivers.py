@@ -11,9 +11,9 @@ import random
 
 
 @receiver(post_save)
-def set_mimetype_filesize_for_documents(sender, **kwargs):
+def set_document_info(sender, **kwargs):
     """
-    Defina o tamanho e o tipo do arquivo para documentos.
+    Defina o mimetype do arquivo para documentos e seu document_id.
     """
     instance = kwargs['instance']
 
@@ -22,6 +22,7 @@ def set_mimetype_filesize_for_documents(sender, **kwargs):
 
     if isinstance(instance, (Document)):
         try:
+            instance.set_document_id()
             instance.determine_mime_type()
             # Adicione uma flag privada no modelo para evitar que esse handler execute
             # de novo, já que vamos salvar o modelo novamente aqui

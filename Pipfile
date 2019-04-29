@@ -56,3 +56,4 @@ pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",
 django-currentuser = {editable = true,git = "https://github.com/PaesslerAG/django-currentuser",ref = "master"}
 favicon = "*"
 mysqlclient = "*"
+django-hashid-field = "*"

@@ -289,6 +289,11 @@ class Common(Configuration):
         FOLDER_IMAGE_CAPTURES,
     )
 
+    HASHID_FIELD_SALT = values.Value(
+        '4OkZKanuMWUU4EO92FcDmwXkn6PbksGAIClUcG4S')
+    HASHID_FIELD_LOOKUP_EXCEPTION = False
+    HASHID_FIELD_ALLOW_INT_LOOKUP = False
+
 
 class Development(Common):
     """
@@ -355,6 +360,22 @@ class Staging(Common):
     ALLOWED_HOSTS = ['xram-memory.felipelube.com']
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            '': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+            },
+        },
+    }
 
 
 class Production(Staging):

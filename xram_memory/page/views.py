@@ -34,8 +34,8 @@ class FeaturedStaticPagesViewSet(viewsets.ViewSet):
 class StaticPageViewSet(viewsets.ViewSet):
     """Um endpoint pegar uma página"""
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, url=None):
         queryset = StaticPage.objects.filter(published=True)
-        page = get_object_or_404(queryset, pk=pk)
+        page = get_object_or_404(queryset, url=url)
         serializer = StaticPageSerializer(page)
         return Response(serializer.data)

@@ -30,6 +30,7 @@ class DocumentAdmin(FileAdmin):
     search_fields = ('name',)
 
 
-DocumentAdmin.readonly_fields = DocumentAdmin.readonly_fields + ('mime_type',)
-DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(
-    extra_advanced_fields=("mime_type",))
+DocumentAdmin.readonly_fields = DocumentAdmin.readonly_fields + \
+    ('mime_type', 'document_id',)
+DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(extra_main_fields=('document_id',),
+                                                    extra_advanced_fields=("mime_type",))

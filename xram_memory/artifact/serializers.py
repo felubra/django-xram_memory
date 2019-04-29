@@ -1,27 +1,38 @@
+from rest_framework.serializers import ModelSerializer, CharField, IntegerField, Serializer, Field, SerializerMethodField
 from xram_memory.artifact.models import Document, News, Newspaper, NewsPDFCapture, NewsImageCapture
-from rest_framework.serializers import ModelSerializer, CharField, IntegerField, Serializer, Field
 from xram_memory.taxonomy.serializers import KeywordSerializer, SubjectSerializer
+from hashid_field.rest import HashidSerializerCharField, Hashid
 from boltons.cacheutils import cachedproperty
 from filer.models import Folder, File
+from django.conf import settings
 
 
 class DocumentSerializer(ModelSerializer):
+    document_id = HashidSerializerCharField(
+        source_field='artifact.Document.document_id')
+
     class Meta:
         model = Document
-        fields = ('id', 'name', 'description', 'canonical_url',
+        fields = ('document_id', 'name', 'description', 'canonical_url',
                   'mime_type', 'size', 'thumbnail', 'thumbnails')
 
 
 class SimpleDocumentSerializer(ModelSerializer):
+    document_id = HashidSerializerCharField(
+        source_field='artifact.Document.document_id')
+
     class Meta:
         model = Document
-        fields = ('id', 'name', 'mime_type', 'size',)
+        fields = ('document_id', 'name', 'mime_type', 'size',)
 
 
 class SimpleDocumentSerializerWithThumbnail(ModelSerializer):
+    document_id = HashidSerializerCharField(
+        source_field='artifact.Document.document_id')
+
     class Meta:
         model = Document
-        fields = ('id', 'name', 'mime_type', 'size',
+        fields = ('document_id', 'name', 'mime_type', 'size',
                   'thumbnail', 'thumbnails', 'canonical_url')
 
 
@@ -41,7 +52,7 @@ class NewspaperSerializer(ModelSerializer):
 class NewsSerializer(ModelSerializer):
     class Meta:
         model = News
-        fields = ('id', 'title', 'teaser', 'slug',
+        fields = ('title', 'teaser', 'slug',
                   'url', 'archived_news_url', 'authors', 'body', 'published_date', 'language', 'newspaper', 'keywords',
                   'subjects', 'pdf_captures', 'image_capture', 'thumbnail')
     newspaper = NewspaperSerializer()
@@ -54,14 +65,20 @@ class NewsSerializer(ModelSerializer):
 
 class PhotoAlbumFolderSerializer(ModelSerializer):
     photos = DocumentSerializer(source="files", many=True)
+    album_id = SerializerMethodField()
 
     class Meta:
         model = Folder
-        fields = ('id',  'name', 'created_at',
+        fields = ('album_id',  'name', 'created_at',
                   'modified_at', 'photos', 'file_count')
 
+    def get_album_id(self, obj):
+        hashid = Hashid(obj.pk, settings.HASHID_FIELD_SALT, 7)
+        return hashid.hashid
 
-class SimplePhotoAlbumFolderSerializer(ModelSerializer):
+
+class SimplePhotoAlbumFolderSerializer(PhotoAlbumFolderSerializer):
     class Meta:
         model = Folder
-        fields = ('id', 'name', 'created_at', 'modified_at', 'file_count')
+        fields = ('album_id', 'name', 'created_at',
+                  'modified_at', 'file_count')
