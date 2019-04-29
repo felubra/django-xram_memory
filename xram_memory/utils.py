@@ -207,6 +207,7 @@ class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesS
     Override the replacement patterns to match URL-encoded quotations.
     Patch: https://code.djangoproject.com/ticket/21080#comment:12
     """
+    manifest_strict = False
     patterns = (
         ("*.css", (
             r"""(url\((?:['"]|%22|%27){0,1}\s*(.*?)(?:['"]|%22|%27){0,1}\))""",
