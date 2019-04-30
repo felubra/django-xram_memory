@@ -60,6 +60,8 @@ class Document(File):
     def set_document_id(self):
         if self.pk is not None and self.document_id is None:
             self.document_id = self.pk
+            return True
+        return False
 
     @property
     def file_indexing(self):
