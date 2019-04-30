@@ -188,9 +188,9 @@ class Common(Configuration):
                 'crop': 'scale'
             },
             'favicon': {
-                'size': (16, 16),
+                'size': (18, 18),
                 'autocrop': True,
-                'crop': 'scale',
+                'scale_and_crop': 'smart',
                 'upscale': False,
             }
         }

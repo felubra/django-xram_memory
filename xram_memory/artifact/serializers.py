@@ -46,7 +46,7 @@ class PDFCaptureSerializer(ModelSerializer):
 class NewspaperSerializer(ModelSerializer):
     class Meta:
         model = Newspaper
-        fields = ('title', 'description', 'logo', 'url')
+        fields = ('title', 'description', 'favicon_logo', 'url')
 
 
 class NewsSerializer(ModelSerializer):

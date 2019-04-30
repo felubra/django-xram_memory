@@ -94,7 +94,7 @@ class NewsDocument(DocType):
     newspaper = fields.NestedField(properties={
         'url': fields.KeywordField(),
         'title': fields.KeywordField(),
-        'logo': fields.KeywordField(attr="logo_indexing"),
+        'favicon_logo': fields.KeywordField(attr="favicon_logo"),
     })
 
     def get_instances_from_related(self, related_instance):

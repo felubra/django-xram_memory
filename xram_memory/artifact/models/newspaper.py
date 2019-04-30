@@ -94,7 +94,7 @@ class Newspaper(TraceableModel):
                 return False
 
     @property
-    def logo_indexing(self):
+    def favicon_logo(self):
         if self.logo:
             try:
                 return get_thumbnailer(self.logo)['favicon'].url
