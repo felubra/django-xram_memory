@@ -2,6 +2,7 @@ from xram_memory.artifact.news_fetcher import NewsFetcher
 from xram_memory.logger.decorators import log_process
 from easy_thumbnails.fields import ThumbnailerField
 from xram_memory.base_models import TraceableModel
+from easy_thumbnails.files import get_thumbnailer
 from django.core.files import File as DjangoFile
 from django.core.validators import URLValidator
 from xram_memory.utils import FileValidator
@@ -59,10 +60,10 @@ class Newspaper(TraceableModel):
             self.url) if icon.format in ['png', 'jpeg', 'jpg', 'gif']]
         if len(icons):
             icon = icons[0]
-            file_ext = Path(icon.url).suffix
+            file_ext = icon.format
             response = requests.get(icon.url, stream=True)
             fd, file_path, = tempfile.mkstemp()
-            filename = self.title + '_logo' + file_ext
+            filename = "{}{}.{}".format(self.title[:255], '_logo', file_ext)
             with open(fd, 'wb+') as image:
                 for chunk in response.iter_content(1024):
                     image.write(chunk)
@@ -91,6 +92,16 @@ class Newspaper(TraceableModel):
                 return True
             except:
                 return False
+
+    @property
+    def logo_indexing(self):
+        if self.logo:
+            try:
+                return get_thumbnailer(self.logo)['favicon'].url
+            except:
+                return ''
+        else:
+            return ''
 
     class Meta:
         verbose_name = "Site de notícias"

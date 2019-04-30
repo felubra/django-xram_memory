@@ -186,6 +186,12 @@ class Common(Configuration):
             '360': {
                 'size': (360, 360),
                 'crop': 'scale'
+            },
+            'favicon': {
+                'size': (16, 16),
+                'autocrop': True,
+                'crop': 'scale',
+                'upscale': False,
             }
         }
     }
