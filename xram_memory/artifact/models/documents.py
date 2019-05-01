@@ -12,6 +12,7 @@ from boltons.cacheutils import cachedproperty
 from django.core.files.base import ContentFile
 from easy_thumbnails.files import get_thumbnailer
 from easy_thumbnails.fields import ThumbnailerField
+from xram_memory.taxonomy.models import Keyword, Subject
 
 
 class Document(File):
@@ -40,6 +41,18 @@ class Document(File):
         verbose_name="Código do documento",
         help_text="Código através do qual os visitantes do site podem acessar esse documento.",
         null=True
+    )
+    keywords = models.ManyToManyField(
+        Keyword,
+        verbose_name="Palavras-chave",
+        related_name="%(class)s",
+        blank=True,
+    )
+    subjects = models.ManyToManyField(
+        Subject,
+        verbose_name="Assuntos",
+        related_name="%(class)s",
+        blank=True,
     )
 
     class Meta:

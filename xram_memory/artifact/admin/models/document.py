@@ -1,12 +1,13 @@
-from django.contrib import admin
-from filer.admin.fileadmin import FileAdmin
-from xram_memory.artifact.models import Document
 from easy_thumbnails.widgets import ImageClearableFileInput
 from easy_thumbnails.fields import ThumbnailerField
+from tags_input import admin as tags_input_admin
+from xram_memory.artifact.models import Document
+from filer.admin.fileadmin import FileAdmin
+from django.contrib import admin
 
 
 @admin.register(Document)
-class DocumentAdmin(FileAdmin):
+class DocumentAdmin(FileAdmin, tags_input_admin.TagsInputAdmin):
     list_display = (
         'id',
         'folder',
@@ -32,5 +33,5 @@ class DocumentAdmin(FileAdmin):
 
 DocumentAdmin.readonly_fields = DocumentAdmin.readonly_fields + \
     ('mime_type', 'document_id',)
-DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(extra_main_fields=('document_id',),
+DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(extra_main_fields=('document_id', 'keywords', 'subjects',),
                                                     extra_advanced_fields=("mime_type",))
