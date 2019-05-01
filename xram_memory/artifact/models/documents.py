@@ -77,6 +77,13 @@ class Document(File):
         return False
 
     @property
+    def document_id_indexing(self):
+        try:
+            return self.document_id.hashid
+        except:
+            return ''
+
+    @property
     def file_indexing(self):
         """
         Propriedade usada para indexar a URL para este documento.
