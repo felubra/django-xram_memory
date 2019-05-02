@@ -20,6 +20,7 @@ class TaxonomyItemAdmin(TraceableAdminModel):
         'created_by',
         'modified_by',
     )
+    ordering = ('name',)
 
     def get_fieldsets(self, request, obj):
         super().get_fieldsets(request, obj)
