@@ -108,5 +108,6 @@ class DocumentDocument(DocType):
     class Meta(object):
         model = Document  # O modelo associado a este documento
         parallel_indexing = True
+        doc_type = 'Documento'
         related_models = [Keyword, Subject,
                           NewsPDFCapture, NewsImageCapture]

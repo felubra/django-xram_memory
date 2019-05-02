@@ -112,5 +112,6 @@ class NewsDocument(DocType):
     class Meta(object):
         model = News  # O modelo associado a este documento
         parallel_indexing = True
+        doc_type = 'Notícia'
         related_models = [Keyword, Subject,
                           NewsPDFCapture, NewsImageCapture, Newspaper]
