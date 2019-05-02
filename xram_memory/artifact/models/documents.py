@@ -64,13 +64,19 @@ class Document(File):
         Utilizando a biblioteca libmagic, determine qual é o mimetype do arquivo deste documento.
         """
         try:
-            self.mime_type = magic.from_buffer(
-                self.file.file.read(1024), mime=True)
-            self.file.file.seek(0)
+            old_mime_type = self.mime_type
+            with self.file.file.open('wb') as f:
+                self.mime_type = magic.from_buffer(
+                    f.read(1024), mime=True)
+            return old_mime_type != self.mime_type
         except:
             self.mime_type = ''
+            return False
 
     def set_document_id(self):
+        """
+        Gera um document_id se esse Documento não tiver um
+        """
         if self.pk is not None and self.document_id is None:
             self.document_id = self.pk
             return True
