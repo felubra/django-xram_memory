@@ -96,9 +96,9 @@ class DocumentDocument(DocType):
 
     def get_queryset(self):
         """
-        Somente indexe documentos que tiverem document_id
+        Somente indexe documentos que tiverem document_id, forem inseridos pelo usuário e públicos.
         """
-        return self._doc_type.model._default_manager.filter(document_id__isnull=False)
+        return self._doc_type.model._default_manager.filter(document_id__isnull=False).filter(is_user_object=True).filter(is_public=True)
 
     def __init__(self, **kwargs):
         super().__init__(None, **kwargs)
