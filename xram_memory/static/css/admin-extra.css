@@ -183,3 +183,7 @@ body.login #branding {
   text-align: center;
   float: none;
 }
+
+.captures_info {
+  min-width: 5rem;
+}
