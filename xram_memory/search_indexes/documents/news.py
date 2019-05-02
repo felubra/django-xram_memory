@@ -57,15 +57,10 @@ class NewsDocument(DocType):
     """
     Índice de pesquisa para o modelo News
     """
+    # Campos comuns
     id = fields.IntegerField(attr='id')
-    url = fields.KeywordField()
-    # Campos de TraceableModel
     created_at = fields.DateField()
     modified_at = fields.DateField()
-    # Campos de TraceableEditorialModel
-    published = fields.BooleanField()
-    featured = fields.BooleanField()
-    # Campos de Artifact
     title = fields.TextField(analyzer='rebuilt_portuguese')
     teaser = fields.TextField(analyzer='rebuilt_portuguese')
     keywords = fields.NestedField(properties={
@@ -76,6 +71,13 @@ class NewsDocument(DocType):
         'name': fields.KeywordField(),
         'slug': fields.KeywordField()
     })
+    thumbnail = fields.KeywordField(
+        attr='thumbnail'
+    )
+    # Campos específicos
+    url = fields.KeywordField()
+    published = fields.BooleanField()
+    featured = fields.BooleanField()
     pdf_captures = fields.NestedField(properties={
         'pdf_document': fields.NestedField(properties={
             'id': fields.IntegerField(index=False),
@@ -84,10 +86,6 @@ class NewsDocument(DocType):
         'pdf_capture_date': fields.DateField(index=False),
     })
     slug = fields.KeywordField()
-    thumbnail = fields.KeywordField(
-        attr='thumbnail'
-    )
-    # Campos de News
     published_date = fields.DateField()
     published_year = fields.IntegerField(attr="published_year")
     language = fields.KeywordField()

@@ -63,14 +63,13 @@ class DocumentDocument(DocType):
     """
     Índice de pesquisa para o modelo Document
     """
+    # Campos comuns
     id = fields.IntegerField(attr='id')
-    document_id = fields.KeywordField(attr='document_id_indexing')
-    mime_type = fields.KeywordField()
-
-    uploaded_at = fields.DateField()
-    modified_at = fields.DateField()
-
-    description = fields.TextField(analyzer='rebuilt_portuguese')
+    created_at = fields.DateField(attr="uploaded_at")
+    modified_at = fields.DateField(attr="modified_at")
+    title = fields.TextField(analyzer='rebuilt_portuguese', attr="name")
+    teaser = fields.TextField(
+        analyzer='rebuilt_portuguese', attr="description")
     keywords = fields.NestedField(properties={
         'name': fields.KeywordField(),
         'slug': fields.KeywordField()
@@ -80,10 +79,12 @@ class DocumentDocument(DocType):
         'slug': fields.KeywordField()
     })
     thumbnail = fields.KeywordField(
-        attr='thumbnail'
+        attr='search_thumbnail'
     )
+    # Campos específicos de Document
+    document_id = fields.KeywordField(attr='document_id_indexing')
+    mime_type = fields.KeywordField()
 
-    # TODO:
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Keyword):
             return related_instance.document.all()

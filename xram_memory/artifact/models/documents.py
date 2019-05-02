@@ -104,6 +104,15 @@ class Document(File):
         return ''
 
     @cachedproperty
+    def search_thumbnail(self):
+        if self.file:
+            try:
+                return get_thumbnailer(self.file)['thumbnail'].url
+            except:
+                return ''
+        return ''
+
+    @cachedproperty
     def thumbnails(self):
         """
         Retorna uma lista de thumbnails geradas
