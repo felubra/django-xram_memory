@@ -31,7 +31,8 @@ def set_document_info(sender, **kwargs):
                 instance._save_in_signal = True
                 instance.save()
         finally:
-            del instance._save_in_signal
+            if hasattr(instance, '_save_in_signal'):
+                del instance._save_in_signal
 
 
 # TODO: mover para o modelo da notícia
