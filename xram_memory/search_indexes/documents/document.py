@@ -81,6 +81,7 @@ class DocumentDocument(DocType):
     thumbnail = fields.KeywordField(
         attr='search_thumbnail'
     )
+    published_year = fields.IntegerField(attr="published_year")
     # Campos específicos de Document
     document_id = fields.KeywordField(attr='document_id_indexing')
     mime_type = fields.KeywordField()

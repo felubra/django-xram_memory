@@ -55,9 +55,31 @@ class Document(File):
         blank=True,
     )
 
+    published_date = models.DateTimeField(
+        verbose_name='Data de publicação',
+        help_text='Data da publicação original deste documento',
+        blank=True,
+        null=True,
+    )
+
     class Meta:
         verbose_name = "Documento"
         verbose_name_plural = "Documentos"
+
+    @property
+    def published_year(self):
+        """
+        Retorna o ano de publicação deste documento.
+        """
+        try:
+            # Tente retornar o ano da data de publicação
+            return self.published_date.timetuple()[0]
+        except AttributeError:
+            try:
+                # Ou ao menos o ano data de criação dessa Notícia no sistema
+                return self.uploaded_at.timetuple()[0]
+            except AttributeError:
+                return None
 
     def determine_mime_type(self):
         """

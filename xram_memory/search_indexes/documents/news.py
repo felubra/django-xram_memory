@@ -74,6 +74,7 @@ class NewsDocument(DocType):
     thumbnail = fields.KeywordField(
         attr='thumbnail'
     )
+    published_year = fields.IntegerField(attr="published_year")
     # Campos específicos
     url = fields.KeywordField()
     published = fields.BooleanField()
@@ -87,7 +88,6 @@ class NewsDocument(DocType):
     })
     slug = fields.KeywordField()
     published_date = fields.DateField()
-    published_year = fields.IntegerField(attr="published_year")
     language = fields.KeywordField()
     newspaper = fields.NestedField(properties={
         'url': fields.KeywordField(),
