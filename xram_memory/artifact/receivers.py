@@ -22,14 +22,17 @@ def set_document_info(sender, **kwargs):
 
     if isinstance(instance, (Document)):
         try:
-            instance.set_document_id()
-            instance.determine_mime_type()
-            # Adicione uma flag privada no modelo para evitar que esse handler execute
-            # de novo, já que vamos salvar o modelo novamente aqui
-            instance._save_in_signal = True
-            instance.save()
+            got_document_id = instance.set_document_id()
+            got_new_mime_type = instance.determine_mime_type()
+            # Somente salve o modelo se de fato ao menos uma operação foi executada com sucesso
+            if got_document_id or got_new_mime_type:
+                # Adicione uma flag privada no modelo para evitar que esse handler execute
+                # de novo, já que vamos salvar o modelo novamente aqui
+                instance._save_in_signal = True
+                instance.save()
         finally:
-            del instance._save_in_signal
+            if hasattr(instance, '_save_in_signal'):
+                del instance._save_in_signal
 
 
 # TODO: mover para o modelo da notícia

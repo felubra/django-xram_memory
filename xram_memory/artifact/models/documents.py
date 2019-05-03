@@ -12,6 +12,7 @@ from boltons.cacheutils import cachedproperty
 from django.core.files.base import ContentFile
 from easy_thumbnails.files import get_thumbnailer
 from easy_thumbnails.fields import ThumbnailerField
+from xram_memory.taxonomy.models import Keyword, Subject
 
 
 class Document(File):
@@ -41,27 +42,74 @@ class Document(File):
         help_text="Código através do qual os visitantes do site podem acessar esse documento.",
         null=True
     )
+    keywords = models.ManyToManyField(
+        Keyword,
+        verbose_name="Palavras-chave",
+        related_name="%(class)s",
+        blank=True,
+    )
+    subjects = models.ManyToManyField(
+        Subject,
+        verbose_name="Assuntos",
+        related_name="%(class)s",
+        blank=True,
+    )
+
+    published_date = models.DateTimeField(
+        verbose_name='Data de publicação',
+        help_text='Data da publicação original deste documento',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Documento"
         verbose_name_plural = "Documentos"
+
+    @property
+    def published_year(self):
+        """
+        Retorna o ano de publicação deste documento.
+        """
+        try:
+            # Tente retornar o ano da data de publicação
+            return self.published_date.timetuple()[0]
+        except AttributeError:
+            try:
+                # Ou ao menos o ano data de criação dessa Notícia no sistema
+                return self.uploaded_at.timetuple()[0]
+            except AttributeError:
+                return None
 
     def determine_mime_type(self):
         """
         Utilizando a biblioteca libmagic, determine qual é o mimetype do arquivo deste documento.
         """
         try:
-            self.mime_type = magic.from_buffer(
-                self.file.file.read(1024), mime=True)
-            self.file.file.seek(0)
+            old_mime_type = self.mime_type
+            with self.file.file.open('wb') as f:
+                self.mime_type = magic.from_buffer(
+                    f.read(1024), mime=True)
+            return old_mime_type != self.mime_type
         except:
             self.mime_type = ''
+            return False
 
     def set_document_id(self):
+        """
+        Gera um document_id se esse Documento não tiver um
+        """
         if self.pk is not None and self.document_id is None:
             self.document_id = self.pk
             return True
         return False
+
+    @property
+    def document_id_indexing(self):
+        try:
+            return self.document_id.hashid
+        except:
+            return ''
 
     @property
     def file_indexing(self):
@@ -79,6 +127,15 @@ class Document(File):
         if self.file:
             try:
                 return get_thumbnailer(self.file)['document_thumbnail'].url
+            except:
+                return ''
+        return ''
+
+    @cachedproperty
+    def search_thumbnail(self):
+        if self.file:
+            try:
+                return get_thumbnailer(self.file)['thumbnail'].url
             except:
                 return ''
         return ''

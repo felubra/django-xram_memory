@@ -1,14 +1,14 @@
-from django.conf import settings
+from xram_memory.artifact.models import Document, NewsImageCapture, NewsPDFCapture
 from django_elasticsearch_dsl import DocType, Index, fields
-from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture, Newspaper
+from elasticsearch_dsl.serializer import AttrJSONSerializer
 from xram_memory.taxonomy.models import Keyword, Subject
+from xram_memory.taxonomy.models import Keyword, Subject
+from django.conf import settings
+from hashid_field import Hashid
 
 INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
 INDEX.settings(
-    number_of_shards=1,
-    number_of_replicas=1,
     blocks={'read_only_allow_delete': False},
-    # read_only_allow_delete=False,
     analysis={
         "filter": {
             "portuguese_stop": {
@@ -51,18 +51,18 @@ INDEX.settings(
 )
 
 
-# TODO: indexar apenas notícias publicadas
 @INDEX.doc_type
-class NewsDocument(DocType):
+class DocumentDocument(DocType):
     """
-    Índice de pesquisa para o modelo News
+    Índice de pesquisa para o modelo Document
     """
     # Campos comuns
     id = fields.IntegerField(attr='id')
-    created_at = fields.DateField()
-    modified_at = fields.DateField()
-    title = fields.TextField(analyzer='rebuilt_portuguese')
-    teaser = fields.TextField(analyzer='rebuilt_portuguese')
+    created_at = fields.DateField(attr="uploaded_at")
+    modified_at = fields.DateField(attr="modified_at")
+    title = fields.TextField(analyzer='rebuilt_portuguese', attr="name")
+    teaser = fields.TextField(
+        analyzer='rebuilt_portuguese', attr="description")
     keywords = fields.NestedField(properties={
         'name': fields.KeywordField(),
         'slug': fields.KeywordField()
@@ -72,44 +72,32 @@ class NewsDocument(DocType):
         'slug': fields.KeywordField()
     })
     thumbnail = fields.KeywordField(
-        attr='thumbnail'
+        attr='search_thumbnail'
     )
     published_year = fields.IntegerField(attr="published_year")
-    # Campos específicos
-    url = fields.KeywordField()
-    published = fields.BooleanField()
-    featured = fields.BooleanField()
-    pdf_captures = fields.NestedField(properties={
-        'pdf_document': fields.NestedField(properties={
-            'id': fields.IntegerField(index=False),
-            'size': fields.IntegerField(index=False),
-        }),
-        'pdf_capture_date': fields.DateField(index=False),
-    })
-    slug = fields.KeywordField()
-    published_date = fields.DateField()
-    language = fields.KeywordField()
-    newspaper = fields.NestedField(properties={
-        'url': fields.KeywordField(),
-        'title': fields.KeywordField(),
-        'favicon_logo': fields.KeywordField(attr="favicon_logo"),
-    })
+    # Campos específicos de Document
+    document_id = fields.KeywordField(attr='document_id_indexing')
+    mime_type = fields.KeywordField()
 
     def get_instances_from_related(self, related_instance):
         if isinstance(related_instance, Keyword):
-            return related_instance.news.all()
+            return related_instance.document.all()
         elif isinstance(related_instance, Subject):
-            return related_instance.news.all()
-        elif isinstance(related_instance, Newspaper):
-            return related_instance.news.all()
+            return related_instance.document.all()
         elif isinstance(related_instance, NewsImageCapture):
-            return related_instance.news
+            return related_instance.image_document
         elif isinstance(related_instance, NewsPDFCapture):
-            return related_instance.news
+            return related_instance.pdf_document
+
+    def get_queryset(self):
+        """
+        Somente indexe documentos que tiverem document_id, forem inseridos pelo usuário e públicos.
+        """
+        return self._doc_type.model._default_manager.filter(document_id__isnull=False).filter(is_user_object=True).filter(is_public=True)
 
     class Meta(object):
-        model = News  # O modelo associado a este documento
+        model = Document  # O modelo associado a este documento
         parallel_indexing = True
-        doc_type = 'Notícia'
+        doc_type = 'Documento'
         related_models = [Keyword, Subject,
-                          NewsPDFCapture, NewsImageCapture, Newspaper]
+                          NewsPDFCapture, NewsImageCapture]
