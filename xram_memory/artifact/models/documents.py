@@ -87,7 +87,7 @@ class Document(File):
         """
         try:
             old_mime_type = self.mime_type
-            with self.file.file.open('wb') as f:
+            with self.file.file.open('rb') as f:
                 self.mime_type = magic.from_buffer(
                     f.read(1024), mime=True)
             return old_mime_type != self.mime_type
