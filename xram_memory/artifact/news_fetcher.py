@@ -11,6 +11,7 @@ import newspaper as newspaper3k
 from functools import lru_cache
 from xram_memory.lib import stopwords
 from contextlib import contextmanager
+from django.utils.timezone import now
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 
@@ -46,6 +47,12 @@ class NewsFetcher:
         pdfkit.from_url(url, file_path, options={
             'print-media-type': None,
             'disable-javascript': None,
+            'footer-center': now(),
+            'footer-font-size': 8,
+            'header-center': url,
+            'header-font-size': 6,
+            'log-level': 'none',
+            'image-quality': 85,
         })
         with open(fd, 'rb') as f:
             yield f
