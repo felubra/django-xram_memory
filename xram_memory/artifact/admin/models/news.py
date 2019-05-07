@@ -1,3 +1,4 @@
+from xram_memory.artifact.tasks import add_news_task, news_add_pdf_capture, news_add_archived_url, add_image_for_news, news_set_basic_info
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
 from ..forms.news import NewsPDFCaptureStackedInlineForm, NewsAdminForm, NewsImageCaptureStackedInlineForm
 from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
@@ -5,9 +6,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.admin.sites import site as default_site, AdminSite
 from xram_memory.base_models import TraceableEditorialAdminModel
 from xram_memory.taxonomy.models import Subject, Keyword
-from django.template.response import TemplateResponse
 from django.views.decorators.cache import never_cache
-from xram_memory.artifact.tasks import add_news_task
+from django.template.response import TemplateResponse
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError
 from xram_memory.utils import celery_is_avaliable
@@ -122,6 +122,8 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
     list_select_related = (
         'image_capture',
     )
+    actions = ['schedule_for_setting_basic_info', 'schedule_for_fetching_archived_version',
+               'schedule_for_adding_pdf_capture']
 
     def captures(self, obj):
         def missing_label(status):
@@ -235,3 +237,59 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
             messages.add_message(request, messages.ERROR,
                                  'Não é possível usar esta funcionalidade no momento, porque o servidor de filas não está disponível. Se o erro persistir, contate o administrador.')
             return HttpResponseRedirect(reverse("admin:artifact_news_changelist"))
+
+    def schedule_for_adding_pdf_capture(self, request, queryset):
+        if celery_is_avaliable():
+            # TODO: agrupar e separar em pedaços
+            for news in queryset:
+                news_add_pdf_capture.s(news.pk).apply_async()
+            self.message_user(
+                request, '{} notícia(s) foi(ram) adicionado(s) à fila para geração de nova captura de página'.format(len(queryset)), messages.INFO)
+            logger.info(
+                'O usuário {username} solicitou uma nova captura de imagem para {n} notícia(s) de uma só vez pela interface administrativa.'.format(
+                    username=request.user.username, n=len(queryset)
+                )
+            )
+        else:
+            self.message_user(
+                request, 'Não é possível usar esta funcionalidade no momento, porque o servidor de filas não está disponível. Se o erro persistir, contate o administrador.', messages.ERROR)
+
+    schedule_for_adding_pdf_capture.short_description = "Gerar captura de página em PDF"
+
+    def schedule_for_setting_basic_info(self, request, queryset):
+        if celery_is_avaliable():
+            # TODO: agrupar e separar em pedaços
+            for news in queryset:
+                news_set_basic_info.s(news.pk).apply_async()
+            self.message_user(
+                request, '{} notícia(s) foi(ram) adicionado(s) à fila para obtenção de informações básicas'.format(len(queryset)), messages.INFO)
+            logger.info(
+                'O usuário {username} solicitou a obtenção de informações básicas para {n} notícia(s) de uma só vez pela interface administrativa.'.format(
+                    username=request.user.username, n=len(queryset)
+                )
+            )
+        else:
+            self.message_user(
+                request, 'Não é possível usar esta funcionalidade no momento, porque o servidor de filas não está disponível. Se o erro persistir, contate o administrador.', messages.ERROR)
+
+    schedule_for_setting_basic_info.short_description = "Obter informações básicas"
+    schedule_for_setting_basic_info.allowed_permissions = ('change',)
+
+    def schedule_for_fetching_archived_version(self, request, queryset):
+        if celery_is_avaliable():
+            # TODO: agrupar e separar em pedaços
+            for news in queryset:
+                news_add_archived_url.s(news.pk).apply_async()
+            self.message_user(
+                request, '{} notícia(s) foi(ram) adicionado(s) à fila para busca por uma versão arquivada'.format(len(queryset)), messages.INFO)
+            logger.info(
+                'O usuário {username} solicitou a busca por uma versão arquivada para {n} notícia(s) de uma só vez pela interface administrativa.'.format(
+                    username=request.user.username, n=len(queryset)
+                )
+            )
+        else:
+            self.message_user(
+                request, 'Não é possível usar esta funcionalidade no momento, porque o servidor de filas não está disponível. Se o erro persistir, contate o administrador.', messages.ERROR)
+
+    schedule_for_fetching_archived_version.short_description = "Buscar por uma versão arquivada"
+    schedule_for_fetching_archived_version.allowed_permissions = ('change',)
