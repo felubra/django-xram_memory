@@ -252,6 +252,7 @@ class Common(Configuration):
     }
     FILE_UPLOAD_MAX_MEMORY_SIZE = 10621440
     CELERY_BROKER_URL = values.Value('')
+    CELERY_CELERYD_MAX_TASKS_PER_CHILD = 10
 
     FOLDER_CAPTURES = {
         'name': 'Capturas automáticas',
