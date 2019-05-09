@@ -5,6 +5,9 @@ from xram_memory.artifact.models import Newspaper
 from django.contrib.admin.sites import AdminSite
 from django.urls import reverse
 from unittest import mock
+from loguru import logger
+
+logger.remove()
 
 BOGUS_NEWSPAPER = mock.Mock(
     description="Um jornaleco de nada", brand="jornaleco")
