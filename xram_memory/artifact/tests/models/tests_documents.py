@@ -168,3 +168,32 @@ class DocumentTestCase(TransactionTestCase):
                 self.assertIn(size, document.icons.keys())
             for generated_icon_url in document.icons.values():
                 self.assertIsNotNone(generated_icon_url)
+
+    def test_if_document_saves_clear_thumbnails_caches(self):
+        document = Document()
+        self.assertEqual(document.thumbnail, '')
+        self.assertEqual(document.search_thumbnail, '')
+        self.assertEqual(document.icon, '')
+        self.assertEqual(document.thumbnails, {})
+        image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
+        with self.open_as_django_file(image_file_path) as django_file:
+            document.file = django_file
+            document.save()
+            thumbnail = document.thumbnail
+            self.assertNotEqual(thumbnail, '')
+            search_thumbnail = document.search_thumbnail
+            self.assertNotEqual(search_thumbnail, '')
+            icon = document.icon
+            self.assertNotEqual(icon, '')
+            thumbnails = document.thumbnails
+            self.assertNotEqual(thumbnails, {})
+
+            pdf_file_path = Path(os.path.dirname(__file__), './files/pdf.pdf')
+            with self.open_as_django_file(pdf_file_path) as django_file2:
+                document.file = django_file2
+                document.save()
+                self.assertNotEqual(document.thumbnail, thumbnail)
+                self.assertNotEqual(
+                    document.search_thumbnail, search_thumbnail)
+                self.assertNotEqual(document.icon, icon)
+                self.assertNotEqual(document.thumbnails, thumbnails)

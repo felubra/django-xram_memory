@@ -172,6 +172,12 @@ class Document(File):
         if not self.name:
             self.name = self.label
         super().save(*args, **kwargs)
+        # limpe o cache das flags/campos, pois o arquivo pode ter mudado
+        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails']:
+            try:
+                delattr(self, attr_name)
+            except AttributeError:
+                pass
 
     def __str__(self):
         if self.document_id is not None:
