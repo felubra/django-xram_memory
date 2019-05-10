@@ -169,12 +169,6 @@ class News(Artifact):
         """
         Captura a notícia em formato para impressão e em PDF.
         """
-        # TODO: checar se o diretório existe, se existem permissões para salvar etc
-        # TODO: usar o System check framework
-        if not settings.PDF_ARTIFACT_DIR:
-            raise ValueError(
-                'NewsFetcher: o caminho para onde salvar as páginas não foi definido')
-
         import hashlib
         uniq_filename = (
             str(datetime.datetime.now().date()) + '_' +
