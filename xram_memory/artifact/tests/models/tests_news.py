@@ -21,6 +21,13 @@ class NewsTestCase(TestCase):
         news.save()
         self.assertNotEqual(news.title, '')
 
+    def test_string_value(self):
+        news = News(
+            url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
+        self.assertEqual(str(news), '(sem título)')
+        news.title = "Um teste"
+        self.assertEqual(str(news), news.title)
+
     def test_initial_flags_state(self):
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
