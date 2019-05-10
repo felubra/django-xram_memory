@@ -19,48 +19,38 @@ class Document(File):
     """
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
-    IMAGE_DOCUMENT_THUMBNAILS_ALIASES = [
-        '1280',
-        '640',
-        '360',
-    ]
+    IMAGE_DOCUMENT_THUMBNAILS_ALIASES = ['1280', '640', '360']
     mime_type = models.fields.CharField(
         verbose_name="Tipo",
         help_text="Tipo do arquivo",
         max_length=255,
         blank=True,
-        editable=False,
-    )
+        editable=False)
     is_user_object = models.BooleanField(
         verbose_name="Objeto criado pelo usuário?",
         help_text="Indica se o arquivo foi inserido diretamente por um usuário",
         editable=False,
-        default=True,
-    )
+        default=True)
     document_id = HashidField(
         verbose_name="Código do documento",
         help_text="Código através do qual os visitantes do site podem acessar esse documento.",
-        null=True
-    )
+        null=True)
     keywords = models.ManyToManyField(
         Keyword,
         verbose_name="Palavras-chave",
         related_name="%(class)s",
-        blank=True,
-    )
+        blank=True)
     subjects = models.ManyToManyField(
         Subject,
         verbose_name="Assuntos",
         related_name="%(class)s",
-        blank=True,
-    )
+        blank=True)
 
     published_date = models.DateTimeField(
         verbose_name='Data de publicação',
         help_text='Data da publicação original deste documento',
         blank=True,
-        null=True,
-    )
+        null=True)
 
     class Meta:
         verbose_name = "Documento"
@@ -116,29 +106,27 @@ class Document(File):
         """
         Propriedade usada para indexar a URL para este documento.
         """
-        if self.file:
+        try:
             return self.file.url
+        except:
+            return ''
 
     @cachedproperty
     def thumbnail(self):
         """
         Retorna a url para uma miniatura de visualização deste documento.
         """
-        if self.file:
-            try:
-                return get_thumbnailer(self.file)['document_thumbnail'].url
-            except:
-                return ''
-        return ''
+        try:
+            return get_thumbnailer(self.file)['document_thumbnail'].url
+        except:
+            return ''
 
     @cachedproperty
     def search_thumbnail(self):
-        if self.file:
-            try:
-                return get_thumbnailer(self.file)['thumbnail'].url
-            except:
-                return ''
-        return ''
+        try:
+            return get_thumbnailer(self.file)['thumbnail'].url
+        except:
+            return ''
 
     @cachedproperty
     def thumbnails(self):
@@ -147,33 +135,28 @@ class Document(File):
         """
         thumbnails_aliases = ['document_thumbnail']
         generated_thumbnails = {}
-        if self.file:
+        try:
             if getattr(self, 'mime_type', None) and 'image/' in self.mime_type:
                 thumbnails_aliases = thumbnails_aliases + \
                     self.IMAGE_DOCUMENT_THUMBNAILS_ALIASES
-            try:
-                for alias in thumbnails_aliases:
-                    generated_thumbnails[alias] = get_thumbnailer(self.file)[
-                        alias].url
-            except:
-                return {}
-            else:
-                return generated_thumbnails
-        return {}
+            for alias in thumbnails_aliases:
+                generated_thumbnails[alias] = get_thumbnailer(self.file)[
+                    alias].url
+        except:
+            return {}
+        else:
+            return generated_thumbnails
 
     @property
     def icons(self):
-        if self.file.file:
-            try:
-                thumbnails = dict(
-                    (size, self.file.get_thumbnail({
-                        'size': (int(size), int(size)),
-                        'crop': 'scale'
-                    }).url)
-                    for size in filer_settings.FILER_ADMIN_ICON_SIZES)
-                return thumbnails
-            except:
-                return 'file'
+        try:
+            thumbnails = dict(
+                (size, self.file.get_thumbnail(
+                    {'size': (int(size), int(size)), 'crop': 'scale'}).url)
+                for size in filer_settings.FILER_ADMIN_ICON_SIZES)
+            return thumbnails
+        except:
+            return 'file'
 
     @cachedproperty
     def icon(self):
