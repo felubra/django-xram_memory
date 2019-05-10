@@ -112,21 +112,18 @@ class News(Artifact):
         """
         Indica se existe ao menos uma captura em pdf associada a esta notícia.
         """
-        if self.pk is None:
-            return False
-        else:
+        try:
             return self.pdf_captures.prefetch_related(Prefetch(
                 "news"
             )).all().count() > 0
+        except:
+            return False
 
     @property
     def has_image(self):
         """
         Indica se esta notícia tem uma imagem associada.
         """
-        if self.pk is None:
-            return False
-        else:
             try:
                 image_capture = self.image_capture
                 return image_capture is not None
