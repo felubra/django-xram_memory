@@ -20,14 +20,25 @@ class DocumentTestCase(TransactionTestCase):
     serialized_rollback = True
     @contextmanager
     def open_as_django_file(self, filename):
+        """
+        Lê um arquivo em `pathname` e retorna um gerenciador de contexto com este arquivo
+        encapsulado em uma classe `File` do Django
+        """
         with open(filename, 'rb') as fd:
             django_file = DjangoFile(fd, name=filename)
             yield django_file
 
     def test_matches_all_filetypes(self):
+        """
+        Um Documento deve sempre retornar essa função como True, pois irá lidar com qualquer tipo de
+        arquivo.
+        """
         self.assertTrue(Document.matches_file_type(None, None, None))
 
     def test_initial_flags_state(self):
+        """
+        Testa o estado inicial das propriedades de um documento vazio.
+        """
         document = Document()
         for field in ['search_thumbnail', 'thumbnail', 'file_indexing', 'mime_type', 'document_id_indexing', 'icon']:
             value = getattr(document, field)
@@ -36,17 +47,26 @@ class DocumentTestCase(TransactionTestCase):
         for field in ['published_year', 'published_date']:
             value = getattr(document, field)
             self.assertIsNone(value)
+
         self.assertEqual(document.thumbnails, {})
         self.assertEqual(document.icons, 'file')
         self.assertEqual(str(document), 'None')
 
     def test_document_id_initial_state(self):
+        """
+        Testa o estado inicial de `document_id` e `set_document_id`
+        """
         document = Document()
         self.assertFalse(document.set_document_id())
         self.assertIsNone(document.document_id)
 
     @factory.django.mute_signals(post_save)
     def test_set_document_id_without_signals(self):
+        """
+        Testa o funcionamento de `set_document_id` e o estado de `document_id` após a invocação
+        dessa função. Desativa os sinais do django para poder controlar quando `set_document_id` é 
+        invocada.
+        """
         image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
@@ -59,6 +79,9 @@ class DocumentTestCase(TransactionTestCase):
             self.assertEqual(str(document), document.document_id.hashid)
 
     def test_set_document_id_after_normal_save(self):
+        """
+        Testa se `set_document_id` é invocada por um sinal depois de `Document.save()`.
+        """
         image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
@@ -68,6 +91,11 @@ class DocumentTestCase(TransactionTestCase):
 
     @factory.django.mute_signals(post_save)
     def test_determine_mime_type_without_signals(self):
+        """
+        Testa o funcionamento de `determine_mime_type` e o estado de `mime_type` após a invocação
+        dessa função. Desativa os sinais do django para poder controlar o momento em que
+        `determine_mime_type` é invocada.
+        """
         image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
@@ -79,6 +107,9 @@ class DocumentTestCase(TransactionTestCase):
             self.assertFalse(document.determine_mime_type())
 
     def test_determine_mime_type_after_normal_save(self):
+        """
+        Testa se `determine_mime_type` é invocada por um sinal depois de `Document.save()`.
+        """
         image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
@@ -86,6 +117,9 @@ class DocumentTestCase(TransactionTestCase):
             self.assertEqual(document.mime_type, 'image/jpeg')
 
     def test_determine_mime_type_with_failure(self):
+        """
+        Testa se uma possível falha em `determine_mime_type` será lidada corretamente.
+        """
         with patch.object(magic, 'from_buffer') as mocked_function:
             mocked_function.side_effect = os.error
             image_file_path = Path(os.path.dirname(
@@ -96,14 +130,23 @@ class DocumentTestCase(TransactionTestCase):
                 self.assertEqual(document.mime_type, '')
 
     def test_thumbnails_presence_for_image_document(self):
+        """
+        Determina se as pré-visualizações adicionais são geradas se o Documento for uma imagem.
+        """
         image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
             for size in Document.IMAGE_DOCUMENT_THUMBNAILS_ALIASES:
                 self.assertIn(size, document.thumbnails.keys())
+            for generated_thumbnail_url in document.thumbnails.values():
+                self.assertIsNotNone(generated_thumbnail_url)
 
     def test_image_thumbnails_absence_for_pdf_document(self):
+        """
+        Determina se as pré-visualizações adicionais NÃO são geradas se o Documento não for uma
+        imagem.
+        """
         image_file_path = Path(os.path.dirname(__file__), './files/pdf.pdf')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
@@ -112,6 +155,9 @@ class DocumentTestCase(TransactionTestCase):
                 self.assertNotIn(size, document.thumbnails.keys())
 
     def test_for_filer_icon_thumbnails_presence(self):
+        """
+        Verifica se os tamanhos dos ícones usados pelo app Filer são gerados corretamente.
+        """
         document = Document()
         self.assertEqual(document.icons, 'file')
         image_file_path = Path(os.path.dirname(__file__), './files/pdf.pdf')
