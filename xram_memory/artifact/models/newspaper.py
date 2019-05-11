@@ -56,6 +56,7 @@ class Newspaper(TraceableModel):
 
     @log_process(operation="adicionar um logo para um jornal")
     def set_logo_from_favicon(self):
+        try:
         icons = [icon for icon in favicon.get(
             self.url) if icon.format in ['png', 'jpeg', 'jpg', 'gif']]
         if len(icons):
@@ -63,7 +64,8 @@ class Newspaper(TraceableModel):
             file_ext = icon.format
             response = requests.get(icon.url, stream=True)
             fd, file_path, = tempfile.mkstemp()
-            filename = "{}{}.{}".format(self.title[:255], '_logo', file_ext)
+                filename = "{}{}.{}".format(
+                    self.title[:255], '_logo', file_ext)
             with open(fd, 'wb+') as image:
                 for chunk in response.iter_content(1024):
                     image.write(chunk)
@@ -77,6 +79,10 @@ class Newspaper(TraceableModel):
         else:
             raise ValueError(
                 "Nenhum ícone válido foi encontrado para o jornal/site")
+        except:
+            return False
+        else:
+            return True
 
     @property
     def has_basic_info(self):
@@ -84,24 +90,18 @@ class Newspaper(TraceableModel):
 
     @property
     def has_logo(self):
-        if self.pk is None:
-            return False
-        else:
             try:
                 logo_file = self.logo.file
-                return True
+            return logo_file is not None
             except:
                 return False
 
     @property
     def favicon_logo(self):
-        if self.logo:
             try:
                 return get_thumbnailer(self.logo)['favicon'].url
             except:
                 return ''
-        else:
-            return ''
 
     class Meta:
         verbose_name = "Site de notícias"
