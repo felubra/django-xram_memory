@@ -21,28 +21,25 @@ class Newspaper(TraceableModel):
         verbose_name="Título",
         help_text="Título",
         max_length=255,
-        blank=True,
-    )
+        blank=True)
     url = models.URLField(
         verbose_name="Endereço",
         help_text="Endereço do site",
         max_length=255,
         unique=True,
         null=False,
-        validators=[URLValidator],
-    )
+        validators=[URLValidator])
     description = models.TextField(
         verbose_name="Descrição",
         help_text='A descrição desse veículo/site',
-        blank=True,
-    )
+        blank=True)
     logo = ThumbnailerField(
         verbose_name="Logotipo",
         blank=True,
         upload_to='news_sources_logos',
         validators=[FileValidator(
-            content_types=settings.VALID_FILE_UPLOAD_IMAGES_MIME_TYPES)],
-    )
+            content_types=settings.VALID_FILE_UPLOAD_IMAGES_MIME_TYPES)])
+    # TODO: campo brand ('marca')
 
     def __str__(self):
         return self.title if self.title else '(site sem título)'
@@ -56,28 +53,28 @@ class Newspaper(TraceableModel):
     @log_process(operation="adicionar um logo para um jornal")
     def set_logo_from_favicon(self):
         try:
-        icons = [icon for icon in favicon.get(
-            self.url) if icon.format in ['png', 'jpeg', 'jpg', 'gif']]
-        if len(icons):
-            icon = icons[0]
-            file_ext = icon.format
-            response = requests.get(icon.url, stream=True)
-            fd, file_path, = tempfile.mkstemp()
+            icons = [icon for icon in favicon.get(
+                self.url) if icon.format in ['png', 'jpeg', 'jpg', 'gif']]
+            if len(icons):
+                icon = icons[0]
+                file_ext = icon.format
+                response = requests.get(icon.url, stream=True)
+                fd, file_path, = tempfile.mkstemp()
                 filename = "{}{}.{}".format(
                     self.title[:255], '_logo', file_ext)
-            with open(fd, 'wb+') as image:
-                for chunk in response.iter_content(1024):
-                    image.write(chunk)
-                with transaction.atomic():
-                    django_file = DjangoFile(image, name=filename)
-                    # apague o logotipo já existente, se for o caso
-                    if self.has_logo:
-                        self.logo.delete()
-                    self.logo.save(filename, django_file)
-            os.remove(file_path)
-        else:
-            raise ValueError(
-                "Nenhum ícone válido foi encontrado para o jornal/site")
+                with open(fd, 'wb+') as image:
+                    for chunk in response.iter_content(1024):
+                        image.write(chunk)
+                    with transaction.atomic():
+                        django_file = DjangoFile(image, name=filename)
+                        # apague o logotipo já existente, se for o caso
+                        if self.has_logo:
+                            self.logo.delete()
+                        self.logo.save(filename, django_file)
+                os.remove(file_path)
+            else:
+                raise ValueError(
+                    "Nenhum ícone válido foi encontrado para o jornal/site")
         except:
             return False
         else:
@@ -89,18 +86,18 @@ class Newspaper(TraceableModel):
 
     @property
     def has_logo(self):
-            try:
-                logo_file = self.logo.file
+        try:
+            logo_file = self.logo.file
             return logo_file is not None
-            except:
-                return False
+        except:
+            return False
 
     @property
     def favicon_logo(self):
-            try:
-                return get_thumbnailer(self.logo)['favicon'].url
-            except:
-                return ''
+        try:
+            return get_thumbnailer(self.logo)['favicon'].url
+        except:
+            return ''
 
     class Meta:
         verbose_name = "Site de notícias"

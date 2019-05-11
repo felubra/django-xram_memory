@@ -3,9 +3,11 @@ from xram_memory.artifact.news_fetcher import NewsFetcher
 from django.contrib.admin.options import ModelAdmin
 from xram_memory.artifact.models import Newspaper
 from django.contrib.admin.sites import AdminSite
+from contextlib import contextmanager
 from django.urls import reverse
 from unittest import mock
 from loguru import logger
+import favicon
 
 logger.remove()
 
@@ -14,28 +16,56 @@ BOGUS_NEWSPAPER = mock.Mock(
 
 
 class NewspaperEssentialTests(TestCase):
-    def init_mininal(self):
-        return Newspaper(url="https://www.folha.uol.com.br/")
+    @contextmanager
+    def minimal_newspaper(self):
+        yield Newspaper(url="https://www.folha.uol.com.br/")
 
     def test_has_basic_info(self):
-        newspaper = self.init_mininal()
-        self.assertFalse(newspaper.has_basic_info)
+        with self.minimal_newspaper() as newspaper:
+            self.assertFalse(newspaper.has_basic_info)
 
-        newspaper.title = newspaper.url
-        self.assertFalse(newspaper.has_basic_info)
+            newspaper.title = newspaper.url
+            self.assertFalse(newspaper.has_basic_info)
 
-        newspaper.title = "Folha de São Paulo"
-        self.assertTrue(newspaper.has_basic_info)
-
-        with mock.patch('xram_memory.artifact.news_fetcher.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
-            newspaper = self.init_mininal()
-            # TODO: mockar NewsFetcher.build_newspaper
-            newspaper.set_basic_info()
+            newspaper.title = "Folha de São Paulo"
             self.assertTrue(newspaper.has_basic_info)
 
-    def test_has_logo(self):
-        newspaper = self.init_mininal()
-        self.assertFalse(newspaper.has_logo)
+    def test_has_basic_info2(self):
+        with self.minimal_newspaper() as newspaper:
+            with mock.patch('xram_memory.artifact.news_fetcher.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
+                newspaper.set_basic_info()
+                self.assertTrue(newspaper.has_basic_info)
 
-        newspaper.save()
+    def test_has_logo(self):
+        with self.minimal_newspaper() as newspaper:
+            self.assertFalse(newspaper.has_logo)
+            newspaper.save()
+            self.assertFalse(newspaper.has_logo)
+
+    def test_string_value(self):
+        with self.minimal_newspaper() as newspaper:
+            self.assertEqual(str(newspaper), '(site sem título)')
+            with mock.patch('xram_memory.artifact.news_fetcher.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
+                newspaper.set_basic_info()
+                self.assertEqual(str(newspaper), BOGUS_NEWSPAPER.brand)
+
+    def test_initial_flags_state(self):
+        newspaper = Newspaper()
+        self.assertFalse(newspaper.has_basic_info)
         self.assertFalse(newspaper.has_logo)
+        self.assertEqual(newspaper.favicon_logo, '')
+
+    def test_set_logo_from_favicon(self):
+        with self.minimal_newspaper() as newspaper:
+            result = newspaper.set_logo_from_favicon()
+            self.assertTrue(result)
+            self.assertTrue(newspaper.has_logo)
+            self.assertNotEqual(newspaper.favicon_logo, '')
+            logo_filename = newspaper.logo.file.name
+            result = newspaper.set_logo_from_favicon()
+            self.assertTrue(result)
+            self.assertNotEqual(logo_filename, newspaper.logo.file.name)
+            with mock.patch.object(favicon, 'get') as affected_function:
+                affected_function.return_value = []
+                result = newspaper.set_logo_from_favicon()
+                self.assertFalse(result)
