@@ -45,8 +45,7 @@ class Newspaper(TraceableModel):
     )
 
     def __str__(self):
-        return self.title
-    # TODO: campo brand ('marca')
+        return self.title if self.title else '(site sem título)'
 
     @log_process(operation="adicionar informações básicas para um jornal")
     def set_basic_info(self):
