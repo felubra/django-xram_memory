@@ -40,45 +40,38 @@ class News(Artifact):
         max_length=255,
         unique=True,
         null=False,
-        validators=[URLValidator],
-    )
+        validators=[URLValidator])
     # TODO: adicionar validador de URL
     archived_news_url = models.URLField(
         verbose_name="Endereço no Internet Archive",
         help_text="Endereço da notícia no <a href='https://archive.org/'>Archive.org</a>",
         max_length=255,
         null=True,
-        blank=True,
-    )
+        blank=True)
     authors = models.TextField(
         verbose_name="Autores",
         help_text='Nomes dos autores, separados por vírgula',
-        blank=True,
-    )
+        blank=True)
     body = models.TextField(
         verbose_name="Texto da notícia",
         help_text="Texto integral da notícia",
         null=True,
-        blank=True,
-    )
+        blank=True)
     published_date = models.DateTimeField(
         verbose_name='Data de publicação',
         help_text='Data em que a notícia foi publicada',
         blank=True,
-        null=True,
-    )
+        null=True)
     language = models.CharField(
         max_length=2,
         null=True,
         blank=True,
-        default='pt',
-    )
+        default='pt')
     newspaper = models.ForeignKey(
         Newspaper,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='news'
-    )
+        related_name='news')
 
     class Meta:
         verbose_name = "Notícia"
@@ -124,11 +117,11 @@ class News(Artifact):
         """
         Indica se esta notícia tem uma imagem associada.
         """
-            try:
-                image_capture = self.image_capture
-                return image_capture is not None
-            except:
-                return False
+        try:
+            image_capture = self.image_capture
+            return image_capture is not None
+        except:
+            return False
 
     @log_process(operation="pegar o título")
     def set_web_title(self):
@@ -165,12 +158,11 @@ class News(Artifact):
     def add_pdf_capture(self):
         """
         Captura a notícia em formato para impressão e em PDF.
+        TODO: usar um hash com sal na geração do nome do arquivo.
         """
         import hashlib
-        uniq_filename = (
-            str(datetime.datetime.now().date()) + '_' +
-            str(datetime.datetime.now().time()).replace(':', '.')
-        )
+        uniq_filename = (str(datetime.datetime.now().date()) + '_' +
+                         str(datetime.datetime.now().time()).replace(':', '.'))
         filename = hashlib.md5(uniq_filename.encode(
             'utf-8')).hexdigest() + '.pdf'
 
@@ -183,9 +175,9 @@ class News(Artifact):
                                             folder=folder,  owner=self.modified_by,
                                             published_date=now(), is_user_object=False,
                                             is_public=True)
-                # Reaproveite um arquivo já existente, com base no seu hash, de forma que um arquivo possa ser utilizado
-                # várias vezes, por várias capturas. Ao que parece, contudo o wkhtmltopdf sempre gera arquivos
-                # diferentes...
+                # Reaproveite um arquivo já existente, com base no seu hash, de forma que um
+                # arquivo possa ser utilizado várias vezes, por várias capturas. Ao que parece,
+                # contudo o wkhtmltopdf sempre gera arquivos diferentes...
                 try:
                     pdf_document = Document.objects.get(
                         sha1=new_pdf_document.sha1)
@@ -206,11 +198,12 @@ class News(Artifact):
             keywords = []
             for keyword in self._keywords:
                 try:
-                    # tente achar a palavra-chave pelo nome ou pela slug
+                    # tente achar a palavra-chave pelo nome
                     keywords.append(Keyword.objects.get(name=keyword))
                 except Keyword.DoesNotExist:
                     try:
-                        keywords.append(Keyword.objects.create(name=keyword, created_by=self.modified_by,
+                        keywords.append(Keyword.objects.create(name=keyword,
+                                                               created_by=self.modified_by,
                                                                modified_by=self.modified_by))
                     except IntegrityError:
                         pass
@@ -223,6 +216,7 @@ class News(Artifact):
         Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e cria uma
         instância dela como documento de artefato (Document) e captura de imagem de notícia
         (NewsImageCapture).
+        TODO: usar um hash com sal na geração do nome do arquivo.
         """
         original_filename = Path(self._image).name
         original_extension = Path(self._image).suffix
@@ -244,10 +238,11 @@ class News(Artifact):
                 new_image_document = Document(file=django_file, name=filename,
                                               original_filename=original_filename,
                                               is_user_object=False,
-                                              folder=folder, published_date=now(), owner=self.modified_by,
+                                              folder=folder, published_date=now(),
+                                              owner=self.modified_by,
                                               is_public=True)
-                # Reaproveite um arquivo já existente, com base no seu hash, de forma que um arquivo possa ser utilizado
-                # várias vezes, por várias capturas.
+                # Reaproveite um arquivo já existente, com base no seu hash,
+                # de forma que um arquivo possa ser utilizado várias vezes, por várias capturas.
                 try:
                     image_document = Document.objects.get(
                         sha1=new_image_document.sha1)
@@ -259,6 +254,13 @@ class News(Artifact):
 
                 NewsImageCapture.objects.create(
                     image_document=image_document, original_url=self._image, news=self)
+
+        # limpe o cache das flags/campos que dependem de uma captura de imagem
+        for attr_name in ['thumbnail', 'image_capture_indexing']:
+            try:
+                delattr(self, attr_name)
+            except AttributeError:
+                pass
 
     @cachedproperty
     def image_capture_indexing(self):
