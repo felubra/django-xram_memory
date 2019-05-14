@@ -1,18 +1,20 @@
 import os
 import pdfkit
-import tempfile
 import requests
+import tempfile
+from .plugins import *
 from goose3 import Goose
 from bs4 import BeautifulSoup
 from newspaper import Article
-from celery.contrib import rdb
 from goose3.image import Image
+from celery.contrib import rdb
 import newspaper as newspaper3k
 from functools import lru_cache
+from django.conf import settings
 from contextlib import contextmanager
-from django.utils.timezone import now
-from django.utils.timezone import make_aware
+from .base_plugin import NewsFetcherPlugin
 from xram_memory.lib.stopwords import stopwords
+from django.utils.timezone import make_aware, now
 from django.utils.dateparse import parse_datetime
 
 
@@ -22,19 +24,11 @@ class NewsFetcher:
     """
     @staticmethod
     def fetch_archived_url(url):
-        """
-        Verifica se existe adiciona a URL de uma versão arquivada desta notícia no `Internet Archive`
-        """
-        response = requests.get(
-            "https://archive.org/wayback/available?url={}".format(url))
-        response.raise_for_status()
-        response = response.json()
-
-        if (response["archived_snapshots"] and response["archived_snapshots"]["closest"] and
-                response["archived_snapshots"]["closest"]["available"]):
-            closest_archive = response["archived_snapshots"]["closest"]
-            return closest_archive["url"]
-        return ''
+        archived_url = ''
+        for Plugin in NewsFetcherPlugin.get_archive_plugins():
+            if Plugin.fetch(url):
+                archived_url = Plugin.fetch(url)
+        return archived_url
 
     @staticmethod
     @contextmanager
