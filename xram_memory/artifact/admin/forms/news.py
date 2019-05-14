@@ -1,6 +1,6 @@
-from django import forms
 from xram_memory.artifact.models import News
-from xram_memory.artifact.news_fetcher import NewsFetcher
+from xram_memory.lib import NewsFetcher
+from django import forms
 
 
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):

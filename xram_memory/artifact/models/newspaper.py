@@ -1,4 +1,3 @@
-from xram_memory.artifact.news_fetcher import NewsFetcher
 from xram_memory.logger.decorators import log_process
 from easy_thumbnails.fields import ThumbnailerField
 from xram_memory.base_models import TraceableModel
@@ -6,6 +5,7 @@ from easy_thumbnails.files import get_thumbnailer
 from django.core.files import File as DjangoFile
 from django.core.validators import URLValidator
 from xram_memory.utils import FileValidator
+from xram_memory.lib import NewsFetcher
 from django.db import transaction
 from django.conf import settings
 from django.db import models

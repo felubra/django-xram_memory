@@ -1,8 +1,8 @@
 from django.test import TestCase, Client, TransactionTestCase
-from xram_memory.artifact.news_fetcher import NewsFetcher
 from django.contrib.admin.options import ModelAdmin
 from xram_memory.artifact.models import Newspaper
 from django.contrib.admin.sites import AdminSite
+from xram_memory.lib import NewsFetcher
 from contextlib import contextmanager
 from django.urls import reverse
 from unittest import mock
@@ -32,7 +32,7 @@ class NewspaperEssentialTests(TestCase):
 
     def test_has_basic_info2(self):
         with self.minimal_newspaper() as newspaper:
-            with mock.patch('xram_memory.artifact.news_fetcher.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
+            with mock.patch('xram_memory.lib.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
                 newspaper.set_basic_info()
                 self.assertTrue(newspaper.has_basic_info)
 
@@ -45,7 +45,7 @@ class NewspaperEssentialTests(TestCase):
     def test_string_value(self):
         with self.minimal_newspaper() as newspaper:
             self.assertEqual(str(newspaper), '(site sem título)')
-            with mock.patch('xram_memory.artifact.news_fetcher.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
+            with mock.patch('xram_memory.lib.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
                 newspaper.set_basic_info()
                 self.assertEqual(str(newspaper), BOGUS_NEWSPAPER.brand)
 

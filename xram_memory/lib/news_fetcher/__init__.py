@@ -9,10 +9,10 @@ from celery.contrib import rdb
 from goose3.image import Image
 import newspaper as newspaper3k
 from functools import lru_cache
-from xram_memory.lib import stopwords
 from contextlib import contextmanager
 from django.utils.timezone import now
 from django.utils.timezone import make_aware
+from xram_memory.lib.stopwords import stopwords
 from django.utils.dateparse import parse_datetime
 
 
