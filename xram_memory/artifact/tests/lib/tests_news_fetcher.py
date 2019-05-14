@@ -22,17 +22,17 @@ import os
 logger.remove()
 
 
-@requests_mock.Mocker()
 class NewsFetcherTestCase(TestCase):
 
     def setUp(self):
         with open(str(Path(os.path.dirname(__file__), 'mocks', '0.html')), encoding='utf-8') as f:
             self.article_content = f.read()
 
-    def test_fetch_basic_basic_fields(self, m):
+    def test_fetch_basic_basic_fields(self):
         BASIC_FIELDS = ['title', 'image', 'body', 'teaser',
                         'published_date', 'authors', 'keywords', 'language']
 
+        with requests_mock.Mocker() as m:
         article_url = "https://politica.estadao.com.br/blogs/fausto-macedo/justica-decreta-bloqueio-de-r-5-bilhoes/"
         m.register_uri('GET', article_url,
                        text=self.article_content)
@@ -42,8 +42,9 @@ class NewsFetcherTestCase(TestCase):
         for field in BASIC_FIELDS:
             self.assertIn(field, basic_info)
 
-    def test_fetch_basic_basic_no_stopword_keyword(self, m):
+    def test_fetch_basic_basic_no_stopword_keyword(self):
         article_url = "https://politica.estadao.com.br/blogs/fausto-macedo/justica-decreta-bloqueio-de-r-5-bilhoes/"
+        with requests_mock.Mocker() as m:
         m.register_uri('GET', article_url,
                        text=self.article_content)
 
