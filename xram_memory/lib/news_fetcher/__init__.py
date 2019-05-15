@@ -1,18 +1,18 @@
 import os
-import pdfkit
-import requests
 import tempfile
+import requests
 from .plugins import *
 from goose3 import Goose
 from bs4 import BeautifulSoup
 from newspaper import Article
-from goose3.image import Image
 from celery.contrib import rdb
-import newspaper as newspaper3k
+from goose3.image import Image
 from functools import lru_cache
+import newspaper as newspaper3k
 from django.conf import settings
 from contextlib import contextmanager
 from .base_plugin import NewsFetcherPlugin
+from django.utils.functional import partition
 from xram_memory.lib.stopwords import stopwords
 from django.utils.timezone import make_aware, now
 from django.utils.dateparse import parse_datetime
@@ -31,26 +31,18 @@ class NewsFetcher:
         return archived_url
 
     @staticmethod
-    @contextmanager
     def get_pdf_capture(url):
-        """
-        Captura uma página em pdf e, como gerenciador de contexto, retorna um ponteiro para o 
-        arquivo criado. Fecha e apaga o arquivo ao final.
-        """
-        fd, file_path, = tempfile.mkstemp()
-        pdfkit.from_url(url, file_path, options={
-            'print-media-type': None,
-            'disable-javascript': None,
-            'footer-center': now(),
-            'footer-font-size': 8,
-            'header-center': url,
-            'header-font-size': 6,
-            'log-level': 'none',
-            'image-quality': 85,
-        })
-        with open(fd, 'rb') as f:
-            yield f
-        os.remove(file_path)
+        specialized_plugins, failback_plugins = partition(
+            lambda p: getattr(p, 'failback', False) == True, NewsFetcherPlugin.get_pdf_capture_plugins())
+        for Plugin in specialized_plugins:
+            if Plugin.matches(url):
+                return Plugin.get_pdf_capture(url)
+        else:
+            try:
+                return failback_plugins[0].get_pdf_capture(url)
+            except IndexError:
+                raise IndexError(
+                    "Nenhum plugin de captura em pdf localizado.")
 
     @staticmethod
     @contextmanager
