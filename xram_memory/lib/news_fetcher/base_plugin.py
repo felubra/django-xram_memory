@@ -37,10 +37,24 @@ def PluginRegistryFor(plugin_type):
 
 
 class ArchiveNewsFetcherPlugin(metaclass=PluginRegistryFor("Archive")):
+    """
+    Plugins, subclasses desta, devem ter os atributos abaixo:
+
+    fetch: função estática que recebe uma url e retorna outra url para a versão arquivada da url
+    passada num arquivo qualquer.
+    """
     pass
 
 
 class PDFCaptureNewsFetcherPlugin(metaclass=PluginRegistryFor("PDFCapture")):
+    """
+    Plugins, subclasses desta, devem ter os atributos abaixo:
+
+    get_pdf_capture: função estática que recebe uma url e retorna um ponteiro para um arquivo aberto
+    com a captura em PDF já gerada em seu conteúdo. A função deve implementar um gerenciador de
+    contexto, sendo que o ponteiro/arquivo deve ser retornado ao se entrar no contexto e apagado
+    na saída do contexto.
+    """
     pass
 
 
