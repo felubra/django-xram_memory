@@ -1,35 +1,48 @@
-class NewsFetcherPluginMount(type):
-    def __init__(cls, name, bases, attrs):
-        if not hasattr(cls, 'plugins'):
-            cls.plugins = []
-        else:
-            cls.plugins.append(cls)
+PLUGIN_TYPES = ['Archive', 'PDFCapture', 'BasicInfo']
 
 
-class NewsFetcherPlugin(metaclass=NewsFetcherPluginMount):
+def PluginRegistryFor(plugin_type):
     """
-    Ponto de montagem para plugins usados pelo serviço NewsFetcher.
-    Plugins que implementam essa class precisam prover os seguintes atributos:
-    ========  ========================================================
-    type      O tipo do plugin. Pode ser:
-                'archive': plugin que busca uma versão arquivada
-                para uma url em determinado serviço de arquivamento.
-                'pdf_capture': um plugin especializado na geração de
-                captura em pdf de uma determinada url, de acordo com
-                um determinado padrão de url
-                'basic_info': um plugin cujo trabalho se resume em
-                retornar informações sobre determinada notícia, com
-                base em sua url
-    ========  ========================================================
+    Função fábrica para geração de registros para tipos de plugins.
+    Ele gera uma metaclasse que é usada para guardar os tipos de plugins implementados.
     """
-    @classmethod
-    def get_archive_plugins(cls):
-        return [p for p in cls.plugins if p.plugin_type == "archive"]
+    if plugin_type not in PLUGIN_TYPES:
+        raise ValueError(
+            "Tipo de plugin não suportado: {}".format(plugin_type))
 
-    @classmethod
-    def get_pdf_capture_plugins(cls):
-        return [p for p in cls.plugins if p.plugin_type == "pdf_capture"]
+    class PluginRegistry(type):
+        """
+        Ponto de montagem para plugins usados pelo serviço NewsFetcher.
+        O objeto da classe guarda uma lista com os plugins registrados - o registro acontece na
+        inicialização da própria classe do plugin.
+        """
+        def __init__(cls, name, bases, attrs):
+            if not hasattr(cls, 'plugins'):
+                # Esta é uma classe de registro de plugins, crie uma lista vazia.
+                cls.plugins = []
+            else:
+                # Esta é uma classe que implementa um tipo de plugin, adicione-a na lista.
+                cls.plugins.append(cls)
 
-    @classmethod
-    def get_basic_info_plugins(cls):
-        return [p for p in cls.plugins if p.plugin_type == "basic_info"]
+        def get_plugins(self):
+            """
+            Retorna os plugins registrados.
+            Como efeito colateral, esta função também estará disponível nos plugins.
+            """
+            return self.plugins
+
+    PluginRegistry.__name__ = '{}{}'.format(
+        plugin_type, PluginRegistry.__name__)
+    return PluginRegistry
+
+
+class ArchiveNewsFetcherPlugin(metaclass=PluginRegistryFor("Archive")):
+    pass
+
+
+class PDFCaptureNewsFetcherPlugin(metaclass=PluginRegistryFor("PDFCapture")):
+    pass
+
+
+class BasicInfoNewsFetcherPlugin(metaclass=PluginRegistryFor("BasicInfo")):
+    pass

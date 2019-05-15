@@ -1,4 +1,4 @@
-from xram_memory.lib.news_fetcher.base_plugin import NewsFetcherPlugin
+from xram_memory.lib.news_fetcher.base_plugin import PDFCaptureNewsFetcherPlugin
 from django.utils.timezone import make_aware, now
 from contextlib import contextmanager
 from bs4 import BeautifulSoup
@@ -9,8 +9,7 @@ import os
 import re
 
 
-class DefaultPDFCapture(NewsFetcherPlugin):
-    plugin_type = 'pdf_capture'
+class DefaultPDFCapture(PDFCaptureNewsFetcherPlugin):
     failback = True
 
     @staticmethod
@@ -35,7 +34,7 @@ class DefaultPDFCapture(NewsFetcherPlugin):
         os.remove(file_path)
 
 
-class G1PDFCapture(NewsFetcherPlugin):
+class G1PDFCapture(PDFCaptureNewsFetcherPlugin):
     """
     Classe que implementa a captura de notícias do portal G1 da Globo (https://g1.globo.com/).
     O site desfoca as imagens com estilos e um atributo src contendo dados (codificados em Base 64)
@@ -52,8 +51,6 @@ class G1PDFCapture(NewsFetcherPlugin):
     página. A função get_pdf_capture faz isso, mas também faz a captura normal se não encontrar os
     elementos sobre os quais fazer a substituição.
     """
-    plugin_type = 'pdf_capture'
-
     @staticmethod
     def matches(url):
         return bool(re.match(r"^https?:\/\/g1\.globo\.com\/.*$", url))

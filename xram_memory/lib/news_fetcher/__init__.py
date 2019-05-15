@@ -1,6 +1,6 @@
 import os
-import tempfile
 import requests
+import tempfile
 from .plugins import *
 from goose3 import Goose
 from bs4 import BeautifulSoup
@@ -11,11 +11,12 @@ from functools import lru_cache
 import newspaper as newspaper3k
 from django.conf import settings
 from contextlib import contextmanager
-from .base_plugin import NewsFetcherPlugin
 from django.utils.functional import partition
 from xram_memory.lib.stopwords import stopwords
 from django.utils.timezone import make_aware, now
 from django.utils.dateparse import parse_datetime
+from .base_plugin import (ArchiveNewsFetcherPlugin, PDFCaptureNewsFetcherPlugin,
+                          BasicInfoNewsFetcherPlugin)
 
 
 class NewsFetcher:
@@ -25,7 +26,7 @@ class NewsFetcher:
     @staticmethod
     def fetch_archived_url(url):
         archived_url = ''
-        for Plugin in NewsFetcherPlugin.get_archive_plugins():
+        for Plugin in ArchiveNewsFetcherPlugin.get_plugins():
             if Plugin.fetch(url):
                 archived_url = Plugin.fetch(url)
         return archived_url
@@ -33,7 +34,8 @@ class NewsFetcher:
     @staticmethod
     def get_pdf_capture(url):
         specialized_plugins, failback_plugins = partition(
-            lambda p: getattr(p, 'failback', False) == True, NewsFetcherPlugin.get_pdf_capture_plugins())
+            lambda p: getattr(p, 'failback', False) == True,
+            PDFCaptureNewsFetcherPlugin.get_plugins())
         for Plugin in specialized_plugins:
             if Plugin.matches(url):
                 return Plugin.get_pdf_capture(url)

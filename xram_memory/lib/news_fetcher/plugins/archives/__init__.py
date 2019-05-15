@@ -1,10 +1,8 @@
 import requests
-from xram_memory.lib.news_fetcher.base_plugin import NewsFetcherPlugin
+from xram_memory.lib.news_fetcher.base_plugin import ArchiveNewsFetcherPlugin
 
 
-class ArchiveORGArchiveFetcher(NewsFetcherPlugin):
-    plugin_type = 'archive'
-
+class ArchiveORGArchiveFetcher(ArchiveNewsFetcherPlugin):
     @staticmethod
     def fetch(url):
         """
