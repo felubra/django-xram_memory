@@ -25,18 +25,33 @@ class NewsFetcher:
 
     @staticmethod
     def get_pdf_capture(url):
+        failed_plugins_count = 0
         specialized_plugins, failback_plugins = partition(
             lambda p: getattr(p, 'failback', False) == True,
             PDFCaptureNewsFetcherPlugin.get_plugins())
-        for Plugin in specialized_plugins:
-            if Plugin.matches(url):
-                return Plugin.get_pdf_capture(url)
+        try:
+            for Plugin in specialized_plugins:
+                try:
+                    if Plugin.matches(url):
+                        return Plugin.get_pdf_capture(url)
+                except:
+                    failed_plugins_count += 1
+                    pass
+            else:
+                try:
+                    return failback_plugins[0].get_pdf_capture(url)
+                except IndexError:
+                    raise RuntimeError(
+                        "Nenhum plugin de captura em pdf registrado.")
+                except:
+                    raise RuntimeError(
+                        "Nenhum plugin de captura em pdf funcionou.")
+        except:
+            raise
         else:
-            try:
-                return failback_plugins[0].get_pdf_capture(url)
-            except IndexError:
-                raise IndexError(
-                    "Nenhum plugin de captura em pdf localizado.")
+            if failed_plugins_count == len(specialized_plugins):
+                raise RuntimeError(
+                    "Nenhum plugin de captura em pdf funcionou.")
 
     @staticmethod
     @contextmanager
@@ -56,38 +71,47 @@ class NewsFetcher:
     @staticmethod
     @lru_cache(maxsize=2)
     def fetch_basic_info(url, fetch_images=True):
+        failed_plugins_count = 0
         plugins = BasicInfoNewsFetcherPlugin.get_plugins()
         basic_info = BasicInfoNewsFetcherPlugin.BASIC_EMPTY_INFO
-        if len(plugins):
-            with requests.get(url, allow_redirects=True) as r:
-                r.raise_for_status()
-                html = r.content.decode("utf-8")
-                for plugin in plugins:
-                    try:
-                        result = plugin.parse(url, html=html)
-                        """
-                        Utilize uma abordagem conservadora em que um valor no dicionário de dados
-                        da notícia só é alterado se estiver vazio. A exceção fica para o caso das
-                        palavras-chave (quanto mais palavras melhor).
-                        """
-                        for key in BasicInfoNewsFetcherPlugin.BASIC_EMPTY_INFO.keys():
-                            if key == 'keywords':
-                                for keyword in result['keywords']:
-                                    if keyword not in basic_info['keywords']:
-                                        basic_info['keywords'].append(keyword)
-                                continue
-                            basic_info[key] = (result[key]
-                                               if result[key] not in ('', [], None,) and (
-                                getattr(basic_info, key, None) is None or basic_info[key] in (
-                                    '', [],))
-                                else basic_info[key])
-                    except:
-                        pass
-
-            return basic_info
+        try:
+            if len(plugins):
+                with requests.get(url, allow_redirects=True) as r:
+                    r.raise_for_status()
+                    html = r.content.decode("utf-8")
+                    for plugin in plugins:
+                        try:
+                            result = plugin.parse(url, html=html)
+                            """
+                            Utilize uma abordagem conservadora em que um valor no dicionário de dados
+                            da notícia só é alterado se estiver vazio. A exceção fica para o caso das
+                            palavras-chave (quanto mais palavras melhor).
+                            """
+                            for key in BasicInfoNewsFetcherPlugin.BASIC_EMPTY_INFO.keys():
+                                if key == 'keywords':
+                                    for keyword in result['keywords']:
+                                        if keyword not in basic_info['keywords']:
+                                            basic_info['keywords'].append(
+                                                keyword)
+                                    continue
+                                basic_info[key] = (result[key] if result[key] not in ('', [], None,) and (getattr(
+                                    basic_info, key, None) is None or basic_info[key] in ('', [],)) else basic_info[key])
+                        except:
+                            # não falhe completamente se apenas um plugin falhar, mas mantenha um
+                            # registro da quantidade de plugins que falharam...
+                            failed_plugins_count += 1
+                            pass
+                return basic_info
+            else:
+                raise RuntimeError(
+                    "Nenhum plugin para busca de informações básicas registrado.")
+        except:
+            raise
         else:
-            raise IndexError(
-                "Nenhum plugin para busca de informações básicas localizado.")
+            # ...se todos os plugins falharam, então falhe.
+            if failed_plugins_count == len(plugins):
+                raise RuntimeError(
+                    "Todos os plugins de captura de dados básicos falharam.")
 
     @staticmethod
     @lru_cache(maxsize=2)
