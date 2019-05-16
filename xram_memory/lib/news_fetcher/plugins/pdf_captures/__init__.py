@@ -1,4 +1,4 @@
-from xram_memory.lib.news_fetcher.base_plugin import PDFCaptureNewsFetcherPlugin
+from xram_memory.lib.news_fetcher.plugin import PDFCaptureNewsFetcherPlugin
 from django.utils.timezone import make_aware, now
 from contextlib import contextmanager
 from bs4 import BeautifulSoup

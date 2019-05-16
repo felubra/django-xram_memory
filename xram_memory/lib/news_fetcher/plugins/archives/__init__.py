@@ -1,5 +1,5 @@
 import requests
-from xram_memory.lib.news_fetcher.base_plugin import ArchiveNewsFetcherPlugin
+from xram_memory.lib.news_fetcher.plugin import ArchiveNewsFetcherPlugin
 
 
 class ArchiveORGArchiveFetcher(ArchiveNewsFetcherPlugin):

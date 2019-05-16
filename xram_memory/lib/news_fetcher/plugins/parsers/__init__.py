@@ -1,6 +1,6 @@
 from django.utils.timezone import make_aware
 from newspaper import Article
-from xram_memory.lib.news_fetcher.base_plugin import BasicInfoNewsFetcherPlugin
+from xram_memory.lib.news_fetcher.plugin import BasicInfoNewsFetcherPlugin
 from goose3 import Goose, Image
 
 
