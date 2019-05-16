@@ -18,10 +18,23 @@ class NewsFetcher:
     @staticmethod
     def fetch_archived_url(url):
         archived_url = ''
-        for Plugin in ArchiveNewsFetcherPlugin.get_plugins():
-            if Plugin.fetch(url):
-                archived_url = Plugin.fetch(url)
-        return archived_url
+        plugins = ArchiveNewsFetcherPlugin.get_plugins()
+        failed_plugins_count = 0
+        try:
+            for Plugin in ArchiveNewsFetcherPlugin.get_plugins():
+                try:
+                    archived_url = Plugin.fetch(url)
+                    if archived_url:
+                        return archived_url
+                except:
+                    failed_plugins_count += 1
+                    pass
+        except:
+            raise
+        else:
+            if failed_plugins_count == len(plugins):
+                raise RuntimeError(
+                    "Nenhum plugin de arquivo funcionou.")
 
     @staticmethod
     def get_pdf_capture(url):
