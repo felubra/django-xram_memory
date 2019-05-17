@@ -114,7 +114,6 @@ class NewsFetcher:
                             # registro da quantidade de plugins que falharam...
                             failed_plugins_count += 1
                             pass
-                return basic_info
             else:
                 raise RuntimeError(
                     "Nenhum plugin para busca de informações básicas registrado.")
@@ -125,6 +124,7 @@ class NewsFetcher:
             if failed_plugins_count == len(plugins):
                 raise RuntimeError(
                     "Todos os plugins de captura de dados básicos falharam.")
+            return basic_info
 
     @staticmethod
     @lru_cache(maxsize=2)
