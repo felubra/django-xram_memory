@@ -7,8 +7,11 @@ from functools import lru_cache
 import newspaper as newspaper3k
 from contextlib import contextmanager
 from django.utils.functional import partition
-from .plugin import (ArchiveNewsFetcherPlugin, PDFCaptureNewsFetcherPlugin,
-                     BasicInfoNewsFetcherPlugin)
+from django.core.validators import URLValidator
+from .plugins.base import ArchivePluginBase, PDFCapturePluginBase, BasicInfoPluginBase
+
+
+url_validator = URLValidator()
 
 
 class NewsFetcher:
@@ -18,10 +21,11 @@ class NewsFetcher:
     @staticmethod
     def fetch_archived_url(url):
         archived_url = ''
-        plugins = ArchiveNewsFetcherPlugin.get_plugins()
+        plugins = ArchivePluginBase.get_plugins()
         failed_plugins_count = 0
         try:
-            for Plugin in ArchiveNewsFetcherPlugin.get_plugins():
+            url_validator(url)
+            for Plugin in plugins:
                 try:
                     archived_url = Plugin.fetch(url)
                     if archived_url:
@@ -41,8 +45,9 @@ class NewsFetcher:
         failed_plugins_count = 0
         specialized_plugins, failback_plugins = partition(
             lambda p: getattr(p, 'failback', False) == True,
-            PDFCaptureNewsFetcherPlugin.get_plugins())
+            PDFCapturePluginBase.get_plugins())
         try:
+            url_validator(url)
             for Plugin in specialized_plugins:
                 try:
                     if Plugin.matches(url):
@@ -73,6 +78,7 @@ class NewsFetcher:
         Captura uma imagem de uma notícia e, como gerenciador de contexto, retorna um ponteiro para
         o arquivo criado. Fecha e apaga o arquivo ao final.
         """
+        url_validator(image_url)
         fd, file_path, = tempfile.mkstemp()
         response = requests.get(image_url, allow_redirects=True)
         response.raise_for_status()
@@ -85,9 +91,10 @@ class NewsFetcher:
     @lru_cache(maxsize=2)
     def fetch_basic_info(url, fetch_images=True):
         failed_plugins_count = 0
-        plugins = BasicInfoNewsFetcherPlugin.get_plugins()
-        basic_info = BasicInfoNewsFetcherPlugin.BASIC_EMPTY_INFO
+        plugins = BasicInfoPluginBase.get_plugins()
+        basic_info = BasicInfoPluginBase.BASIC_EMPTY_INFO
         try:
+            url_validator(url)
             if len(plugins):
                 with requests.get(url, allow_redirects=True) as r:
                     r.raise_for_status()
@@ -100,7 +107,7 @@ class NewsFetcher:
                             da notícia só é alterado se estiver vazio. A exceção fica para o caso das
                             palavras-chave (quanto mais palavras melhor).
                             """
-                            for key in BasicInfoNewsFetcherPlugin.BASIC_EMPTY_INFO.keys():
+                            for key in BasicInfoPluginBase.BASIC_EMPTY_INFO.keys():
                                 if key == 'keywords':
                                     for keyword in result['keywords']:
                                         if keyword not in basic_info['keywords']:
@@ -130,6 +137,7 @@ class NewsFetcher:
     @lru_cache(maxsize=2)
     def fetch_web_title(url):
         # TODO: usar uma biblioteca para buscar o título corretamente
+        url_validator(url)
         try:
             response = requests.get(url, allow_redirects=True)
             response.raise_for_status()
@@ -141,6 +149,7 @@ class NewsFetcher:
     @staticmethod
     @lru_cache(maxsize=2)
     def build_newspaper(url):
+        url_validator(url)
         # TODO: usar uma biblioteca para buscar o título corretamente
         newspaper = newspaper3k.build(url)
         newspaper.download()

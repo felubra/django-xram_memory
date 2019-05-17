@@ -1,4 +1,4 @@
-from xram_memory.lib.news_fetcher.plugin import PDFCaptureNewsFetcherPlugin
+from xram_memory.lib.news_fetcher.plugins.base import PDFCapturePluginBase
 from django.utils.timezone import make_aware, now
 from contextlib import contextmanager
 from bs4 import BeautifulSoup
@@ -9,7 +9,7 @@ import os
 import re
 
 
-class DefaultPDFCapture(PDFCaptureNewsFetcherPlugin):
+class DefaultPDFCapture(PDFCapturePluginBase):
     failback = True
 
     @staticmethod
@@ -34,7 +34,7 @@ class DefaultPDFCapture(PDFCaptureNewsFetcherPlugin):
         os.remove(file_path)
 
 
-class G1PDFCapture(PDFCaptureNewsFetcherPlugin):
+class G1PDFCapture(PDFCapturePluginBase):
     """
     Classe que implementa a captura de notícias do portal G1 da Globo (https://g1.globo.com/).
     O site desfoca as imagens com estilos e um atributo src contendo dados (codificados em Base 64)

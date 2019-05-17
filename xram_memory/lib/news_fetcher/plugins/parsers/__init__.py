@@ -1,10 +1,10 @@
 from django.utils.timezone import make_aware
 from newspaper import Article
-from xram_memory.lib.news_fetcher.plugin import BasicInfoNewsFetcherPlugin
+from xram_memory.lib.news_fetcher.plugins.base import BasicInfoPluginBase
 from goose3 import Goose, Image
 
 
-class NewspaperArticleParser(BasicInfoNewsFetcherPlugin):
+class NewspaperArticleParser(BasicInfoPluginBase):
     @classmethod
     def parse(cls, url, html=None):
         try:
@@ -41,7 +41,7 @@ class NewspaperArticleParser(BasicInfoNewsFetcherPlugin):
                 del html
 
 
-class Goose3NewspaperArticleParser(BasicInfoNewsFetcherPlugin):
+class Goose3NewspaperArticleParser(BasicInfoPluginBase):
     @classmethod
     def parse(cls, url, html=None):
         """
