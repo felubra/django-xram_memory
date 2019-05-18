@@ -128,7 +128,9 @@ class News(Artifact):
         """
         Pega o título para a página desta notícia.
         """
-        self.title = NewsFetcher.fetch_web_title(self.url)[:255]
+        title = NewsFetcher.fetch_web_title(self.url)[:255]
+        if title:
+            self.title = title
 
     @log_process(operation="verificar por uma versão no archive.org")
     def fetch_archived_url(self):
@@ -136,7 +138,9 @@ class News(Artifact):
         Verifica se existe e adiciona a URL de uma versão arquivada desta notícia presente no
         `Internet Archive`.
         """
-        self.archived_news_url = NewsFetcher.fetch_archived_url(self.url)
+        archived_news_url = NewsFetcher.fetch_archived_url(self.url)
+        if archived_news_url:
+            self.archived_news_url = archived_news_url
 
     @log_process(operation="buscar informações básicas")
     def set_basic_info(self):
