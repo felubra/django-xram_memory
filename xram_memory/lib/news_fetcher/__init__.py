@@ -92,7 +92,7 @@ class NewsFetcher:
     def fetch_basic_info(url, fetch_images=True):
         failed_plugins_count = 0
         plugins = BasicInfoPluginBase.get_plugins()
-        basic_info = BasicInfoPluginBase.BASIC_EMPTY_INFO
+        basic_info = copy.deepcopy(BasicInfoPluginBase.BASIC_EMPTY_INFO)
         try:
             url_validator(url)
             if len(plugins):
