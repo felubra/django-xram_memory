@@ -1,4 +1,5 @@
 import os
+import copy
 import tempfile
 import requests
 from .plugins import *
@@ -20,56 +21,57 @@ class NewsFetcher:
     """
     @staticmethod
     def fetch_archived_url(url):
-        archived_url = ''
         plugins = ArchivePluginBase.get_plugins()
-        failed_plugins_count = 0
+        failures = []
         try:
             url_validator(url)
+            if not len(plugins):
+                raise RuntimeError(
+                    "Nenhum plugin para busca de versões arquivadas registrado.")
             for Plugin in plugins:
                 try:
                     archived_url = Plugin.fetch(url)
                     if archived_url:
                         return archived_url
-                except:
-                    failed_plugins_count += 1
-                    pass
+                except Exception as e:
+                    failures.append(e)
         except:
             raise
         else:
-            if failed_plugins_count == len(plugins):
+            # Não obtivemos um retorno satisfatório dos plugins e alguns podem até ter falhado,
+            # vamos relançar as exceções dos que falharam.
+            if len(failures):
                 raise RuntimeError(
-                    "Nenhum plugin de arquivo funcionou.")
+                    "Falha na captura de uma versão arquivada - alguns plugins falharam") from Exception(failures)
+            # Todos os plugins rodaram com sucesso, mas nenhum obteve um resultado, retorne uma
+            # string vazia.
+            return ''
 
     @staticmethod
     def get_pdf_capture(url):
-        failed_plugins_count = 0
-        specialized_plugins, failback_plugins = partition(
-            lambda p: getattr(p, 'failback', False) == True,
-            PDFCapturePluginBase.get_plugins())
+        plugins = PDFCapturePluginBase.get_plugins()
+        failures = []
         try:
             url_validator(url)
-            for Plugin in specialized_plugins:
+            if not len(plugins):
+                raise RuntimeError(
+                    "Nenhum plugin para captura de páginas em pdf registrado.")
+            for Plugin in plugins:
                 try:
                     if Plugin.matches(url):
                         return Plugin.get_pdf_capture(url)
-                except:
-                    failed_plugins_count += 1
-                    pass
-            else:
-                try:
-                    return failback_plugins[0].get_pdf_capture(url)
-                except IndexError:
-                    raise RuntimeError(
-                        "Nenhum plugin de captura em pdf registrado.")
-                except:
-                    raise RuntimeError(
-                        "Nenhum plugin de captura em pdf funcionou.")
+                except Exception as e:
+                    failures.append(e)
         except:
             raise
         else:
-            if failed_plugins_count == len(specialized_plugins):
+            # Não obtivemos um retorno satisfatório dos plugins e alguns podem até ter falhado,
+            # vamos relançar as exceções dos que falharam.
+            if len(failures):
                 raise RuntimeError(
-                    "Nenhum plugin de captura em pdf funcionou.")
+                    "Falha na captura de uma versão arquivada - alguns plugins falharam") from Exception(failures)
+            # Não existe a possibilidade de passarmos por todos os plugins sem erro, pois deve existir
+            # ao menos um plugin que funcione sobre todas as urls e, portanto, tenha falhado.
 
     @staticmethod
     @contextmanager
@@ -90,48 +92,53 @@ class NewsFetcher:
     @staticmethod
     @lru_cache(maxsize=2)
     def fetch_basic_info(url, fetch_images=True):
-        failed_plugins_count = 0
         plugins = BasicInfoPluginBase.get_plugins()
+        failures = []
         basic_info = copy.deepcopy(BasicInfoPluginBase.BASIC_EMPTY_INFO)
         try:
             url_validator(url)
-            if len(plugins):
-                with requests.get(url, allow_redirects=True) as r:
-                    r.raise_for_status()
-                    html = r.content.decode("utf-8")
-                    for plugin in plugins:
-                        try:
-                            result = plugin.parse(url, html=html)
-                            """
-                            Utilize uma abordagem conservadora em que um valor no dicionário de dados
-                            da notícia só é alterado se estiver vazio. A exceção fica para o caso das
-                            palavras-chave (quanto mais palavras melhor).
-                            """
-                            for key in BasicInfoPluginBase.BASIC_EMPTY_INFO.keys():
-                                if key == 'keywords':
-                                    for keyword in result['keywords']:
-                                        if keyword not in basic_info['keywords']:
-                                            basic_info['keywords'].append(
-                                                keyword)
-                                    continue
-                                basic_info[key] = (result[key] if result[key] not in ('', [], None,) and (getattr(
-                                    basic_info, key, None) is None or basic_info[key] in ('', [],)) else basic_info[key])
-                        except:
-                            # não falhe completamente se apenas um plugin falhar, mas mantenha um
-                            # registro da quantidade de plugins que falharam...
-                            failed_plugins_count += 1
-                            pass
-            else:
+            if not len(plugins):
                 raise RuntimeError(
                     "Nenhum plugin para busca de informações básicas registrado.")
+            with requests.get(url, allow_redirects=True) as r:
+                r.raise_for_status()
+                html = r.content.decode("utf-8")
+                for plugin in plugins:
+                    try:
+                        result = plugin.parse(url, html=html)
+                        """
+                        Utilize uma abordagem conservadora em que um valor no dicionário de dados
+                        da notícia só é alterado se estiver vazio. A exceção fica para o caso das
+                        palavras-chave (quanto mais palavras melhor).
+                        """
+                        for key in BasicInfoPluginBase.BASIC_EMPTY_INFO.keys():
+                            if key == 'keywords':
+                                for keyword in result['keywords']:
+                                    if keyword not in basic_info['keywords']:
+                                        basic_info['keywords'].append(
+                                            keyword)
+                                continue
+                            if result[key] not in ('', [], None,):
+                                if basic_info[key] in ('', [],):
+                                    basic_info[key] = result[key]
+                    except Exception as e:
+                        failures.append(e)
+                if basic_info != BasicInfoPluginBase.BASIC_EMPTY_INFO:
+                    return basic_info
         except:
             raise
         else:
-            # ...se todos os plugins falharam, então falhe.
-            if failed_plugins_count == len(plugins):
+            # Não obtivemos um retorno satisfatório dos plugins e alguns podem até ter falhado,
+            # vamos relançar as exceções dos que falharam.
+            if len(failures):
                 raise RuntimeError(
-                    "Todos os plugins de captura de dados básicos falharam.")
-            return basic_info
+                    "Falha na obtenção de informações sobre a notícia - alguns plugins falharam") from Exception(failures)
+            else:
+                # No raro caso de todos plugins não terem falhado, mas mesmo assim não tiverem obtido
+                # informações, lance uma exceção, pois é esperado dessa função o retorno de um dicionário
+                # com as informações da notícia.
+                raise RuntimeError(
+                    "Falha na obtenção de informações sobre a notícia - nenhum plugin obteve informações básicas sobre a notícia.")
 
     @staticmethod
     @lru_cache(maxsize=2)
