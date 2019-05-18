@@ -41,17 +41,17 @@ class G1PDFCapture(PDFCapturePluginBase):
         with requests.get(url, allow_redirects=True) as r:
             r.raise_for_status()
             html = r.content.decode('utf-8')
+            soup = BeautifulSoup(html, features="lxml")
+            wrappers = soup.find_all("div", ["progressive-img"])
+            for wrapper in wrappers:
+                image = wrapper.find("img", "progressive-draft")
+                if image:
+                    image["src"] = wrapper["data-max-size-url"]
+                    image["style"] = "filter: none;"
+            html = str(soup)
+
+            fd, file_path, = tempfile.mkstemp()
             try:
-                soup = BeautifulSoup(html, features="lxml")
-                wrappers = soup.find_all("div", ["progressive-img"])
-                for wrapper in wrappers:
-                    image = wrapper.find("img", "progressive-draft")
-                    if image:
-                        image["src"] = wrapper["data-max-size-url"]
-                        image["style"] = "filter: none;"
-                html = str(soup)
-            finally:
-                fd, file_path, = tempfile.mkstemp()
                 pdfkit.from_string(html, file_path, options={
                     'print-media-type': None,
                     'disable-javascript': None,
@@ -63,4 +63,5 @@ class G1PDFCapture(PDFCapturePluginBase):
                     'image-quality': 85})
                 with open(fd, 'rb') as f:
                     yield f
+            finally:
                 os.remove(file_path)
