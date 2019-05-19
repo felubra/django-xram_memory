@@ -31,10 +31,12 @@ def icon_preview(source, exif_orientation=True, **options):
 
     # crie um arquivo temporário para guardar o png convertido, leia ele e retorne o objeto PIL Image
     temp_file = mktemp()
-    svg2png(url=svg_icon, write_to=temp_file)
-    with open(temp_file, mode="rb") as f:
-        source = BytesIO(f.read())
-    os.remove(temp_file)
+    try:
+        svg2png(url=svg_icon, write_to=temp_file)
+        with open(temp_file, mode="rb") as f:
+            source = BytesIO(f.read())
+    finally:
+        os.remove(temp_file)
 
     image = Image.open(source)
     return image
