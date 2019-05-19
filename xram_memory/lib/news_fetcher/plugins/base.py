@@ -45,24 +45,22 @@ class BasicInfoPluginBase(metaclass=plugin.registry("BasicInfo")):
         if len(keywords_for_language) > 0:
             info_dict["keywords"] = [
                 keyword for keyword in info_dict["keywords"] if keyword not in keywords_for_language]
-
-        # Se a data de publicação veio como string, tente transformá-la num objeto datetime
-
         try:
             if info_dict['published_date']:
                 try:
+                    # Tente transformar strings de data em objetos datetime
                     info_dict['published_date'] = parse_datetime(
                         info_dict['published_date'])
                 except TypeError:
-                    # published_date pode já ser uma data
+                    # Pode ser que info_dict['published_date'] já seja uma data, ignore.
                     pass
             info_dict['published_date'] = make_aware(
                 info_dict['published_date'], is_dst=False)
         except ValueError:
-            # A data já tem informações sobre o timezone
+            # A data já tem informações sobre o timezone, ignore.
             pass
         except AttributeError:
-            # Data inválida
+            # Data inválida, defina a data como nula.
             info_dict['published_date'] = None
 
         return info_dict
