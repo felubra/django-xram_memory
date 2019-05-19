@@ -58,8 +58,8 @@ class G1PDFCapture(PDFCapturePluginBase):
                     'footer-center': now(),
                     'footer-font-size': 8,
                     'header-center': url,
+                    'load-error-handling': 'ignore',
                     'header-font-size': 6,
-                    'log-level': 'none',
                     'image-quality': 85})
                 with open(fd, 'rb') as f:
                     yield f
