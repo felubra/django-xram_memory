@@ -102,7 +102,7 @@ class NewsFetcher:
                     "Nenhum plugin para busca de informações básicas registrado.")
             with requests.get(url, allow_redirects=True) as r:
                 r.raise_for_status()
-                html = r.content.decode("utf-8")
+                html = r.content
                 for plugin in plugins:
                     try:
                         result = plugin.parse(url, html=html)
