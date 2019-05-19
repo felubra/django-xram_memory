@@ -47,14 +47,16 @@ class BasicInfoPluginBase(metaclass=plugin.registry("BasicInfo")):
                 keyword for keyword in info_dict["keywords"] if keyword not in keywords_for_language]
 
         # Se a data de publicação veio como string, tente transformá-la num objeto datetime
-        if isinstance(info_dict['published_date'], str):
+
+        try:
             try:
                 info_dict['published_date'] = parse_datetime(
                     info_dict['published_date'])
-            except ValueError:
-                info_dict['published_date'] = None
-        # Se a data de publicação não tem informações de fuso-horário, transforme-a para o fuso local
-        if (info_dict['published_date'] and not info_dict['published_date'].tzinfo):
+            except TypeError:
+                pass
             info_dict['published_date'] = make_aware(
                 info_dict['published_date'])
+        except:
+            info_dict['published_date'] = None
+
         return info_dict
