@@ -119,7 +119,7 @@ class NewsFetcher:
                                             keyword)
                                 continue
                             if result[key] not in ('', [], None,):
-                                if basic_info[key] in ('', [],):
+                                if basic_info[key] in ('', [], None,):
                                     basic_info[key] = result[key]
                     except Exception as e:
                         failures.append(e)
