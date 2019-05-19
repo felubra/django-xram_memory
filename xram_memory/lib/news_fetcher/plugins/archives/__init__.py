@@ -12,5 +12,10 @@ class ArchiveORGArchiveFetcher(ArchivePluginBase):
             "https://archive.org/wayback/available?url={}".format(url))
         response.raise_for_status()
         response = response.json()
-
-        return response["archived_snapshots"]["closest"]["url"]
+        available = archived_url = response.get("archived_snapshots", {}).get(
+            "closest", {}).get("available", False)
+        if available:
+            archived_url = response.get("archived_snapshots", {}).get(
+                "closest", {}).get("url", '')
+            return archived_url
+        return ''
