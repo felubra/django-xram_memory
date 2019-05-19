@@ -201,16 +201,17 @@ class Common(Configuration):
     ]
     NPM_ROOT_PATH = BASE_DIR
     NPM_FILE_PATTERNS = {
-        'file-icon-vectors': ['dist/icons/vivid/*'],
+        'file-icon-vectors': [os.path.join('dist', 'icons', 'vivid', '*')],
         'stopwords-iso': ['stopwords-iso.json'],
         'material-design-icons': [
-            'navigation/svg/production/ic_fullscreen*',
-            'action/svg/production/ic_info_24px*',
-            'image/svg/production/ic_picture_as_pdf_24px*',
-            'image/svg/production/ic_filter_24px*',
+            os.path.join('navigation', 'svg', 'production', 'ic_fullscreen*'),
+            os.path.join('action', 'svg', 'production', 'ic_info_24px*'),
+            os.path.join('image', 'svg', 'production',
+                         'ic_picture_as_pdf_24px*'),
+            os.path.join('image', 'svg', 'production', 'ic_filter_24px*'),
         ],
-        'quill': ['dist/*'],
-        'screenfull': ['dist/*'],
+        'quill': [os.path.join('dist', '*')],
+        'screenfull': [os.path.join('dist', '*')],
     }
     ELASTICSEARCH_INDEX_NAMES = {
         'xram_memory.search_indexes.documents.news': 'artifact_news',

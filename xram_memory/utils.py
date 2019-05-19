@@ -1,21 +1,19 @@
 import re
-
-from functools import wraps, lru_cache
-from inspect import getfullargspec
-from whitenoise.storage import CompressedManifestStaticFilesStorage
-
 import magic
-
+from pathlib import Path
 from kombu import Connection
+from functools import lru_cache
 from django.conf import settings
 from django.db import transaction
+from inspect import getfullargspec
+from functools import wraps, lru_cache
 from kombu.exceptions import OperationalError
-from django.template.defaultfilters import filesizeformat
-from django.utils.deconstruct import deconstructible
+from django.contrib.staticfiles import finders
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
-from django.contrib.staticfiles import finders
-from functools import lru_cache
+from django.utils.deconstruct import deconstructible
+from django.template.defaultfilters import filesizeformat
+from whitenoise.storage import CompressedManifestStaticFilesStorage
 
 
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None,
@@ -193,13 +191,13 @@ def get_file_icon(icon_name):
     """ retorne o caminho completo de um ícone do pacote file-icon-vectors"""
     try:
         icon_file = finders.find(
-            'file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name))
+            Path('file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name)))
         if icon_file is None:
             raise ValueError
         return icon_file
     except ValueError:
         return finders.find(
-            'file-icon-vectors/dist/icons/vivid/BLANK.svg'.format(icon=icon_name))
+            Path('file-icon-vectors/dist/icons/vivid/blank.svg'))
 
 
 class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesStorage):
