@@ -1,7 +1,7 @@
-from xram_memory.lib.stopwords import stopwords
-from django.utils.dateparse import parse_datetime
-from django.utils.timezone import make_aware, now
+from django.utils.timezone import make_aware, now, is_naive
 import xram_memory.lib.news_fetcher.plugin as plugin
+from django.utils.dateparse import parse_datetime
+from xram_memory.lib.stopwords import stopwords
 from .defaults import DefaultPDFCapture
 
 
@@ -37,7 +37,7 @@ class BasicInfoPluginBase(metaclass=plugin.registry("BasicInfo")):
     na saída do contexto.
     """
     BASIC_EMPTY_INFO = {'title': '', 'authors': '', 'body': '', 'teaser': '',
-                        'published_date': '', 'language': '', 'image': '', 'keywords': []}
+                        'published_date': None, 'language': '', 'image': '', 'keywords': []}
 
     @classmethod
     def clean(self, info_dict):
@@ -49,14 +49,20 @@ class BasicInfoPluginBase(metaclass=plugin.registry("BasicInfo")):
         # Se a data de publicação veio como string, tente transformá-la num objeto datetime
 
         try:
-            try:
-                info_dict['published_date'] = parse_datetime(
-                    info_dict['published_date'])
-            except TypeError:
-                pass
+            if info_dict['published_date']:
+                try:
+                    info_dict['published_date'] = parse_datetime(
+                        info_dict['published_date'])
+                except TypeError:
+                    # published_date pode já ser uma data
+                    pass
             info_dict['published_date'] = make_aware(
-                info_dict['published_date'])
-        except:
+                info_dict['published_date'], is_dst=False)
+        except ValueError:
+            # A data já tem informações sobre o timezone
+            pass
+        except AttributeError:
+            # Data inválida
             info_dict['published_date'] = None
 
         return info_dict
