@@ -55,16 +55,27 @@ class NewspaperEssentialTests(TestCase):
         self.assertFalse(newspaper.has_logo)
         self.assertEqual(newspaper.favicon_logo, '')
 
+    def test_set_logo_from_favicon_without_a_saved_instance(self):
+        with self.minimal_newspaper() as newspaper:
+            result = newspaper.set_logo_from_favicon()
+            self.assertFalse(result)
+            self.assertFalse(newspaper.has_logo)
+
     def test_set_logo_from_favicon(self):
         with self.minimal_newspaper() as newspaper:
+            newspaper.save()
             result = newspaper.set_logo_from_favicon()
             self.assertTrue(result)
             self.assertTrue(newspaper.has_logo)
             self.assertNotEqual(newspaper.favicon_logo, '')
-            logo_filename = newspaper.logo.file.name
             result = newspaper.set_logo_from_favicon()
             self.assertTrue(result)
-            self.assertNotEqual(logo_filename, newspaper.logo.file.name)
+            self.assertTrue(newspaper.has_logo)
+            self.assertNotEqual(newspaper.favicon_logo, '')
+
+    def test_set_logo_from_favicon_no_favicons(self):
+        with self.minimal_newspaper() as newspaper:
+            newspaper.save()
             with mock.patch.object(favicon, 'get') as affected_function:
                 affected_function.return_value = []
                 result = newspaper.set_logo_from_favicon()

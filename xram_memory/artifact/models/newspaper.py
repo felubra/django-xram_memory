@@ -6,8 +6,10 @@ from django.core.files import File as DjangoFile
 from django.core.validators import URLValidator
 from xram_memory.utils import FileValidator
 from xram_memory.lib import NewsFetcher
+from django.utils.text import slugify
 from django.db import transaction
 from django.conf import settings
+from hashid_field import Hashid
 from django.db import models
 from pathlib import Path
 import requests
@@ -53,25 +55,29 @@ class Newspaper(TraceableModel):
     @log_process(operation="adicionar um logo para um jornal")
     def set_logo_from_favicon(self):
         try:
+            if self.pk is None:
+                raise ValueError
+            title = Hashid(self.pk, min_length=7).hashid
             icons = [icon for icon in favicon.get(
                 self.url) if icon.format in ['png', 'jpeg', 'jpg', 'gif']]
             if len(icons):
                 icon = icons[0]
                 file_ext = icon.format
                 response = requests.get(icon.url, stream=True)
+                filename = "{}{}.{}".format(title, '_logo', file_ext)
                 fd, file_path, = tempfile.mkstemp()
-                filename = "{}{}.{}".format(
-                    self.title[:255], '_logo', file_ext)
-                with open(fd, 'wb+') as image:
-                    for chunk in response.iter_content(1024):
-                        image.write(chunk)
-                    with transaction.atomic():
-                        django_file = DjangoFile(image, name=filename)
-                        # apague o logotipo já existente, se for o caso
-                        if self.has_logo:
-                            self.logo.delete()
-                        self.logo.save(filename, django_file)
-                os.remove(file_path)
+                try:
+                    with open(fd, 'wb+') as image:
+                        for chunk in response.iter_content(1024):
+                            image.write(chunk)
+                        with transaction.atomic():
+                            django_file = DjangoFile(image, name=filename)
+                            # apague o logotipo já existente, se for o caso
+                            if self.has_logo:
+                                self.logo.delete()
+                            self.logo.save(filename, django_file)
+                finally:
+                    os.remove(file_path)
             else:
                 raise ValueError(
                     "Nenhum ícone válido foi encontrado para o jornal/site")
