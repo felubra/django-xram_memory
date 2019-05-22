@@ -104,3 +104,5 @@ staticfiles/
 .venv
 # ignore components instalados pelo npm
 node_modules
+#ignore pastas do pytest
+.pytest_cache
