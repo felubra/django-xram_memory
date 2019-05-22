@@ -255,37 +255,22 @@ class Common(Configuration):
 
     FOLDER_CAPTURES = {
         'name': 'Capturas automáticas',
-        'lft': 1,
-        'rght': 2,
-        'tree_id': 1,
-        'level': 0,
         'id': 1
     }
 
     FOLDER_PHOTO_ALBUMS = {
         'name': 'Álbuns de fotos',
-        'lft': 1,
-        'rght': 2,
-        'tree_id': 2,
-        'level': 0,
+        'id': 2
     }
 
     FOLDER_PDF_CAPTURES = {
         'name': 'Capturas de notícias em PDF',
-        'lft': 1,
-        'rght': 2,
-        'tree_id': 1,
-        'level': 1,
-        'parent_id': 1
+        'id': 3
     }
 
     FOLDER_IMAGE_CAPTURES = {
         'name': 'Imagens de notícias',
-        'lft': 1,
-        'rght': 2,
-        'tree_id': 1,
-        'level': 1,
-        'parent_id': 1
+        'id': 4
     }
 
     DEFAULT_FOLDERS = (
