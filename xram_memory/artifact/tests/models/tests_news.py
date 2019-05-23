@@ -1,10 +1,18 @@
 from xram_memory.artifact.models import News, NewsImageCapture, NewsPDFCapture
 from xram_memory.taxonomy.models import Keyword, Subject
 from django.test import TestCase, TransactionTestCase
+from django.db.models.signals import post_save
+from filer.models.foldermodels import Folder
+from xram_memory.lib import NewsFetcher
 from contextlib import contextmanager
+from django.conf import settings
+from unittest.mock import patch
 from loguru import logger
+from . import fixtures
 import datetime
 import hashlib
+import factory
+import pytest
 
 logger.remove()
 
@@ -13,19 +21,26 @@ logger.remove()
 # TODO: Quando for buscar uma notícia na web, usar uma fixture, já que essa notícia pode ser retirada do ar
 
 
-class NewsTestCase(TestCase):
+class NewsTestCase(TransactionTestCase):
+    serialized_rollback = True
+
     @contextmanager
     def basic_news(self):
-        news = News(
-            url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
-        news.set_basic_info()
-        news.save()
+        with factory.django.mute_signals(post_save):
+            newspaper = fixtures.NewspaperFactory()
+            newspaper.save()
+            news = News(
+                url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html", newspaper=newspaper)
+            with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
+                news.set_basic_info()
+            news.save()
         yield news
 
     def test_require_url_on_save(self):
         news = News(title="Abacate")
         self.assertRaises(ValueError, news.save)
 
+    @factory.django.mute_signals(post_save)
     def test_save_without_title(self):
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
@@ -58,15 +73,20 @@ class NewsTestCase(TestCase):
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
         self.assertEqual(news.title, '')
-        news.set_web_title()
-        self.assertNotEqual(news.title, '')
+        with patch.object(NewsFetcher, 'fetch_web_title') as mocked:
+            mocked.return_value = 'Dilma paga pedaladas até de 2015 para enfraquecer argumento do impeachment'
+            news.set_web_title()
+            self.assertNotEqual(news.title, '')
 
     def test_fetch_archived_url(self):
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
         self.assertIsNone(news.archived_news_url)
-        news.fetch_archived_url()
-        self.assertIsNotNone(news.archived_news_url)
+        with patch.object(NewsFetcher, 'fetch_archived_url') as mocked:
+            mocked.return_value = fixtures.mocked_news_fetch_archived_url(
+                news.url)
+            news.fetch_archived_url()
+            self.assertIsNotNone(news.archived_news_url)
 
     def test_set_basic_info(self):
         news = News(
@@ -82,31 +102,33 @@ class NewsTestCase(TestCase):
         under_attrs = ['_{}'.format(key)
                        for key in expected_response_keys[-2:]]
 
-        result = news.set_basic_info()
+        with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
+            result = news.set_basic_info()
 
-        for expected_key in expected_response_keys:
-            self.assertIn(expected_key, result.keys())
+            for expected_key in expected_response_keys:
+                self.assertIn(expected_key, result.keys())
 
-        for not_blank_attr in not_blank_attrs:
-            value = getattr(news, not_blank_attr)
-            self.assertNotEqual(value, '')
+            for not_blank_attr in not_blank_attrs:
+                value = getattr(news, not_blank_attr)
+                self.assertNotEqual(value, '')
 
-        for not_null_attr in not_null_attrs:
-            value = getattr(news, not_null_attr)
-            self.assertIsNotNone(value)
-            if not_null_attr == 'published_date':
-                # 'published_date' deve ser do tipo data/tempo...
-                self.assertIsInstance(value, datetime.datetime)
-                # ...e deve conter informações do fuso-horário (não pode ser uma data ingênua)
-                self.assertIsNotNone(news.published_date.tzinfo)
+            for not_null_attr in not_null_attrs:
+                value = getattr(news, not_null_attr)
+                self.assertIsNotNone(value)
+                if not_null_attr == 'published_date':
+                    # 'published_date' deve ser do tipo data/tempo...
+                    self.assertIsInstance(value, datetime.datetime)
+                    # ...e deve conter informações do fuso-horário (não pode ser uma data ingênua)
+                    self.assertIsNotNone(news.published_date.tzinfo)
 
-        for under_attr in under_attrs:
-            value = getattr(news, under_attr)
-            self.assertIsNotNone(value)
-            if under_attr == '_keywords':
-                # '_keywords' deve ser do tipo lista
-                self.assertIsInstance(value, list)
+            for under_attr in under_attrs:
+                value = getattr(news, under_attr)
+                self.assertIsNotNone(value)
+                if under_attr == '_keywords':
+                    # '_keywords' deve ser do tipo lista
+                    self.assertIsInstance(value, list)
 
+    @factory.django.mute_signals(post_save)
     def test_add_fetched_keywords(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news._keywords)
@@ -117,6 +139,7 @@ class NewsTestCase(TestCase):
             for fetched_keyword in news._keywords:
                 self.assertIsNotNone(Keyword.objects.get(name=fetched_keyword))
 
+    @factory.django.mute_signals(post_save)
     def test_add_fetched_keywords_with_preexisting_keyword(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news._keywords)
@@ -126,6 +149,7 @@ class NewsTestCase(TestCase):
             self.assertIsNotNone(news.keywords.all())
             self.assertEqual(len(news.keywords.all()), len(news._keywords))
 
+    @factory.django.mute_signals(post_save)
     def test_keywords_indexing(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news.keywords_indexing)
@@ -138,6 +162,7 @@ class NewsTestCase(TestCase):
             for fetched_keyword in news._keywords:
                 self.assertIn(fetched_keyword, news.keywords_indexing)
 
+    @factory.django.mute_signals(post_save)
     def test_subjects_indexing(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news.subjects_indexing)
@@ -153,29 +178,40 @@ class NewsTestCase(TestCase):
         news = News()
         self.assertIsNone(news.null_field_indexing)
 
+    @pytest.mark.django_db(transaction=True)
     def test_has_image_and_test_add_fetched_image(self):
         with self.basic_news() as news:
             news.add_fetched_image()
             self.assertTrue(news.has_image)
 
+    @pytest.mark.django_db(transaction=True)
     def test_add_fetched_image(self):
         with self.basic_news() as news:
-            news.add_fetched_image()
-            self.assertIsNotNone(news.image_capture)
-            self.assertIsInstance(news.image_capture, NewsImageCapture)
-            self.assertIsNotNone(news.thumbnail)
-            self.assertIsNotNone(news.image_capture_indexing)
+            with patch.object(NewsFetcher, 'fetch_image') as mocked:
+                with fixtures.mocked_news_add_fetched_image('abacate') as f:
+                    mocked.return_value.__enter__.return_value = f
+                    news.add_fetched_image()
+                    self.assertIsNotNone(news.image_capture)
+                    self.assertIsInstance(news.image_capture, NewsImageCapture)
+                    self.assertIsNotNone(news.thumbnail)
+                    self.assertIsNotNone(news.image_capture_indexing)
 
+    @pytest.mark.django_db(transaction=True)
     def test_add_another_fetched_image(self):
         with self.basic_news() as news:
-            news.add_fetched_image()
-            first_image_capture_pk = news.image_capture.pk
-            news.add_fetched_image()
-            self.assertNotEqual(first_image_capture_pk, news.image_capture.pk)
-            with self.assertRaises(NewsImageCapture.DoesNotExist):
-                self.assertIsNone(
-                    NewsImageCapture.objects.get(pk=first_image_capture_pk))
+            with patch.object(NewsFetcher, 'fetch_image') as mocked:
+                with fixtures.mocked_news_add_fetched_image('abacate') as f:
+                    mocked.return_value.__enter__.return_value = f
+                    news.add_fetched_image()
+                    first_image_capture_pk = news.image_capture.pk
+                    news.add_fetched_image()
+                    self.assertNotEqual(first_image_capture_pk,
+                                        news.image_capture.pk)
+                    with self.assertRaises(NewsImageCapture.DoesNotExist):
+                        self.assertIsNone(
+                            NewsImageCapture.objects.get(pk=first_image_capture_pk))
 
+    @pytest.mark.django_db(transaction=True)
     def test_add_fetched_image_filename_generated_with_salt(self):
         """
         Um Documento de captura de imagem não pode ter o nome de seu arquivo original deduzível a
@@ -183,18 +219,26 @@ class NewsTestCase(TestCase):
         sempre usar um sal na geração do nome do arquivo.
         """
         with self.basic_news() as news:
-            hashed_image_filename = hashlib.md5(
-                news._image.encode('utf-8')).hexdigest()
-            news.add_fetched_image()
-            self.assertNotIn(hashed_image_filename,
-                             news.image_capture.image_document.name)
+            with patch.object(NewsFetcher, 'fetch_image') as mocked:
+                with fixtures.mocked_news_add_fetched_image('abacate') as f:
+                    mocked.return_value.__enter__.return_value = f
+                    hashed_image_filename = hashlib.md5(
+                        news._image.encode('utf-8')).hexdigest()
+                    news.add_fetched_image()
+                    self.assertNotIn(hashed_image_filename,
+                                     news.image_capture.image_document.name)
 
+    @pytest.mark.django_db(transaction=True)
     def test_add_pdf_capture(self):
         with self.basic_news() as news:
-            news.add_pdf_capture()
-            self.assertEqual(len(news.pdf_captures.all()), 1)
-            self.assertIsInstance(news.pdf_captures.all()[0], NewsPDFCapture)
-            self.assertTrue(news.has_pdf_capture)
-            news.add_pdf_capture()
-            self.assertEqual(len(news.pdf_captures.all()), 2)
-            self.assertTrue(news.has_pdf_capture)
+            with patch.object(NewsFetcher, 'get_pdf_capture') as mocked:
+                with fixtures.mocked_news_get_pdf_capture('abacate') as f:
+                    mocked.return_value.__enter__.return_value = f
+                    news.add_pdf_capture()
+                    self.assertEqual(len(news.pdf_captures.all()), 1)
+                    self.assertIsInstance(
+                        news.pdf_captures.all()[0], NewsPDFCapture)
+                    self.assertTrue(news.has_pdf_capture)
+                    news.add_pdf_capture()
+                    self.assertEqual(len(news.pdf_captures.all()), 2)
+                    self.assertTrue(news.has_pdf_capture)

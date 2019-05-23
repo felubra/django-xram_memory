@@ -1,6 +1,6 @@
 from django.test import TestCase, TransactionTestCase
-from xram_memory.artifact.models import Document
 from django.core.files import File as DjangoFile
+from xram_memory.artifact.models import Document
 from django.db.models.signals import post_save
 from filer import settings as filer_settings
 from contextlib import contextmanager
@@ -8,8 +8,8 @@ from unittest.mock import patch
 from loguru import logger
 from pathlib import Path
 import factory
-import os
 import magic
+import os
 
 
 logger.remove()
@@ -18,6 +18,7 @@ logger.remove()
 
 class DocumentTestCase(TransactionTestCase):
     serialized_rollback = True
+
     @contextmanager
     def open_as_django_file(self, filename):
         """
@@ -114,7 +115,9 @@ class DocumentTestCase(TransactionTestCase):
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
-            self.assertEqual(document.mime_type, 'image/jpeg')
+            with patch.object(Document, 'determine_mime_type') as mocked:
+                mocked.return_value = 'image/jpeg'
+                self.assertEqual(document.mime_type, 'image/jpeg')
 
     def test_determine_mime_type_with_failure(self):
         """
