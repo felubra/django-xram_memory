@@ -22,6 +22,7 @@ coverage = "*"
 factory-boy = "*"
 pytest-django = "*"
 pytest-datadir = "*"
+pytest-cov = "*"
 
 [packages]
 dj-database-url = "~=0.5.0"
