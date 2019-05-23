@@ -21,6 +21,7 @@ flower = "~=0.9.3"
 coverage = "*"
 factory-boy = "*"
 pytest-django = "*"
+pytest-datadir = "*"
 
 [packages]
 dj-database-url = "~=0.5.0"
