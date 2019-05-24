@@ -1,7 +1,8 @@
+from django.db.models.signals import post_save, m2m_changed, pre_delete, post_delete
+from django_elasticsearch_dsl.signals import RealTimeSignalProcessor
 from django.test import TestCase, TransactionTestCase
-from django.core.files import File as DjangoFile
 from xram_memory.artifact.models import Document
-from django.db.models.signals import post_save
+from django.core.files import File as DjangoFile
 from filer import settings as filer_settings
 from contextlib import contextmanager
 from unittest.mock import patch
@@ -61,7 +62,7 @@ class DocumentTestCase(TransactionTestCase):
         self.assertFalse(document.set_document_id())
         self.assertIsNone(document.document_id)
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_set_document_id_without_signals(self):
         """
         Testa o funcionamento de `set_document_id` e o estado de `document_id` após a invocação
@@ -90,7 +91,7 @@ class DocumentTestCase(TransactionTestCase):
             self.assertIsNotNone(document.document_id)
             self.assertEqual(str(document), document.document_id.hashid)
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_determine_mime_type_without_signals(self):
         """
         Testa o funcionamento de `determine_mime_type` e o estado de `mime_type` após a invocação

@@ -1,7 +1,7 @@
+from django.db.models.signals import post_save, m2m_changed, pre_delete, post_delete
 from xram_memory.artifact.models import News, NewsImageCapture, NewsPDFCapture
 from xram_memory.taxonomy.models import Keyword, Subject
 from django.test import TestCase, TransactionTestCase
-from django.db.models.signals import post_save
 from filer.models.foldermodels import Folder
 from xram_memory.lib import NewsFetcher
 from contextlib import contextmanager
@@ -26,7 +26,7 @@ class NewsTestCase(TransactionTestCase):
 
     @contextmanager
     def basic_news(self):
-        with factory.django.mute_signals(post_save):
+        with factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete):
             newspaper = fixtures.NewspaperFactory()
             newspaper.save()
             news = News(
@@ -40,7 +40,7 @@ class NewsTestCase(TransactionTestCase):
         news = News(title="Abacate")
         self.assertRaises(ValueError, news.save)
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_save_without_title(self):
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
@@ -128,7 +128,7 @@ class NewsTestCase(TransactionTestCase):
                     # '_keywords' deve ser do tipo lista
                     self.assertIsInstance(value, list)
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_keywords(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news._keywords)
@@ -139,7 +139,7 @@ class NewsTestCase(TransactionTestCase):
             for fetched_keyword in news._keywords:
                 self.assertIsNotNone(Keyword.objects.get(name=fetched_keyword))
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_keywords_with_preexisting_keyword(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news._keywords)
@@ -149,7 +149,7 @@ class NewsTestCase(TransactionTestCase):
             self.assertIsNotNone(news.keywords.all())
             self.assertEqual(len(news.keywords.all()), len(news._keywords))
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_keywords_indexing(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news.keywords_indexing)
@@ -162,7 +162,7 @@ class NewsTestCase(TransactionTestCase):
             for fetched_keyword in news._keywords:
                 self.assertIn(fetched_keyword, news.keywords_indexing)
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_subjects_indexing(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news.subjects_indexing)
