@@ -2,21 +2,22 @@
 
 from django.db import migrations
 from django.conf import settings
+from filer.models.foldermodels import Folder
 
 DEFAULT_FOLDERS = settings.DEFAULT_FOLDERS
 
 
 def create_default_folders(apps, schema_editor):
-    Folder = apps.get_model('filer', 'Folder')
-
-    for i, folder in enumerate(DEFAULT_FOLDERS):
+    for folder in [settings.FOLDER_CAPTURES, settings.FOLDER_PHOTO_ALBUMS]:
         Folder.objects.get_or_create(**folder)
+
+    captures_folder = Folder.objects.get(**settings.FOLDER_CAPTURES)
+    for folder in [settings.FOLDER_PDF_CAPTURES, settings.FOLDER_IMAGE_CAPTURES]:
+        Folder.objects.get_or_create(**folder, parent=captures_folder)
 
 
 def reverse_create_default_folders(apps, schema_editor):
-    Folder = apps.get_model('filer', 'Folder')
-
-    for i, folder in enumerate(DEFAULT_FOLDERS):
+    for folder in settings.DEFAULT_FOLDERS:
         try:
             Folder.objects.filter(**folder).delete()
         except Folder.DoesNotExist:

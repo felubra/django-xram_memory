@@ -1,6 +1,5 @@
 from xram_memory.artifact.models import Artifact, Document, Newspaper
 from xram_memory.artifact import tasks as background_tasks
-from xram_memory.artifact.news_fetcher import NewsFetcher
 from django.db import models, transaction, IntegrityError
 from xram_memory.logger.decorators import log_process
 from filer.utils.generate_filename import randomized
@@ -14,6 +13,7 @@ from boltons.cacheutils import cachedproperty
 from filer.fields.file import FilerFileField
 from django.db.transaction import on_commit
 from filer.models import File as FilerFile
+from xram_memory.lib import NewsFetcher
 from django.db.models import Prefetch
 from django.utils.timezone import now
 from filer.models import File, Folder
@@ -128,7 +128,9 @@ class News(Artifact):
         """
         Pega o título para a página desta notícia.
         """
-        self.title = NewsFetcher.fetch_web_title(self.url)[:255]
+        title = NewsFetcher.fetch_web_title(self.url)[:255]
+        if title:
+            self.title = title
 
     @log_process(operation="verificar por uma versão no archive.org")
     def fetch_archived_url(self):
@@ -136,7 +138,9 @@ class News(Artifact):
         Verifica se existe e adiciona a URL de uma versão arquivada desta notícia presente no
         `Internet Archive`.
         """
-        self.archived_news_url = NewsFetcher.fetch_archived_url(self.url)
+        archived_news_url = NewsFetcher.fetch_archived_url(self.url)
+        if archived_news_url:
+            self.archived_news_url = archived_news_url
 
     @log_process(operation="buscar informações básicas")
     def set_basic_info(self):

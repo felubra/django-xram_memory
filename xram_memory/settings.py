@@ -201,16 +201,17 @@ class Common(Configuration):
     ]
     NPM_ROOT_PATH = BASE_DIR
     NPM_FILE_PATTERNS = {
-        'file-icon-vectors': ['dist/icons/vivid/*'],
+        'file-icon-vectors': [os.path.join('dist', 'icons', 'vivid', '*')],
         'stopwords-iso': ['stopwords-iso.json'],
         'material-design-icons': [
-            'navigation/svg/production/ic_fullscreen*',
-            'action/svg/production/ic_info_24px*',
-            'image/svg/production/ic_picture_as_pdf_24px*',
-            'image/svg/production/ic_filter_24px*',
+            os.path.join('navigation', 'svg', 'production', 'ic_fullscreen*'),
+            os.path.join('action', 'svg', 'production', 'ic_info_24px*'),
+            os.path.join('image', 'svg', 'production',
+                         'ic_picture_as_pdf_24px*'),
+            os.path.join('image', 'svg', 'production', 'ic_filter_24px*'),
         ],
-        'quill': ['dist/*'],
-        'screenfull': ['dist/*'],
+        'quill': [os.path.join('dist', '*')],
+        'screenfull': [os.path.join('dist', '*')],
     }
     ELASTICSEARCH_INDEX_NAMES = {
         'xram_memory.search_indexes.documents.news': 'artifact_news',
@@ -254,37 +255,22 @@ class Common(Configuration):
 
     FOLDER_CAPTURES = {
         'name': 'Capturas automáticas',
-        'lft': 1,
-        'rght': 2,
-        'tree_id': 1,
-        'level': 0,
         'id': 1
     }
 
     FOLDER_PHOTO_ALBUMS = {
         'name': 'Álbuns de fotos',
-        'lft': 1,
-        'rght': 2,
-        'tree_id': 2,
-        'level': 0,
+        'id': 2
     }
 
     FOLDER_PDF_CAPTURES = {
         'name': 'Capturas de notícias em PDF',
-        'lft': 1,
-        'rght': 2,
-        'tree_id': 1,
-        'level': 1,
-        'parent_id': 1
+        'id': 3
     }
 
     FOLDER_IMAGE_CAPTURES = {
         'name': 'Imagens de notícias',
-        'lft': 1,
-        'rght': 2,
-        'tree_id': 1,
-        'level': 1,
-        'parent_id': 1
+        'id': 4
     }
 
     DEFAULT_FOLDERS = (

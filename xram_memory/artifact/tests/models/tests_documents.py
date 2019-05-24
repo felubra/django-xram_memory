@@ -1,15 +1,16 @@
+from django.db.models.signals import post_save, m2m_changed, pre_delete, post_delete
+from django_elasticsearch_dsl.signals import RealTimeSignalProcessor
 from django.test import TestCase, TransactionTestCase
 from xram_memory.artifact.models import Document
 from django.core.files import File as DjangoFile
-from django.db.models.signals import post_save
 from filer import settings as filer_settings
 from contextlib import contextmanager
 from unittest.mock import patch
 from loguru import logger
 from pathlib import Path
 import factory
-import os
 import magic
+import os
 
 
 logger.remove()
@@ -18,6 +19,7 @@ logger.remove()
 
 class DocumentTestCase(TransactionTestCase):
     serialized_rollback = True
+
     @contextmanager
     def open_as_django_file(self, filename):
         """
@@ -60,7 +62,7 @@ class DocumentTestCase(TransactionTestCase):
         self.assertFalse(document.set_document_id())
         self.assertIsNone(document.document_id)
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_set_document_id_without_signals(self):
         """
         Testa o funcionamento de `set_document_id` e o estado de `document_id` após a invocação
@@ -89,7 +91,7 @@ class DocumentTestCase(TransactionTestCase):
             self.assertIsNotNone(document.document_id)
             self.assertEqual(str(document), document.document_id.hashid)
 
-    @factory.django.mute_signals(post_save)
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_determine_mime_type_without_signals(self):
         """
         Testa o funcionamento de `determine_mime_type` e o estado de `mime_type` após a invocação
@@ -114,7 +116,9 @@ class DocumentTestCase(TransactionTestCase):
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
-            self.assertEqual(document.mime_type, 'image/jpeg')
+            with patch.object(Document, 'determine_mime_type') as mocked:
+                mocked.return_value = 'image/jpeg'
+                self.assertEqual(document.mime_type, 'image/jpeg')
 
     def test_determine_mime_type_with_failure(self):
         """
