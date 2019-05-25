@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.core.exceptions import ValidationError
 from xram_memory.quill_widget import no_empty_html
 from pytest import raises

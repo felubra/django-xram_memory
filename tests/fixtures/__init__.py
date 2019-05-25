@@ -33,13 +33,13 @@ class NewsOnlyURL(factory.Factory):
 
 @contextmanager
 def mocked_news_add_fetched_image(url):
-    with open(str(Path(os.path.dirname(__file__), 'files', 'image.jpg')), 'rb') as f:
+    with open(str(Path(os.path.dirname(__file__), 'image.jpg')), 'rb') as f:
         yield f
 
 
 @contextmanager
 def mocked_news_get_pdf_capture(url):
-    with open(str(Path(os.path.dirname(__file__), 'files', 'pdf.pdf')), 'rb') as f:
+    with open(str(Path(os.path.dirname(__file__), 'pdf.pdf')), 'rb') as f:
         yield f
 
 
