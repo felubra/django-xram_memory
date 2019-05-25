@@ -24,6 +24,7 @@ pytest-django = "*"
 pytest-datadir = "*"
 pytest-cov = "*"
 pytest-mock = "*"
+pytest-antilru = "*"
 
 [packages]
 dj-database-url = "~=0.5.0"
