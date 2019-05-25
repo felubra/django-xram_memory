@@ -19,6 +19,7 @@ logger.remove()
 # Create your tests here.
 
 # TODO: Quando for buscar uma notícia na web, usar uma fixture, já que essa notícia pode ser retirada do ar
+# TODO: converter para o estilo pytest quando https://github.com/pytest-dev/pytest-django/pull/721 for aceita
 
 
 class NewsTestCase(TransactionTestCase):

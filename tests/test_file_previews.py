@@ -11,13 +11,13 @@ class MockedSource:
     path: str
 
 
-class FilePreviewsTests(TestCase):
-    def test_icon_preview(self):
-        result = icon_preview(MockedSource(
-            path=os.path.join(os.path.dirname(__file__), "fixtures", "image.jpg")))
-        self.assertIsInstance(result, ImageFile)
+def test_icon_preview():
+    result = icon_preview(MockedSource(
+        path=os.path.join(os.path.dirname(__file__), "fixtures", "image.jpg")))
+    assert isinstance(result, ImageFile)
 
-    def test_pdf_preview(self):
-        result = pdf_preview(MockedSource(
-            path=os.path.join(os.path.dirname(__file__), "fixtures", "pdf.pdf")))
-        self.assertIsInstance(result, ImageFile)
+
+def test_pdf_preview():
+    result = pdf_preview(MockedSource(
+        path=os.path.join(os.path.dirname(__file__), "fixtures", "pdf.pdf")))
+    assert isinstance(result, ImageFile)
