@@ -69,7 +69,8 @@ class DocumentTestCase(TransactionTestCase):
         dessa função. Desativa os sinais do django para poder controlar quando `set_document_id` é 
         invocada.
         """
-        image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
+        image_file_path = Path(os.path.dirname(
+            __file__), './fixtures/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
@@ -84,7 +85,8 @@ class DocumentTestCase(TransactionTestCase):
         """
         Testa se `set_document_id` é invocada por um sinal depois de `Document.save()`.
         """
-        image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
+        image_file_path = Path(os.path.dirname(
+            __file__), './fixtures/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
@@ -98,7 +100,8 @@ class DocumentTestCase(TransactionTestCase):
         dessa função. Desativa os sinais do django para poder controlar o momento em que
         `determine_mime_type` é invocada.
         """
-        image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
+        image_file_path = Path(os.path.dirname(
+            __file__), './fixtures/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
@@ -112,7 +115,8 @@ class DocumentTestCase(TransactionTestCase):
         """
         Testa se `determine_mime_type` é invocada por um sinal depois de `Document.save()`.
         """
-        image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
+        image_file_path = Path(os.path.dirname(
+            __file__), './fixtures/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
@@ -127,7 +131,7 @@ class DocumentTestCase(TransactionTestCase):
         with patch.object(magic, 'from_buffer') as mocked_function:
             mocked_function.side_effect = os.error
             image_file_path = Path(os.path.dirname(
-                __file__), './files/image.jpg')
+                __file__), './fixtures/image.jpg')
             with self.open_as_django_file(image_file_path) as django_file:
                 document = Document(file=django_file)
                 self.assertFalse(document.determine_mime_type())
@@ -137,7 +141,8 @@ class DocumentTestCase(TransactionTestCase):
         """
         Determina se as pré-visualizações adicionais são geradas se o Documento for uma imagem.
         """
-        image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
+        image_file_path = Path(os.path.dirname(
+            __file__), './fixtures/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
@@ -151,7 +156,7 @@ class DocumentTestCase(TransactionTestCase):
         Determina se as pré-visualizações adicionais NÃO são geradas se o Documento não for uma
         imagem.
         """
-        image_file_path = Path(os.path.dirname(__file__), './files/pdf.pdf')
+        image_file_path = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
@@ -164,7 +169,7 @@ class DocumentTestCase(TransactionTestCase):
         """
         document = Document()
         self.assertEqual(document.icons, 'file')
-        image_file_path = Path(os.path.dirname(__file__), './files/pdf.pdf')
+        image_file_path = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
         with self.open_as_django_file(image_file_path) as django_file:
             document = Document(file=django_file)
             document.save()
@@ -179,7 +184,8 @@ class DocumentTestCase(TransactionTestCase):
         self.assertEqual(document.search_thumbnail, '')
         self.assertEqual(document.icon, '')
         self.assertEqual(document.thumbnails, {})
-        image_file_path = Path(os.path.dirname(__file__), './files/image.jpg')
+        image_file_path = Path(os.path.dirname(
+            __file__), './fixtures/image.jpg')
         with self.open_as_django_file(image_file_path) as django_file:
             document.file = django_file
             document.save()
@@ -192,7 +198,8 @@ class DocumentTestCase(TransactionTestCase):
             thumbnails = document.thumbnails
             self.assertNotEqual(thumbnails, {})
 
-            pdf_file_path = Path(os.path.dirname(__file__), './files/pdf.pdf')
+            pdf_file_path = Path(os.path.dirname(
+                __file__), './fixtures/pdf.pdf')
             with self.open_as_django_file(pdf_file_path) as django_file2:
                 document.file = django_file2
                 document.save()

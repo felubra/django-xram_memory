@@ -1,8 +1,9 @@
-from ..plugins.parsers import Goose3NewspaperArticleParser, NewspaperArticleParser
-from ..plugins.defaults import DefaultPDFCapture
-from ..plugins.base import BasicInfoPluginBase
-from ..plugins import pdf_captures
-from ..plugins import archives
+from xram_memory.lib.news_fetcher.plugins.defaults import DefaultPDFCapture
+from xram_memory.lib.news_fetcher.plugins.base import BasicInfoPluginBase
+from xram_memory.lib.news_fetcher.plugins import pdf_captures
+from xram_memory.lib.news_fetcher.plugins.parsers import (
+    Goose3NewspaperArticleParser, NewspaperArticleParser)
+from xram_memory.lib.news_fetcher.plugins import archives
 import pdfkit
 import pytest
 

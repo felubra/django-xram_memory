@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "39dcbecdce52754e9a1ba3cea35ab181d2316da53595df4fad5d9bb2e2a5e561"
+            "sha256": "03ec497d7e11527485fdc4890d6b8d58cbb91c8370e77ca24711ee1bd2d36fa4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -547,10 +547,10 @@
         },
         "pygments": {
             "hashes": [
-                "sha256:31cba6ffb739f099a85e243eff8cb717089fdd3c7300767d9fc34cb8e1b065f5",
-                "sha256:5ad302949b3c98dd73f8d9fcdc7e9cb592f120e32a18e23efd7f3dc51194472b"
+                "sha256:36586500a94cd97f8c2c19d251cdb78868d1a822e0e491bfc1d811766aedb772",
+                "sha256:b437bc0d04dc36f1f5b3592985b3e0a3d0af46b7c39199231706d19a4ee63344"
             ],
-            "version": "==2.4.0"
+            "version": "==2.4.1"
         },
         "python-dateutil": {
             "hashes": [
@@ -1019,6 +1019,14 @@
                 "sha256:b8bf138592384bd4e87338cb0f256bf5f615398a649d4bd83915f0e4047a5ca6"
             ],
             "version": "==4.5.0"
+        },
+        "pytest-antilru": {
+            "hashes": [
+                "sha256:bfd61ea3bf7faf2158673bd9b50dbf2a22efaa7ff6eb9f301703f749adcf0e9e",
+                "sha256:ec999a7c3428d6ddafe86d4cd800008dcc0fcc61066312afdc90eee81dd4fdcc"
+            ],
+            "index": "pypi",
+            "version": "==1.0.5"
         },
         "pytest-cov": {
             "hashes": [
