@@ -40,7 +40,6 @@ develop-eggs/
 dist/
 downloads/
 eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -97,9 +96,6 @@ media/
 # ignore arquivos estáticos coletados pelo Django
 staticfiles/
 
-# ignore a regra para a pasta 'lib' acima para esta pasta
-!xram_memory/lib/
-!xram_memory/**/lib/
 # ignore a pasta usada pelo virtualenv
 .venv
 # ignore components instalados pelo npm

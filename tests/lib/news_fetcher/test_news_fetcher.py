@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from .. import NewsFetcher
-from ..plugins.base import ArchivePluginBase, PDFCapturePluginBase, BasicInfoPluginBase
+from xram_memory.lib.news_fetcher import NewsFetcher
+from xram_memory.lib.news_fetcher.plugins.base import ArchivePluginBase, PDFCapturePluginBase, BasicInfoPluginBase
 from contextlib import contextmanager
 from django.utils.timezone import now
 from random import choice
