@@ -3,7 +3,7 @@ from xram_memory.lib.news_fetcher.plugins.base import (
 from django.utils.timezone import make_aware, now
 from xram_memory.artifact import models
 from contextlib import contextmanager
-from random import choice
+from random import choice, random
 from pathlib import Path
 import datetime
 import factory
@@ -126,3 +126,28 @@ def news_fetcher_plugin_factory():
             plugins.append(Plugin)
         return plugins
     return _plugin_factory
+
+
+class NewsFactory(factory.django.DjangoModelFactory):
+    url = factory.Faker("uri")
+    title = factory.Faker("sentence")
+    authors = factory.Faker("name")
+    body = factory.Faker("text", max_nb_chars=2000)
+    teaser = body = factory.Faker("text", max_nb_chars=200)
+    published_date = factory.Faker("date_time")
+    language = factory.Faker("language_code")
+    image = factory.Faker('image_url')
+    keywords = factory.Faker('words', nb=int(random() * 100))
+
+    class Meta:
+        model = models.News
+
+
+class NewsPaperFactory(factory.django.DjangoModelFactory):
+    url = factory.Faker("uri")
+    title = factory.Faker("sentence")
+    description = factory.Faker("text", max_nb_chars=200)
+    logo = factory.django.ImageField(color='blue')
+
+    class Meta:
+        model = models.Newspaper
