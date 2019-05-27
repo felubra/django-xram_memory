@@ -284,6 +284,9 @@ class Common(Configuration):
         '4OkZKanuMWUU4EO92FcDmwXkn6PbksGAIClUcG4S')
     HASHID_FIELD_LOOKUP_EXCEPTION = False
     HASHID_FIELD_ALLOW_INT_LOOKUP = False
+    # Sal usado para gerar um nome de arquivo nas funções de captura em News
+    FILE_HASHING_SALT = values.Value(
+        'hs204ViIUpIu45CTTUl3KsoQJgVtnmrHpXvRl8u5')
 
 
 class Development(Common):

@@ -167,7 +167,7 @@ class News(Artifact):
         import hashlib
         uniq_filename = (str(datetime.datetime.now().date()) + '_' +
                          str(datetime.datetime.now().time()).replace(':', '.'))
-        filename = hashlib.md5(uniq_filename.encode(
+        filename = hashlib.md5("{}{}".format(uniq_filename, settings.FILE_HASHING_SALT).encode(
             'utf-8')).hexdigest() + '.pdf'
 
         with NewsFetcher.get_pdf_capture(self.url) as fd:
@@ -225,7 +225,8 @@ class News(Artifact):
         original_filename = Path(self._image).name
         original_extension = Path(self._image).suffix
         import hashlib
-        filename = hashlib.md5(self._image.encode(
+
+        filename = hashlib.md5("{}{}".format(self._image, settings.FILE_HASHING_SALT).encode(
             'utf-8')).hexdigest() + original_extension[:4]
 
         with NewsFetcher.fetch_image(self._image) as fd:
