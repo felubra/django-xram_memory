@@ -323,6 +323,7 @@ class NewsPDFCapture(models.Model):
     pdf_document = FilerFileField(
         verbose_name="Documento PDF",
         on_delete=models.CASCADE,
+        related_name="pdf_capture"
     )
     pdf_capture_date = models.DateTimeField(
         auto_now_add=True,
@@ -357,6 +358,7 @@ class NewsImageCapture(models.Model):
     image_document = FilerFileField(
         verbose_name="Documento de imagem",
         on_delete=models.CASCADE,
+        related_name="image_capture"
     )
     image_capture_date = models.DateTimeField(
         verbose_name="Data de captura",

@@ -173,7 +173,7 @@ class Document(File):
             self.name = self.label
         super().save(*args, **kwargs)
         # limpe o cache das flags/campos, pois o arquivo pode ter mudado
-        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails']:
+        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news']:
             try:
                 delattr(self, attr_name)
             except AttributeError:
@@ -184,3 +184,22 @@ class Document(File):
             return self.document_id.hashid
         else:
             return super().__str__()
+
+    def related_news(self):
+        # TODO: limpar o cache dessa propriedade quando a notícia for salva ou quando a(s) captura(s)
+        # de notícia for(em) salva(s)
+        news_items = []
+        try:
+            for field_name in ['pdf_capture', 'image_capture']:
+                try:
+                    for capture in (getattr(self, field_name, None)
+                                    .select_related('news')
+                                    .only("news__title", "news__slug").all()):
+                        news_items.append(capture.news)
+                except:
+                    continue
+
+        except:
+            return []
+        else:
+            return news_items

@@ -7,6 +7,19 @@ from filer.models import Folder, File
 from django.conf import settings
 
 
+class NewspaperSerializer(ModelSerializer):
+    class Meta:
+        model = Newspaper
+        fields = ('title', 'description', 'favicon_logo', 'url')
+
+
+class SimpleNewsSerializer(ModelSerializer):
+    class Meta:
+        model = News
+        fields = ('title', 'slug', 'thumbnail')
+    thumbnail = CharField()
+
+
 class DocumentSerializer(ModelSerializer):
     document_id = HashidSerializerCharField(
         source_field='artifact.Document.document_id')
@@ -14,7 +27,9 @@ class DocumentSerializer(ModelSerializer):
     class Meta:
         model = Document
         fields = ('document_id', 'name', 'description', 'canonical_url',
-                  'mime_type', 'size', 'thumbnail', 'thumbnails')
+                  'mime_type', 'size', 'thumbnail', 'thumbnails', 'news_items')
+
+    news_items = SimpleNewsSerializer(source='related_news', many=True)
 
 
 class SimpleDocumentSerializer(ModelSerializer):
@@ -41,12 +56,6 @@ class PDFCaptureSerializer(ModelSerializer):
         model = NewsPDFCapture
         fields = ('pdf_document', 'pdf_capture_date',)
     pdf_document = SimpleDocumentSerializer()
-
-
-class NewspaperSerializer(ModelSerializer):
-    class Meta:
-        model = Newspaper
-        fields = ('title', 'description', 'favicon_logo', 'url')
 
 
 class NewsSerializer(ModelSerializer):
