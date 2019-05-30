@@ -77,7 +77,7 @@ class StaticPageAdmin(TraceableEditorialAdminModel):
         }),
 
         ('Informações adicionais', {
-            'fields': ('url', 'image', 'show_in_menu',),
+            'fields': ('url', 'teaser_text', 'image', 'show_in_menu',),
         }),
     )
     list_display_links = ('title', 'id',)

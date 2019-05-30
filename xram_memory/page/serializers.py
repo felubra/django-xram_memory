@@ -8,7 +8,7 @@ class StaticPageSerializer(ModelSerializer):
     class Meta:
         model = StaticPage
         fields = ('title', 'teaser', 'url',
-                  'body', 'image',
+                  'body', 'image', 'teaser_text',
                   'show_in_menu', 'published', 'featured', 'created_at', 'modified_at')
 
 
@@ -16,5 +16,5 @@ class SimpleStaticPageSerializer(ModelSerializer):
     """Um serializer com apenas alguns campos para salvar espaço."""
     class Meta:
         model = StaticPage
-        fields = ('title', 'teaser', 'url',
+        fields = ('title', 'teaser', 'url', 'teaser_text',
                   'show_in_menu', 'published', 'featured',)

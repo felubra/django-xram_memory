@@ -17,34 +17,34 @@ class StaticPage(TraceableEditorialModel):
     title = models.CharField(
         verbose_name="Título",
         help_text="Título",
-        max_length=255,
-    )
+        max_length=255)
     teaser = models.TextField(
         verbose_name="Resumo ou chamada",
         help_text="Resumo ou chamada",
         null=True,
         blank=True,
-        validators=[no_empty_html],
-    )
+        validators=[no_empty_html])
+    teaser_text = models.CharField(
+        verbose_name="Texto do link de chamada",
+        help_text="Texto que será exibido como link para esta página na página inicial",
+        null=True,
+        max_length=255,
+        blank=True)
     url = models.CharField(
         verbose_name="Endereço",
         max_length=100,
-        db_index=True
-    )
+        db_index=True)
     body = models.TextField(
         verbose_name="Corpo da página",
-        validators=[no_empty_html],
-    )
+        validators=[no_empty_html])
     image = ThumbnailerImageField(
         verbose_name="Imagem",
         null=True,
-        blank=True,
-    )
+        blank=True)
     show_in_menu = models.BooleanField(
         verbose_name="Mostrar no menu",
         help_text='Mostrar um link para esta página no menu principal do site',
-        default=False
-    )
+        default=False)
 
     def __str__(self):
         return self.title
