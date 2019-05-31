@@ -10,13 +10,14 @@ from django.conf import settings
 class NewspaperSerializer(ModelSerializer):
     class Meta:
         model = Newspaper
-        fields = ('title', 'description', 'favicon_logo', 'url')
+        fields = ('title', 'description', 'favicon_logo',
+                  'url', 'modified_at', 'created_at')
 
 
 class SimpleNewsSerializer(ModelSerializer):
     class Meta:
         model = News
-        fields = ('title', 'slug', 'thumbnail')
+        fields = ('title', 'slug', 'thumbnail', 'modified_at', 'created_at')
     thumbnail = CharField()
 
 
@@ -26,8 +27,8 @@ class DocumentSerializer(ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ('document_id', 'name', 'description', 'canonical_url',
-                  'mime_type', 'size', 'thumbnail', 'thumbnails', 'news_items')
+        fields = ('document_id', 'name', 'description', 'canonical_url', 'uploaded_at',
+                  'modified_at', 'mime_type', 'size', 'thumbnail', 'thumbnails', 'news_items')
 
     news_items = SimpleNewsSerializer(source='related_news', many=True)
 
@@ -38,7 +39,8 @@ class SimpleDocumentSerializer(ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ('document_id', 'name', 'mime_type', 'size',)
+        fields = ('document_id', 'name', 'mime_type', 'size', 'modified_at',
+                  'uploaded_at',)
 
 
 class SimpleDocumentSerializerWithThumbnail(ModelSerializer):
@@ -48,7 +50,8 @@ class SimpleDocumentSerializerWithThumbnail(ModelSerializer):
     class Meta:
         model = Document
         fields = ('document_id', 'name', 'mime_type', 'size',
-                  'thumbnail', 'thumbnails', 'canonical_url')
+                  'thumbnail', 'thumbnails', 'canonical_url', 'uploaded_at',
+                  'modified_at',)
 
 
 class PDFCaptureSerializer(ModelSerializer):
@@ -62,8 +65,9 @@ class NewsSerializer(ModelSerializer):
     class Meta:
         model = News
         fields = ('title', 'teaser', 'slug',
-                  'url', 'archived_news_url', 'authors', 'body', 'published_date', 'language', 'newspaper', 'keywords',
-                  'subjects', 'pdf_captures', 'image_capture', 'thumbnail')
+                  'url', 'archived_news_url', 'authors', 'body', 'published_date', 'language',
+                  'newspaper', 'keywords', 'subjects', 'pdf_captures', 'image_capture',
+                  'thumbnail', 'modified_at', 'created_at',)
     newspaper = NewspaperSerializer()
     keywords = KeywordSerializer(many=True)
     subjects = SubjectSerializer(many=True)
