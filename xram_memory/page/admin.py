@@ -39,9 +39,9 @@ class StaticPageAdminForm(forms.ModelForm):
             'data-toolbar': '''[
                                 ["bold","italic","underline","strike"],
                                 [{"align":["","center","right","justify"]}],
-                                [{"color":%s},{"background": %s}],
+                                [{"color":%s},{"background": %s}],["link","image"],
                                 ["clean"]]''' % (EDITOR_COLORS, EDITOR_COLORS),
-            'data-formats': 'bold,italic,strike,underline,align,color,background'
+            'data-formats': 'bold,italic,strike,underline,align,color,background,image,link'
         }
 
         widgets = {
