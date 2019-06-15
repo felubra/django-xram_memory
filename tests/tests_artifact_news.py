@@ -22,6 +22,7 @@ logger.remove()
 # TODO: converter para o estilo pytest quando https://github.com/pytest-dev/pytest-django/pull/721 for aceita
 
 
+@pytest.mark.django_db(transaction=True)
 class NewsTestCase(TransactionTestCase):
     serialized_rollback = True
 

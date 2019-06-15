@@ -11,12 +11,14 @@ from pathlib import Path
 import factory
 import magic
 import os
+import pytest
 
 
 logger.remove()
 # Create your tests here.
 
 
+@pytest.mark.django_db(transaction=True)
 class DocumentTestCase(TransactionTestCase):
     serialized_rollback = True
 
