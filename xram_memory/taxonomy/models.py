@@ -28,7 +28,6 @@ class TaxonomyItem(TraceableModel):
 
     def save(self, *args, **kwargs):
         # gera uma slug única, considerando as slugs de outros artefatos
-        # TODO: somente gerar uma slug nova se não houver slug definida ou conflito de slugs
         unique_slugify(self, self.name)
         super().save(*args, **kwargs)
 

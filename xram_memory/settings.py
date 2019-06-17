@@ -33,18 +33,27 @@ class Common(Configuration):
         'django.contrib.messages',
         'whitenoise.runserver_nostatic',
         'django.contrib.staticfiles',
+        'django_elasticsearch_dsl',
 
         'django_extensions',
         'xram_memory.users',
         'xram_memory.taxonomy',
         'xram_memory.logger',
+        'xram_memory.search_indexes',
 
+        'xram_memory.quill_widget',
         'xram_memory.artifact',
-
-        'django_rq',
+        'xram_memory.page',
+        'easy_thumbnails',
+        'xram_memory.apps.FilerConfig',
+        'mptt',
+        'rest_framework',
+        'corsheaders',
+        'tags_input',
     ]
 
     MIDDLEWARE = [
+        'corsheaders.middleware.CorsMiddleware',
         'django.middleware.security.SecurityMiddleware',
         'whitenoise.middleware.WhiteNoiseMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
@@ -119,7 +128,7 @@ class Common(Configuration):
     # https://docs.djangoproject.com/en/2.1/howto/static-files/
     STATIC_URL = '/static/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = 'xram_memory.utils.PatchedCompressedManifestStaticFilesStorage'
 
     AUTH_USER_MODEL = 'users.User'
 
@@ -134,10 +143,150 @@ class Common(Configuration):
     }
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     MEDIA_URL = '/media/'
-    PDF_ARTIFACT_DIR = 'artifacts/documents/pdf_files/'
-    IMAGE_ARTIFACT_DIR = 'artifacts/documents/image_files/'
     VALID_FILE_UPLOAD_MIME_TYPES = (
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',)
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'application/zip')
+    VALID_FILE_UPLOAD_IMAGES_MIME_TYPES = (
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',)
+
+    THUMBNAIL_SOURCE_GENERATORS = (
+        'easy_thumbnails.source_generators.pil_image',
+        'xram_memory.lib.file_previews.pdf_preview',
+        'xram_memory.lib.file_previews.icon_preview',
+    )
+
+    THUMBNAIL_ALIASES = {
+        '': {
+            'document_thumbnail': {
+                'size': (250, 250),
+                'autocrop': True,
+                'crop': 'scale',
+                'upscale': False,
+            },
+            'thumbnail': {
+                'size': (250, 250),
+                'background': '#f3f1f1',
+                'autocrop': True,
+                'crop': 'smart',
+            },
+            'image_capture': {
+                'size': (670, 204),
+                'autocrop': True,
+                'crop': 'scale'
+            },
+            '1280': {
+                'size': (1280, 1280),
+                'crop': 'scale'
+            },
+            '640': {
+                'size': (640, 360),
+                'crop': 'scale'
+            },
+            '360': {
+                'size': (360, 360),
+                'crop': 'scale'
+            },
+            'favicon': {
+                'size': (18, 18),
+                'autocrop': True,
+                'scale_and_crop': 'smart',
+                'upscale': False,
+            }
+        }
+    }
+
+    STATICFILES_FINDERS = [
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'npm.finders.NpmFinder',
+    ]
+    NPM_ROOT_PATH = BASE_DIR
+    NPM_FILE_PATTERNS = {
+        'file-icon-vectors': [os.path.join('dist', 'icons', 'vivid', '*')],
+        'stopwords-iso': ['stopwords-iso.json'],
+        'material-design-icons': [
+            os.path.join('navigation', 'svg', 'production', 'ic_fullscreen*'),
+            os.path.join('action', 'svg', 'production', 'ic_info_24px*'),
+            os.path.join('image', 'svg', 'production',
+                         'ic_picture_as_pdf_24px*'),
+            os.path.join('image', 'svg', 'production', 'ic_filter_24px*'),
+        ],
+        'quill': [os.path.join('dist', '*')],
+        'screenfull': [os.path.join('dist', '*')],
+    }
+    ELASTICSEARCH_INDEX_NAMES = {
+        'xram_memory.search_indexes.documents.news': 'artifact_news',
+        'xram_memory.search_indexes.documents.document': 'artifact_document',
+    }
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': values.Value('localhost:9200', True, environ_name="ELASTICSEARCH_HOST", environ_prefix="DJANGO"),
+            'http_auth': values.TupleValue(environ_name="ELASTICSEARCH_CREDENTIALS", environ_prefix="DJANGO"),
+            'timeout': 30,
+        },
+    }
+
+    REST_FRAMEWORK = {
+        'DEFAULT_PARSER_CLASSES': (
+            'rest_framework.parsers.JSONParser',
+        ),
+        'DEFAULT_THROTTLE_CLASSES': (
+            'rest_framework.throttling.AnonRateThrottle',
+        ),
+        'DEFAULT_THROTTLE_RATES': {
+            'anon': '60/minute',
+        }
+    }
+
+    FILER_FILE_MODELS = ['artifact.Document']
+
+    TAGS_INPUT_MAPPINGS = {
+        'taxonomy.Keyword': {
+            'field': 'name',
+            'create_missing': True,
+        },
+        'taxonomy.Subject': {
+            'field': 'name',
+            'create_missing': True,
+        },
+    }
+    FILE_UPLOAD_MAX_MEMORY_SIZE = 10621440
+    CELERY_BROKER_URL = values.Value('')
+    CELERY_CELERYD_MAX_TASKS_PER_CHILD = 10
+
+    FOLDER_CAPTURES = {
+        'name': 'Capturas automáticas',
+        'id': 1
+    }
+
+    FOLDER_PHOTO_ALBUMS = {
+        'name': 'Álbuns de fotos',
+        'id': 2
+    }
+
+    FOLDER_PDF_CAPTURES = {
+        'name': 'Capturas de notícias em PDF',
+        'id': 3
+    }
+
+    FOLDER_IMAGE_CAPTURES = {
+        'name': 'Imagens de notícias',
+        'id': 4
+    }
+
+    DEFAULT_FOLDERS = (
+        FOLDER_CAPTURES,
+        FOLDER_PHOTO_ALBUMS,
+        FOLDER_PDF_CAPTURES,
+        FOLDER_IMAGE_CAPTURES,
+    )
+
+    HASHID_FIELD_SALT = values.Value(
+        '4OkZKanuMWUU4EO92FcDmwXkn6PbksGAIClUcG4S')
+    HASHID_FIELD_LOOKUP_EXCEPTION = False
+    HASHID_FIELD_ALLOW_INT_LOOKUP = False
+    # Sal usado para gerar um nome de arquivo nas funções de captura em News
+    FILE_HASHING_SALT = values.Value(
+        'hs204ViIUpIu45CTTUl3KsoQJgVtnmrHpXvRl8u5')
 
 
 class Development(Common):
@@ -146,7 +295,8 @@ class Development(Common):
     """
     DEBUG = True
 
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.99.100']
+    ALLOWED_HOSTS = values.ListValue(
+        ['localhost', '127.0.0.1', '[::1]', '192.168.99.100', 'xram-memory.local'])
 
     INTERNAL_IPS = [
         '127.0.0.1'
@@ -171,7 +321,7 @@ class Development(Common):
         'loggers': {
             '': {
                 'handlers': ['console'],
-                'level': 'INFO',
+                'level': 'ERROR',
             },
             'django': {
                 'handlers': ['console'],
@@ -179,6 +329,9 @@ class Development(Common):
             },
         },
     }
+    CELERY_BROKER_URL = values.Value('redis://127.0.0.1:6379/0')
+
+    CORS_ORIGIN_ALLOW_ALL = True
 
 
 class Staging(Common):
@@ -202,9 +355,24 @@ class Staging(Common):
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            '': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+            },
+        },
+    }
+
 
 class Production(Staging):
     """
     The in-production settings.
     """
-    pass

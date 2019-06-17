@@ -1,9 +1,19 @@
-import magic
-from django.template.defaultfilters import filesizeformat
-from django.utils.deconstruct import deconstructible
-from django.core.exceptions import ValidationError
 import re
+import magic
+from pathlib import Path
+from kombu import Connection
+from functools import lru_cache
+from django.conf import settings
+from django.db import transaction
+from inspect import getfullargspec
+from functools import wraps, lru_cache
+from kombu.exceptions import OperationalError
+from django.contrib.staticfiles import finders
+from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
+from django.utils.deconstruct import deconstructible
+from django.template.defaultfilters import filesizeformat
+from whitenoise.storage import CompressedManifestStaticFilesStorage
 
 
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None,
@@ -113,8 +123,6 @@ class FileValidator(object):
         if self.content_types:
             # Leia os primeiros 1024 bytes dos dados para determinar seu tipo com a libmagic
             content_type = magic.from_buffer(data.read(1024), mime=True)
-            # Guarde a informação sobre o tipo para ser obtida por get_file_path, isso efetivamente
-            # validará o modelo toda vez que ele for inserido pela interface administrativa
             data.file._mime_type = content_type
             data.seek(0)
             if content_type not in self.content_types:
@@ -124,3 +132,83 @@ class FileValidator(object):
 
     def __eq__(self, other):
         return isinstance(other, FileValidator)
+
+
+class SignalException(Exception):
+    pass
+
+
+def celery_is_avaliable():
+    try:
+        conn = Connection(settings.CELERY_BROKER_URL)
+        conn.ensure_connection(max_retries=3)
+        from celery.task.control import inspect
+        insp = inspect()
+        d = insp.stats()
+        if not d:
+            raise AttributeError
+    except:
+        return False
+    else:
+        return True
+
+
+def task_on_commit(task, sync_context=False, sync_failback=True):
+    """
+    Executa uma tarefa após a execução de uma função decorada.
+    A função decorada deve retornar um valor que será usado como argumento para a tarefa.
+    Se função decorada invocar `SignalException` ou não retornar parâmetro algum, ela não será executada.
+    """
+    def decorate(func):
+        @wraps(func)
+        def decorated(*args, **kwargs):
+            try:
+                task_args = func(*args, **kwargs)
+            except SignalException:
+                return
+
+            if not task_args:
+                return
+
+            # TODO: cachear (?)
+            execute_async = celery_is_avaliable()
+
+            if execute_async:
+                transaction.on_commit(lambda task_args=task_args:
+                                      task.delay(*task_args))
+            elif sync_failback and not execute_async:
+                transaction.on_commit(lambda task_args=task_args, sync_context=sync_context:
+                                      task(*task_args, sync=True) if sync_context else task(*task_args))
+            else:
+                raise RuntimeError(
+                    "Falha ao executar {}: servidor de filas não está disponível.".format(func.__name__))
+        return decorated
+    return decorate
+
+
+@lru_cache(maxsize=16)
+def get_file_icon(icon_name):
+    """ retorne o caminho completo de um ícone do pacote file-icon-vectors"""
+    try:
+        icon_file = finders.find(
+            Path('file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name)))
+        if icon_file is None:
+            raise ValueError
+        return icon_file
+    except ValueError:
+        return finders.find(
+            Path('file-icon-vectors/dist/icons/vivid/blank.svg'))
+
+
+class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesStorage):
+    """
+    Override the replacement patterns to match URL-encoded quotations.
+    Patch: https://code.djangoproject.com/ticket/21080#comment:12
+    """
+    manifest_strict = False
+    patterns = (
+        ("*.css", (
+            r"""(url\((?:['"]|%22|%27){0,1}\s*(.*?)(?:['"]|%22|%27){0,1}\))""",
+            (r"""(@import\s*["']\s*(.*?)["'])""", """@import url("%s")"""),
+        )),
+    )

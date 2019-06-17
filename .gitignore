@@ -40,7 +40,6 @@ develop-eggs/
 dist/
 downloads/
 eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -96,6 +95,10 @@ media/
 
 # ignore arquivos estáticos coletados pelo Django
 staticfiles/
+
+# ignore a pasta usada pelo virtualenv
+.venv
+# ignore components instalados pelo npm
 node_modules
-.venv/
-.pytest_cache/
+#ignore pastas do pytest
+.pytest_cache

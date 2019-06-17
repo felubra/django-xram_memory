@@ -8,47 +8,69 @@ class Artifact(TraceableEditorialModel):
     """
     Classe abstrata para todos os objetos-artefato do acervo
     """
-    # TODO: lidar com a exigência do título
     title = models.CharField(
         verbose_name="Título",
         help_text="Título",
         max_length=255,
-        blank=True,
-    )
+        blank=True)
     teaser = models.TextField(
         verbose_name="Resumo ou chamada",
         help_text="Resumo ou chamada",
         null=True,
-        blank=True,
-    )
-    # TODO: adicionar um help_text para `slug`
+        blank=True)
     slug = models.SlugField(
-        verbose_name="Slug",
-        help_text="",
-        blank=True,
-    )
+        verbose_name="Endereço",
+        help_text="Parte do endereço pelo qual este artefato poderá ser acessado",
+        blank=True)
     keywords = models.ManyToManyField(
         Keyword,
         verbose_name="Palavras-chave",
-        blank=True,
-    )
+        related_name="%(class)s",
+        blank=True)
     subjects = models.ManyToManyField(
         Subject,
         verbose_name="Assuntos",
-        blank=True,
-    )
+        related_name="%(class)s",
+        blank=True)
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        return self.title
+        if self.title not in (None, ''):
+            return self.title
+        else:
+            return '(sem título)'
 
     def save(self, *args, **kwargs):
         # gera uma slug única, considerando as slugs de outros artefatos
-        # TODO: somente gerar uma slug nova se não houver slug definida ou conflito de slugs
+
         unique_slugify(self, self.title)
         if not self.title:
             raise ValueError(
                 "Não é possível criar um artefato sem título.")
-        super(Artifact, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
+
+    @property
+    def keywords_indexing(self):
+        """Tags for indexing.
+
+        Used in Elasticsearch indexing.
+        """
+        return [keyword.name for keyword in self.keywords.all()]
+
+    @property
+    def subjects_indexing(self):
+        """Tags for indexing.
+
+        Used in Elasticsearch indexing.
+        """
+        return [subject.name for subject in self.subjects.all()]
+
+    @property
+    def null_field_indexing(self):
+        """null_field for indexing.
+
+        Used in Elasticsearch indexing/tests of `isnull` functional filter.
+        """
+        return None

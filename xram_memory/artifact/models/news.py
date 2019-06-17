@@ -1,29 +1,30 @@
-from django.core.files.base import ContentFile
-from django.core.validators import URLValidator
-
-from pathlib import Path
-
-from django.template.defaultfilters import slugify
-from django.conf import settings
-import datetime
-from ..news_fetcher import NewsFetcher
-from .documents import Document
-
+from xram_memory.artifact.models import Artifact, Document, Newspaper
+from xram_memory.artifact import tasks as background_tasks
+from django.db import models, transaction, IntegrityError
 from xram_memory.logger.decorators import log_process
+from filer.utils.generate_filename import randomized
+from django.template.defaultfilters import slugify
+from easy_thumbnails.files import get_thumbnailer
+from django.core.files import File as DjangoFile
 from xram_memory.taxonomy.models import Keyword
-from .artifact import Artifact
-
-import django_rq
-import redis
-
-
-from django.db import models
-from django_rq import job
-
-
-@job
-def add_pdf_capture_job(news):
-    return news.add_pdf_capture()
+from django.core.validators import URLValidator
+from django.core.files.base import ContentFile
+from boltons.cacheutils import cachedproperty
+from filer.fields.file import FilerFileField
+from django.db.transaction import on_commit
+from filer.models import File as FilerFile
+from xram_memory.lib import NewsFetcher
+from django.db.models import Prefetch
+from django.utils.timezone import now
+from filer.models import File, Folder
+from django.conf import settings
+from django.db.models import Q
+from pathlib import Path
+from celery import group
+import datetime
+import tempfile
+import urllib
+import os
 
 
 class News(Artifact):
@@ -34,37 +35,43 @@ class News(Artifact):
     de página (NewsPDFCapture) e uma imagem associada a notícia (NewsImageCapture).
     """
     url = models.URLField(
-        verbose_name="Endereço",
+        verbose_name="Endereço original",
         help_text="Endereço original da notícia",
         max_length=255,
         unique=True,
         null=False,
-        validators=[URLValidator],
-    )
+        validators=[URLValidator])
     # TODO: adicionar validador de URL
     archived_news_url = models.URLField(
         verbose_name="Endereço no Internet Archive",
         help_text="Endereço da notícia no <a href='https://archive.org/'>Archive.org</a>",
         max_length=255,
         null=True,
-        blank=True,
-    )
+        blank=True)
     authors = models.TextField(
         verbose_name="Autores",
         help_text='Nomes dos autores, separados por vírgula',
-        blank=True,
-    )
+        blank=True)
     body = models.TextField(
         verbose_name="Texto da notícia",
         help_text="Texto integral da notícia",
-        blank=True,
-    )
+        null=True,
+        blank=True)
     published_date = models.DateTimeField(
         verbose_name='Data de publicação',
         help_text='Data em que a notícia foi publicada',
         blank=True,
+        null=True)
+    language = models.CharField(
+        max_length=2,
         null=True,
-    )
+        blank=True,
+        default='pt')
+    newspaper = models.ForeignKey(
+        Newspaper,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='news')
 
     class Meta:
         verbose_name = "Notícia"
@@ -78,46 +85,17 @@ class News(Artifact):
         if not self.url:
             raise ValueError(
                 "Você precisa definir um endereço para a notícia.")
-        # recebe os atributos do formulário de edição ou define padrões se ausentes
-        set_basic_info = getattr(
-            self, '_set_basic_info', self.pk is None)
-        fetch_archived_url = getattr(
-            self, '_fetch_archived_url', self.pk is None)
-        add_pdf_capture = getattr(
-            self, '_add_pdf_capture', self.pk is None)
 
-        # preenche automaticamente os campos da notícia com informações inferidas
-        if set_basic_info:
-            self.set_basic_info()
-        # busca uma versão da notícia arquivada no Archive.org
-        if fetch_archived_url:
-            self.fetch_archived_url()
+        if not self.title:
+            self.set_web_title()
 
         # salva a notícia
-        super(News, self).save(*args, **kwargs)
-
-        # cria e relaciona a esta notícia palavras-chave encontradas por set_basic_info()
-        self.add_fetched_keywords()
-        # se `set_basic_info()` encontrou uma imagem para a notícia, cria essa imagem como artefato
-        # e relaciona ela a esta notícia
-        if hasattr(self, '_image') and len(self._image) > 0:
-            self.add_fetched_image()
-
-        # agenda um job para adicionar uma captura de página em pdf da notícia, executa a captura se
-        # o agendador não estiver disponível
-        if add_pdf_capture:
-            try:
-                django_rq.get_queue().get_job_ids()
-            except redis.exceptions.ConnectionError:
-                self.add_pdf_capture()
-            else:
-                add_pdf_capture_job.delay(self)
+        super().save(*args, **kwargs)
 
     @property
     def has_basic_info(self):
         """
         Indica se esta notícia tem ao menos alguns campos preenchidos, ou seja, informações básicas.
-        TODO: acrescentar campos de relacionamento e não verificar eles se o objeto for novo.
         """
         return (bool(self.title) or bool(self.teaser) or bool(self.body) or bool(self.authors) or
                 bool(self.published_date))
@@ -127,20 +105,44 @@ class News(Artifact):
         """
         Indica se existe ao menos uma captura em pdf associada a esta notícia.
         """
-        if self.pk is None:
+        try:
+            return self.pdf_captures.prefetch_related(Prefetch(
+                "news"
+            )).all().count() > 0
+        except:
             return False
-        else:
-            return bool(self.pdf_captures.count() > 0)
 
-    @log_process(operation="verificar por uma versão no archive.org", object_type="Notícia")
+    @property
+    def has_image(self):
+        """
+        Indica se esta notícia tem uma imagem associada.
+        """
+        try:
+            image_capture = self.image_capture
+            return image_capture is not None
+        except:
+            return False
+
+    @log_process(operation="pegar o título")
+    def set_web_title(self):
+        """
+        Pega o título para a página desta notícia.
+        """
+        title = NewsFetcher.fetch_web_title(self.url)[:255]
+        if title:
+            self.title = title
+
+    @log_process(operation="verificar por uma versão no archive.org")
     def fetch_archived_url(self):
         """
         Verifica se existe e adiciona a URL de uma versão arquivada desta notícia presente no
         `Internet Archive`.
         """
-        self.archived_news_url = NewsFetcher.fetch_archived_url(self.url)
+        archived_news_url = NewsFetcher.fetch_archived_url(self.url)
+        if archived_news_url:
+            self.archived_news_url = archived_news_url
 
-    @log_process(operation="buscar informações básicas", object_type="Notícia")
+    @log_process(operation="buscar informações básicas")
     def set_basic_info(self):
         """
         Abre a página da notícia e tenta inferir e definir suas informações básicas.
@@ -154,98 +156,157 @@ class News(Artifact):
                 setattr(self, '_image', value)
             else:
                 setattr(self, prop, value)
+        return basic_info
 
-    @log_process(operation="adicionar uma captura em formato PDF", object_type="Notícia")
+    @log_process(operation="adicionar uma captura em formato PDF")
     def add_pdf_capture(self):
         """
         Captura a notícia em formato para impressão e em PDF.
-        TODO: salvar e usar diretamente o arquivo, não lidar com um buffer de conteúdo.
+        TODO: usar um hash com sal na geração do nome do arquivo.
         """
-        # TODO: checar se o diretório existe, se existem permissões para salvar etc
-        # TODO: usar o System check framework
-        if not settings.PDF_ARTIFACT_DIR:
-            raise ValueError(
-                'NewsFetcher: o caminho para onde salvar as páginas não foi definido')
+        import hashlib
+        uniq_filename = (str(datetime.datetime.now().date()) + '_' +
+                         str(datetime.datetime.now().time()).replace(':', '.'))
+        filename = hashlib.md5("{}{}".format(uniq_filename, settings.FILE_HASHING_SALT).encode(
+            'utf-8')).hexdigest() + '.pdf'
 
-        # pega o conteúdo da página do Fetcher
-        pdf_content = NewsFetcher.get_pdf_capture(
-            self.url)
+        with NewsFetcher.get_pdf_capture(self.url) as fd:
+            django_file = DjangoFile(fd, name=filename)
+            with transaction.atomic():
+                folder = Folder.objects.get(**settings.FOLDER_PDF_CAPTURES)
+                new_pdf_document = Document(file=django_file, name=filename,
+                                            original_filename=filename,
+                                            folder=folder,  owner=self.modified_by,
+                                            published_date=now(), is_user_object=False,
+                                            is_public=True)
+                # Reaproveite um arquivo já existente, com base no seu hash, de forma que um
+                # arquivo possa ser utilizado várias vezes, por várias capturas. Ao que parece,
+                # contudo o wkhtmltopdf sempre gera arquivos diferentes...
+                try:
+                    pdf_document = Document.objects.get(
+                        sha1=new_pdf_document.sha1)
+                except Document.DoesNotExist:
+                    new_pdf_document.save()
+                    pdf_document = new_pdf_document
 
-        # gera um nome de arquivo único
-        # TODO: isso pode ser definido na configuração do FileField?
-        uniq_filename = (
-            str(datetime.datetime.now().date()) + '_' +
-            str(datetime.datetime.now().time()).replace(':', '.') + '.pdf'
-        )
-        # gera um arquivo com o conteúdo devolvido pelo fetcher
-        pdf_file = ContentFile(pdf_content, uniq_filename)
-        # cria um novo documento do tipo PDF
-        # TODO: adicionar as tags da notícia
-        pdf_document = Document.objects.create(
-            file=pdf_file, is_user_object=False, created_by=self.modified_by,
-            modified_by=self.modified_by)
-        pdf_file.close()
-        del pdf_content
-        # cria uma nova captura de página em pdf com o dcumento gerado e associa ela a esta notícia
-        NewsPDFCapture.objects.create(
-            news=self, pdf_document=pdf_document)
+                NewsPDFCapture.objects.create(
+                    news=self, pdf_document=pdf_document)
 
+    @log_process(operation="adicionar palavras-chave")
     def add_fetched_keywords(self):
         """
         Para cada uma das palavras-chave descobertas por set_basic_info(), crie uma palavra-chave no
         banco de dados e associe ela a esta notícia
         """
-        # TODO: fortificar esse código, último except pode falhar
         if hasattr(self, '_keywords') and len(self._keywords) > 0:
+            keywords = []
             for keyword in self._keywords:
-                # TODO: refatorar para usar um objeto Q?
                 try:
                     # tente achar a palavra-chave pelo nome
-                    db_keyword = Keyword.objects.get(name=keyword)
-                    self.keywords.add(db_keyword)
+                    keywords.append(Keyword.objects.get(name=keyword))
                 except Keyword.DoesNotExist:
-                    # caso não consiga, tente achar pela slug
                     try:
-                        # TODO: respeitar o limite máximo da slug na comparação
-                        db_keyword = Keyword.objects.get(
-                            slug=slugify(keyword))
-                        self.keywords.add(db_keyword)
-                    # caso não ache, crie uma palavra-chave utilizando o usuário que modificou esta notícia
-                    except Keyword.DoesNotExist:
-                        self.keywords.create(name=keyword, created_by=self.modified_by,
-                                             modified_by=self.modified_by)
+                        keywords.append(Keyword.objects.create(name=keyword,
+                                                               created_by=self.modified_by,
+                                                               modified_by=self.modified_by))
+                    except IntegrityError:
+                        pass
+            if len(keywords):
+                self.keywords.add(*keywords)
 
-    @log_process(operation="baixar uma imagem", object_type="Notícia")
+    @log_process(operation="baixar uma imagem")
     def add_fetched_image(self):
         """
         Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e cria uma
         instância dela como documento de artefato (Document) e captura de imagem de notícia
         (NewsImageCapture).
+        TODO: usar um hash com sal na geração do nome do arquivo.
         """
-        # TODO: validar se a url da imagem é válida
-        # TODO: fortificar esse código, último except pode falhar
+        original_filename = Path(self._image).name
+        original_extension = Path(self._image).suffix
+        import hashlib
+
+        filename = hashlib.md5("{}{}".format(self._image, settings.FILE_HASHING_SALT).encode(
+            'utf-8')).hexdigest() + original_extension[:4]
+
+        with NewsFetcher.fetch_image(self._image) as fd:
+            django_file = DjangoFile(fd, name=filename)
+            with transaction.atomic():
+                # tente apagar todas as imagens associadas a esta notícia, pois só pode haver uma
+                try:
+                    captures_for_this_news = self.image_capture
+                    captures_for_this_news.delete()
+                except (NewsImageCapture.DoesNotExist):
+                    pass  # Não existem imagens associadas a esta notícia
+                folder = Folder.objects.get(**settings.FOLDER_IMAGE_CAPTURES)
+
+                new_image_document = Document(file=django_file, name=filename,
+                                              original_filename=original_filename,
+                                              is_user_object=False,
+                                              folder=folder, published_date=now(),
+                                              owner=self.modified_by,
+                                              is_public=True)
+                # Reaproveite um arquivo já existente, com base no seu hash,
+                # de forma que um arquivo possa ser utilizado várias vezes, por várias capturas.
+                try:
+                    image_document = Document.objects.get(
+                        sha1=new_image_document.sha1)
+                except Document.DoesNotExist:
+                    new_image_document.save()
+                    image_document = new_image_document
+
+                _ = image_document.thumbnail  # força a geração de um thumbnail para esta captura
+
+                NewsImageCapture.objects.create(
+                    image_document=image_document, original_url=self._image, news=self)
+
+        # limpe o cache das flags/campos que dependem de uma captura de imagem
+        for attr_name in ['thumbnail', 'image_capture_indexing']:
+            try:
+                delattr(self, attr_name)
+            except AttributeError:
+                pass
+
+    @cachedproperty
+    def image_capture_indexing(self):
+        """
+        Retorna a url para uma captura de imagem desta notícia, se existente.
+        """
         try:
-            captured_image = NewsImageCapture.objects.get(
-                original_url=self._image)
-            self.image_capture = captured_image
-        except NewsImageCapture.DoesNotExist:
-            original_filename = Path(self._image).name
-            uniq_filename = (
-                str(datetime.datetime.now().date()) + '_' +
-                str(datetime.datetime.now().time()).replace(
-                    ':', '.') + original_filename
-            )
+            if self.image_capture:
+                url = get_thumbnailer(self.image_capture.image_document.file)[
+                    'image_capture'].url
+                return url
+        except:
+            return None
 
-            image_contents = NewsFetcher.fetch_image(self._image)
-            image_file = ContentFile(image_contents, uniq_filename)
+    @cachedproperty
+    def thumbnail(self):
+        """
+        Retorna a url para uma miniatura de uma captura de página desta notícia, se existente.
+        """
+        try:
+            if self.image_capture:
+                url = get_thumbnailer(self.image_capture.image_document.file)[
+                    'thumbnail'].url
+                return url
+        except:
+            return None
 
-            image_document = Document.objects.create(
-                file=image_file, is_user_object=False, created_by=self.modified_by,
-                modified_by=self.modified_by)
-            image_file.close()
-            del image_contents
-            NewsImageCapture.objects.create(
-                image_document=image_document, original_url=self._image, news=self)
+    @property
+    def published_year(self):
+        """
+        Retorna o ano de publicação desta notícia.
+        """
+        try:
+            # Tente retornar o ano da data de publicação
+            return self.published_date.timetuple()[0]
+        except AttributeError:
+            try:
+                # Ou ao menos o ano data de criação dessa Notícia no sistema
+                return self.created_at.timetuple()[0]
+            except AttributeError:
+                return None
 
 
 class NewsPDFCapture(models.Model):
@@ -255,14 +316,14 @@ class NewsPDFCapture(models.Model):
     news = models.ForeignKey(
         News,
         verbose_name="Notícia",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         related_name="pdf_captures",
     )
-    pdf_document = models.OneToOneField(
-        Document,
+    pdf_document = FilerFileField(
         verbose_name="Documento PDF",
         on_delete=models.CASCADE,
+        related_name="pdf_capture"
     )
     pdf_capture_date = models.DateTimeField(
         auto_now_add=True,
@@ -276,6 +337,16 @@ class NewsPDFCapture(models.Model):
         verbose_name = "Captura de Notícia em PDF"
         verbose_name_plural = "Capturas de Notícia em PDF"
 
+    def __str__(self):
+        try:
+            return "Captura em PDF de \"{}\"".format(self.news.url)
+        except AttributeError:
+            return "Captura em PDF de notícia"
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        self.pdf_document.delete()
+
 
 class NewsImageCapture(models.Model):
     """
@@ -284,14 +355,14 @@ class NewsImageCapture(models.Model):
     news = models.OneToOneField(
         News,
         verbose_name="Notícia",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         related_name="image_capture"
     )
-    image_document = models.OneToOneField(
-        Document,
+    image_document = FilerFileField(
         verbose_name="Documento de imagem",
         on_delete=models.CASCADE,
+        related_name="image_capture"
     )
     image_capture_date = models.DateTimeField(
         verbose_name="Data de captura",
@@ -303,9 +374,18 @@ class NewsImageCapture(models.Model):
     original_url = models.CharField(
         verbose_name="Endereço original da imagem",
         max_length=255,
-        unique=True,
     )
 
     class Meta:
         verbose_name = "Imagem de Notícia"
         verbose_name_plural = "Imagens de Notícias"
+
+    def __str__(self):
+        try:
+            return "Imagem principal de \"{}\"".format(self.news.url)
+        except AttributeError:
+            return "Imagem principal de notícia"
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        self.image_document.delete()
