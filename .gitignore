@@ -96,3 +96,6 @@ media/
 
 # ignore arquivos estáticos coletados pelo Django
 staticfiles/
+node_modules
+.venv/
+.pytest_cache/
