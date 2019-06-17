@@ -82,7 +82,7 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
             'fields': ('teaser', 'body',  'published_date', 'authors', 'slug', ),
         }),
         ('Classificação do conteúdo', {
-            'fields': ('subjects', 'keywords', ),
+            'fields': ('keywords', ),
         }),
         ('Avançado', {
             'fields': ('set_basic_info', 'fetch_archived_url', 'add_pdf_capture')
@@ -97,7 +97,7 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
             'fields': ('teaser', 'body',  'published_date', 'authors', 'slug', ),
         }),
         ('Classificação do conteúdo', {
-            'fields': ('subjects', 'keywords', ),
+            'fields': ('keywords', ),
         }),
         ('Avançado', {
             'fields': ('set_basic_info', 'fetch_archived_url', 'add_pdf_capture')
