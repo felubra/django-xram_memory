@@ -63,4 +63,5 @@ redis = "~=3.2.1"
 pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",ref = "master"}
 favicon = "*"
 django-hashid-field = "*"
+python-magic-bin = {version = "*",sys_platform = "== 'win32'"}
 django-currentuser = "==0.3.4"
