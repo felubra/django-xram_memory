@@ -61,6 +61,6 @@ greenlet = "~=0.4.15"
 celery= "~=4.2.2"
 redis = "~=3.2.1"
 pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",ref = "master"}
-django-currentuser = "*"
 favicon = "*"
 django-hashid-field = "*"
+django-currentuser = "==0.3.4"
