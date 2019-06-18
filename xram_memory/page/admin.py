@@ -61,6 +61,7 @@ class StaticPageAdmin(TraceableEditorialAdminModel):
         'created_at',
         'modified_at',
         'show_in_menu',
+        'show_in_home',
     )
     list_filter = (
         'created_by',
@@ -77,7 +78,7 @@ class StaticPageAdmin(TraceableEditorialAdminModel):
         }),
 
         ('Informações adicionais', {
-            'fields': ('url', 'teaser_text', 'image', 'show_in_menu',),
+            'fields': ('url', 'teaser_text', 'image', 'show_in_menu', 'show_in_home',),
         }),
     )
     list_display_links = ('title', 'id',)

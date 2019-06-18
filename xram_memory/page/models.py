@@ -45,6 +45,10 @@ class StaticPage(TraceableEditorialModel):
         verbose_name="Mostrar no menu",
         help_text='Mostrar um link para esta página no menu principal do site',
         default=False)
+    show_in_home = models.BooleanField(
+        verbose_name="Mostrar na página inicial",
+        help_text='Mostrar um link para esta página na página inicial, acima da barra de pesquisa',
+        default=False)
 
     def __str__(self):
         return self.title
