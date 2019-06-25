@@ -308,6 +308,10 @@ class News(Artifact):
             except AttributeError:
                 return None
 
+    @cachedproperty
+    def indexed_type(self):
+        return 'Notícia'
+
 
 class NewsPDFCapture(models.Model):
     """
@@ -346,6 +350,43 @@ class NewsPDFCapture(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
         self.pdf_document.delete()
+
+    def indexed_id(self):
+        return self.pdf_document.pk
+        # TODO: id do documento usado para evitar colisões, pensar em algo melhor
+
+    @cachedproperty
+    def indexed_type(self):
+        return 'Captura de notícia'
+
+    @property
+    def keywords(self):
+        try:
+            return self.news.keywords
+        except:
+            return []
+
+    @property
+    def subjects(self):
+        try:
+            return self.news.subjects
+        except:
+            return []
+
+    @property
+    def search_thumbnail(self):
+        return self.pdf_document.search_thumbnail
+
+    @property
+    def published_year(self):
+        """
+        Retorna o ano de publicação desta captura.
+        """
+        try:
+            # Tente retornar o ano da data de publicação
+            return self.pdf_capture_date.timetuple()[0]
+        except AttributeError:
+            return None
 
 
 class NewsImageCapture(models.Model):
@@ -389,3 +430,40 @@ class NewsImageCapture(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
         self.image_document.delete()
+
+    @cachedproperty
+    def indexed_type(self):
+        return 'Imagem de notícia'
+
+    def indexed_id(self):
+        return self.image_document.pk
+        # TODO: id do documento usado para evitar colisões, pensar em algo melhor
+
+    @property
+    def keywords(self):
+        try:
+            return self.news.keywords
+        except:
+            return []
+
+    @property
+    def subjects(self):
+        try:
+            return self.news.subjects
+        except:
+            return []
+
+    @property
+    def search_thumbnail(self):
+        return self.image_document.search_thumbnail
+
+    @property
+    def published_year(self):
+        """
+        Retorna o ano de publicação desta captura.
+        """
+        try:
+            # Tente retornar o ano da data de publicação
+            return self.image_capture_date.timetuple()[0]
+        except AttributeError:
+            return None

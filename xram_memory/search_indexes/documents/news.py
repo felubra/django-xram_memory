@@ -75,6 +75,7 @@ class NewsDocument(DocType):
         attr='thumbnail'
     )
     published_year = fields.IntegerField(attr="published_year")
+    indexed_type = fields.KeywordField(attr="indexed_type")
     # Campos específicos
     url = fields.KeywordField()
     published = fields.BooleanField()

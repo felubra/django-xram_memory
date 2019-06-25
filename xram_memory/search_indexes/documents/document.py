@@ -75,6 +75,7 @@ class DocumentDocument(DocType):
         attr='search_thumbnail'
     )
     published_year = fields.IntegerField(attr="published_year")
+    indexed_type = fields.KeywordField(attr="indexed_type")
     # Campos específicos de Document
     document_id = fields.KeywordField(attr='document_id_indexing')
     mime_type = fields.KeywordField()
@@ -92,6 +93,8 @@ class DocumentDocument(DocType):
     def get_queryset(self):
         """
         Somente indexe documentos que tiverem document_id, forem inseridos pelo usuário e públicos.
+        #TODO: remover documentos que estejam relacionados com uma captura, já que estas terão seu
+        # próprio índice
         """
         return self._doc_type.model._default_manager.filter(document_id__isnull=False).filter(is_user_object=True).filter(is_public=True)
 

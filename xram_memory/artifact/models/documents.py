@@ -173,7 +173,8 @@ class Document(File):
             self.name = self.label
         super().save(*args, **kwargs)
         # limpe o cache das flags/campos, pois o arquivo pode ter mudado
-        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news']:
+        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news',
+                          'indexed_type']:
             try:
                 delattr(self, attr_name)
             except AttributeError:
@@ -203,3 +204,13 @@ class Document(File):
             return []
         else:
             return news_items
+
+    @cachedproperty
+    def indexed_type(self):
+        try:
+            if 'image/' in self.mime_type:
+                return 'Imagem'
+            else:
+                return 'Documento'
+        except:
+            return 'Documento'
