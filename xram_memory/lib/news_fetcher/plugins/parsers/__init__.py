@@ -25,7 +25,8 @@ class NewspaperArticleParser(BasicInfoPluginBase):
                 'published_date': getattr(newspaper_article, 'publish_date', None),
                 'language': getattr(newspaper_article, 'meta_lang', ''),
                 'authors': ",".join(getattr(newspaper_article, 'authors', [])),
-                'keywords': getattr(newspaper_article, 'keywords', []),
+                'keywords': cls.extract_taxonomy(getattr(newspaper_article, 'keywords', []), cls.KEYWORDS_REGEX),
+                'subjects': cls.extract_taxonomy(getattr(newspaper_article, 'keywords', []), cls.SUBJECTS_REGEX),
             })
             del newspaper_article
             return result
@@ -54,7 +55,10 @@ class Goose3NewspaperArticleParser(BasicInfoPluginBase):
                 goose_article = goose.extract(raw_html=html)
             else:
                 goose_article = goose.extract(url=url)
-
+            meta_keywords = [keyword.strip() for keyword in getattr(
+                goose_article, 'meta_keywords', '').split(',')]
+            keywords = list(
+                set(getattr(goose_article, 'keywords', []) + meta_keywords))
             result = cls.clean({
                 'title': getattr(goose_article, 'title', ''),
                 'image': (goose_article.top_image.src
@@ -64,7 +68,8 @@ class Goose3NewspaperArticleParser(BasicInfoPluginBase):
                 'published_date': getattr(goose_article, 'publish_date', ''),
                 'authors': ",".join(getattr(goose_article, 'authors', [])),
                 'language': getattr(goose_article, 'meta_lang', ''),
-                'keywords': getattr(goose_article, 'tags', []),
+                'keywords': cls.extract_taxonomy(keywords, cls.KEYWORDS_REGEX),
+                'subjects': cls.extract_taxonomy(keywords, cls.SUBJECTS_REGEX),
             })
             del goose_article
             return result

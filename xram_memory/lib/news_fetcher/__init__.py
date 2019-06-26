@@ -109,14 +109,15 @@ class NewsFetcher:
                         """
                         Utilize uma abordagem conservadora em que um valor no dicionário de dados
                         da notícia só é alterado se estiver vazio. A exceção fica para o caso das
-                        palavras-chave (quanto mais palavras melhor).
+                        palavras-chave e dos assuntos, casos em que, quanto mais itens coletados,
+                        melhor.
                         """
                         for key in BasicInfoPluginBase.BASIC_EMPTY_INFO.keys():
-                            if key == 'keywords':
-                                for keyword in result['keywords']:
-                                    if keyword not in basic_info['keywords']:
-                                        basic_info['keywords'].append(
-                                            keyword)
+                            if key in ('keywords', 'subjects'):
+                                for item in result[key]:
+                                    if item not in basic_info[key]:
+                                        basic_info[key].append(
+                                            item)
                                 continue
                             if result[key] not in ('', [], None,):
                                 if basic_info[key] in ('', [], None,):

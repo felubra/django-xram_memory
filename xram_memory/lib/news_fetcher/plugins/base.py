@@ -3,6 +3,7 @@ import xram_memory.lib.news_fetcher.plugin as plugin
 from django.utils.dateparse import parse_datetime
 from xram_memory.lib.stopwords import stopwords
 from .defaults import DefaultPDFCapture
+import re
 
 
 class ArchivePluginBase(metaclass=plugin.registry("Archive")):
@@ -37,7 +38,14 @@ class BasicInfoPluginBase(metaclass=plugin.registry("BasicInfo")):
     na saída do contexto.
     """
     BASIC_EMPTY_INFO = {'title': '', 'authors': '', 'body': '', 'teaser': '',
-                        'published_date': None, 'language': '', 'image': '', 'keywords': []}
+                        'published_date': None, 'language': '', 'image': '', 'keywords': [],
+                        'subjects': []}
+    KEYWORDS_REGEX = r"^[\w\d_.\-]+$"
+    SUBJECTS_REGEX = r"^\w.+\s.+$"
+
+    @classmethod
+    def extract_taxonomy(self, value, pattern=KEYWORDS_REGEX):
+        return list(filter(lambda word: re.match(pattern, word), value))
 
     @classmethod
     def clean(self, info_dict):

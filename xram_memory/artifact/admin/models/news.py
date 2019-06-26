@@ -82,7 +82,7 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
             'fields': ('teaser', 'body',  'published_date', 'authors', 'slug', ),
         }),
         ('Classificação do conteúdo', {
-            'fields': ('keywords', ),
+            'fields': ('keywords', 'subjects'),
         }),
         ('Avançado', {
             'fields': ('set_basic_info', 'fetch_archived_url', 'add_pdf_capture')
@@ -97,7 +97,7 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
             'fields': ('teaser', 'body',  'published_date', 'authors', 'slug', ),
         }),
         ('Classificação do conteúdo', {
-            'fields': ('keywords', ),
+            'fields': ('keywords', 'subjects'),
         }),
         ('Avançado', {
             'fields': ('set_basic_info', 'fetch_archived_url', 'add_pdf_capture')
@@ -178,6 +178,7 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
         # precisamos adicionar as palavras-chave novamente aqui, pois as associações feitas na chamada no método save
         # serão desfeitas pelo django admin - https://timonweb.com/posts/many-to-many-field-save-method-and-the-django-admin/
         instance.add_fetched_keywords()
+        instance.add_fetched_subjects()
 
     def get_urls(self):
         urls = super().get_urls()

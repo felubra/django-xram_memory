@@ -33,5 +33,9 @@ class DocumentAdmin(FileAdmin, tags_input_admin.TagsInputAdmin):
 
 DocumentAdmin.readonly_fields = DocumentAdmin.readonly_fields + \
     ('mime_type', 'document_id',)
-DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(extra_main_fields=('document_id', 'keywords',  'published_date',),
-                                                    extra_advanced_fields=("mime_type",))
+DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(extra_main_fields=('document_id', 'keywords',
+                                                                       'subjects', 'published_date',
+                                                                       ),
+                                                    extra_advanced_fields=(
+                                                        "mime_type",)
+                                                    )

@@ -33,8 +33,6 @@ class KeywordAdmin(TaxonomyItemAdmin):
     pass
 
 
-"""
 @admin.register(Subject)
 class SubjectAdmin(TaxonomyItemAdmin):
     pass
-"""

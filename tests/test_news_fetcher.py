@@ -134,8 +134,10 @@ def test_fetch_basic_info_conservative_nature(news_fetcher_plugin_factory):
     BasicInfoPluginBase.plugins[1].parse = lambda url, html: NEWS_ITEMS[1]
     url = NewsFetcher.fetch_basic_info(VALID_NEWS_URL)
     for key in BasicInfoPluginBase.BASIC_EMPTY_INFO.keys():
-        if key == 'keywords':
+        if key in ('keywords', 'subjects'):
             continue
         assert url[key] == NEWS_ITEMS[0][key]
     assert url['keywords'] == NEWS_ITEMS[0]['keywords'] + \
         NEWS_ITEMS[1]['keywords']
+    assert url['subjects'] == NEWS_ITEMS[0]['subjects'] + \
+        NEWS_ITEMS[1]['subjects']
