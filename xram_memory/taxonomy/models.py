@@ -39,6 +39,11 @@ class Keyword(TaxonomyItem):
 
 
 class Subject(TaxonomyItem):
+    description = models.TextField(
+        verbose_name="Descrição",
+        help_text='Uma descrição detalhada para este Assunto',
+        blank=True)
+
     class Meta:
         verbose_name = "Assunto"
         verbose_name_plural = "Assuntos"
