@@ -133,7 +133,7 @@ class Document(File):
         """
         Retorna uma lista de thumbnails geradas
         """
-        thumbnails_aliases = ['document_thumbnail']
+        thumbnails_aliases = ['document_thumbnail', 'document_preview']
         generated_thumbnails = {}
         try:
             if getattr(self, 'mime_type', None) and 'image/' in self.mime_type:
