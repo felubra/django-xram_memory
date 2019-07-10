@@ -10,6 +10,7 @@ from inspect import getfullargspec
 from functools import wraps, lru_cache
 from kombu.exceptions import OperationalError
 from django.contrib.staticfiles import finders
+from django.utils.translation import gettext as _
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 from django.utils.deconstruct import deconstructible
