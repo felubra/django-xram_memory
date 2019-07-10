@@ -71,7 +71,7 @@ class Subject(TaxonomyItem):
             return False
 
     def save(self, *args, **kwargs):
-        if not has_description:
+        if not self.has_description:
             self.description = ''
         super().save(*args, **kwargs)
         for attr_name in ['cover', 'has_description']:
