@@ -283,37 +283,45 @@ class News(Artifact):
                     image_document=image_document, original_url=self._image, news=self)
 
         # limpe o cache das flags/campos que dependem de uma captura de imagem
-        for attr_name in ['thumbnail', 'image_capture_indexing']:
+        for attr_name in ['thumbnails']:
             try:
                 delattr(self, attr_name)
             except AttributeError:
                 pass
 
-    @cachedproperty
+    @property
     def image_capture_indexing(self):
         """
         Retorna a url para uma captura de imagem desta notícia, se existente.
         """
-        try:
-            if self.image_capture:
-                url = get_thumbnailer(self.image_capture.image_document.file)[
-                    'image_capture'].url
-                return url
-        except:
-            return None
+        return self.thumbnails.get('image_capture', None)
 
-    @cachedproperty
+    @property
     def thumbnail(self):
         """
         Retorna a url para uma miniatura de uma captura de página desta notícia, se existente.
         """
+        return self.thumbnails.get('thumbnail', None)
+
+    @cachedproperty
+    def thumbnails(self):
+        """
+        Retorna uma lista de thumbnails geradas
+        """
+        thumbnails_aliases = ['thumbnail', 'image_capture']
+        generated_thumbnails = {}
         try:
             if self.image_capture:
-                url = get_thumbnailer(self.image_capture.image_document.file)[
-                    'thumbnail'].url
-                return url
+                for alias in thumbnails_aliases:
+                    try:
+                        generated_thumbnails[alias] = get_thumbnailer(self.image_capture.image_document.file)[
+                            alias].url
+                    except:
+                        continue
         except:
-            return None
+            return {}
+        else:
+            return generated_thumbnails
 
     @property
     def published_year(self):
