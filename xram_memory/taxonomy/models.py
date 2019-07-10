@@ -70,6 +70,13 @@ class Subject(TaxonomyItem):
         except:
             return False
 
+    @property
+    def items_count(self):
+        """
+        Retorna a quantidade de itens relacionados a este assunto
+        """
+        return self.news.count() + self.document.count()
+
     def save(self, *args, **kwargs):
         if not self.has_description:
             self.description = ''

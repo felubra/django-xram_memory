@@ -14,5 +14,6 @@ class KeywordSerializer(ModelSerializer):
 class SubjectSerializer(ModelSerializer):
     class Meta:
         model = Subject
-        fields = TAXONOMY_ITEM_FIELDS + ('description', 'cover',)
+        fields = TAXONOMY_ITEM_FIELDS + \
+            ('description', 'cover', 'items_count',)
         depth = 1
