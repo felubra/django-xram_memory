@@ -1,5 +1,6 @@
 from .page.views import InMenuStaticPagesViewSet, StaticPageViewSet, FeaturedStaticPagesViewSet
 from xram_memory.artifact.views import DocumentViewSet, NewsViewSet, AlbumViewSet
+from xram_memory.taxonomy.views import SubjectViewSet
 from django.conf.urls.static import static
 from django.urls import include, path
 from django.conf import settings
@@ -34,6 +35,9 @@ urlpatterns = [
          AlbumViewSet.as_view({'get': 'listing'})),
     path('api/v1/album/<str:album_id>',
          AlbumViewSet.as_view({'get': 'retrieve'})),
+    # Taxonomia
+    path('api/v1/subjects/page',
+         SubjectViewSet.as_view({'get': 'listing'})),
 ] + urlpatterns
 
 # URLs canônicas para documentos do Filer

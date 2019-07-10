@@ -1,7 +1,9 @@
 from django.db import models
-
 from ..base_models import TraceableModel
+from xram_memory.utils import no_empty_html
 from xram_memory.utils import unique_slugify
+from boltons.cacheutils import cachedproperty
+from django.core.exceptions import ValidationError
 
 
 class TaxonomyItem(TraceableModel):
@@ -43,6 +45,40 @@ class Subject(TaxonomyItem):
         verbose_name="Descrição",
         help_text='Uma descrição detalhada para este Assunto',
         blank=True)
+
+    @cachedproperty
+    def cover(self):
+        """
+        Retorna uma imagem de captura de uma notícia aleatória, relacionada a este assunto.
+        """
+        try:
+            return self.news.filter(image_capture__isnull=False).order_by('?')[0:1][0].thumbnails['image_capture']
+        except:
+            return ''
+
+    @cachedproperty
+    def has_description(self):
+        """
+        Indica se o assunto tem descrição, lida com tags HTML em branco.
+        """
+        try:
+            if self.description:
+                no_empty_html(self.description)
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def save(self, *args, **kwargs):
+        if not has_description:
+            self.description = ''
+        super().save(*args, **kwargs)
+        for attr_name in ['cover', 'has_description']:
+            try:
+                delattr(self, attr_name)
+            except AttributeError:
+                pass
 
     class Meta:
         verbose_name = "Assunto"
