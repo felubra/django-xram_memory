@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
+from xram_memory.utils import no_empty_html
 from django.forms.widgets import Widget
 from django.forms import Media
-from bs4 import BeautifulSoup
 import json
 
 
@@ -39,15 +39,6 @@ TEASER_EDITOR_OPTIONS = {
 
 def make_editor_opt(placeholder, base_options=DEFAULT_EDITOR):
     return {**base_options, **{'placeholder': placeholder}}
-
-
-def no_empty_html(value):
-    """
-    Um simples validador que converte html em texto para verificar se o texto não está em branco.
-    """
-    soup = BeautifulSoup(value, features="lxml")
-    if not soup.get_text().strip():
-        raise ValidationError(_('This field is required.'))
 
 
 class QuillWidget(Widget):

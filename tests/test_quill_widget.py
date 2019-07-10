@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from xram_memory.quill_widget import no_empty_html
+from xram_memory.utils import no_empty_html
 from pytest import raises
 
 # Create your tests here.
