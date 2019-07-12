@@ -1,3 +1,4 @@
+from random import choice
 from django.db import models
 from ..base_models import TraceableModel
 from xram_memory.utils import no_empty_html
@@ -46,15 +47,49 @@ class Subject(TaxonomyItem):
         help_text='Uma descrição detalhada para este Assunto',
         blank=True)
 
-    @cachedproperty
     def cover(self):
         """
         Retorna uma imagem de captura de uma notícia aleatória, relacionada a este assunto.
         """
+        return choice(self.thumbnails)
+
+    def big_cover(self):
+        """
+        Retorna uma imagem de captura de uma notícia aleatória, relacionada a este assunto.
+        """
+        return choice(self.image_captures)
+
+    @cachedproperty
+    def thumbnails(self):
+        """
+        Retorna até três imagens associadas a este assunto.
+        """
+        images = []
         try:
-            return self.news.filter(image_capture__isnull=False).order_by('?')[0:1][0].thumbnails['image_capture']
+            for news in self.news.filter(image_capture__isnull=False).order_by('?')[0:3]:
+                try:
+                    images.append(news.thumbnails['thumbnail'])
+                except:
+                    continue
+            return images
         except:
-            return ''
+            return []
+
+    @cachedproperty
+    def image_captures(self):
+        """
+        Retorna até três imagens associadas a este assunto.
+        """
+        images = []
+        try:
+            for news in self.news.filter(image_capture__isnull=False).order_by('?')[0:3]:
+                try:
+                    images.append(news.thumbnails['image_capture'])
+                except:
+                    continue
+            return images
+        except:
+            return []
 
     @cachedproperty
     def has_description(self):
@@ -81,7 +116,7 @@ class Subject(TaxonomyItem):
         if not self.has_description:
             self.description = ''
         super().save(*args, **kwargs)
-        for attr_name in ['cover', 'has_description']:
+        for attr_name in ['images', 'has_description']:
             try:
                 delattr(self, attr_name)
             except AttributeError:
