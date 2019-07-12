@@ -79,19 +79,26 @@ class NewsSerializer(ModelSerializer):
 class PhotoAlbumFolderSerializer(ModelSerializer):
     photos = DocumentSerializer(source="files", many=True)
     album_id = SerializerMethodField()
+    cover = SerializerMethodField()
 
     class Meta:
         model = Folder
         fields = ('album_id',  'name', 'created_at',
-                  'modified_at', 'photos', 'file_count')
+                  'modified_at', 'photos', 'file_count', 'cover')
 
     def get_album_id(self, obj):
         hashid = Hashid(obj.pk, settings.HASHID_FIELD_SALT, 7)
         return hashid.hashid
+
+    def get_cover(self, obj):
+        try:
+            return obj.files.filter(is_public=True).order_by('modified_at')[0].thumbnail
+        except Exception as e:
+            return ''
 
 
 class SimplePhotoAlbumFolderSerializer(PhotoAlbumFolderSerializer):
     class Meta:
         model = Folder
         fields = ('album_id', 'name', 'created_at',
-                  'modified_at', 'file_count')
+                  'modified_at', 'file_count', 'cover')
