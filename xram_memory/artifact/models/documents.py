@@ -19,7 +19,7 @@ class Document(File):
     """
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
-    IMAGE_DOCUMENT_THUMBNAILS_ALIASES = ['1280', '640', '360']
+    IMAGE_DOCUMENT_THUMBNAILS_ALIASES = ['1280', '640', '360', 'thumbnail']
     mime_type = models.fields.CharField(
         verbose_name="Tipo",
         help_text="Tipo do arquivo",
