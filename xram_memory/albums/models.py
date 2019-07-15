@@ -9,7 +9,7 @@ from filer.fields.file import FilerFileField
 # TODO: Adicionar funcionalidades outrora implementadas em PhotoAlbumFolderSerializer
 class Album(models.Model):
     folder = models.OneToOneField(
-        Folder, related_name="album", on_delete=models.CASCADE)
+        Folder, related_name="album", on_delete=models.CASCADE, primary_key=True)
 
     # Campos para enriquecer uma pasta-álbum de fotos
     featured = models.BooleanField(
