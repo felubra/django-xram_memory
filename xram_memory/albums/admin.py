@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Album
+from .models import Album, is_album_folder
 from filer.models.foldermodels import Folder
 from filer.admin.folderadmin import FolderAdmin
 from django.conf import settings
@@ -32,7 +32,7 @@ class AlbumAdmin(FolderAdmin):
         to_return = super().get_inline_instances(request, obj)
         # filter out the RelativeInlines if obj.is_member is false
 
-        if obj.parent.id != settings.FOLDER_PHOTO_ALBUMS['id']:
+        if not is_album_folder(obj):
             to_return = [
                 x for x in to_return if not isinstance(x, AlbumInline)]
         return to_return

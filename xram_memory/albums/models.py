@@ -2,8 +2,14 @@ from django.db import models
 from xram_memory.taxonomy.models import Subject, Keyword
 from filer.models.foldermodels import Folder
 from filer.fields.file import FilerFileField
+from django.conf import settings
 
 # Create your models here.
+
+
+def is_album_folder(folder):
+    # veririca se uma dada pasta é uma pasta de álbum, ela é se é uma subpasta da pasta de álbuns
+    return folder.parent.id == settings.FOLDER_PHOTO_ALBUMS['id']
 
 
 # TODO: Adicionar funcionalidades outrora implementadas em PhotoAlbumFolderSerializer
