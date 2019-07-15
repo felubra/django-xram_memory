@@ -17,9 +17,7 @@ class AlbumForm(forms.ModelForm):
 
 class AlbumInline(admin.StackedInline):
     model = Album
-    can_delete = False
-    max_num = 1
-    extra = 0
+    can_delete = True
     verbose_name_plural = 'Álbum de foto'
     template = "admin/albums/album/edit_inline/stacked.html"
     form = AlbumForm
