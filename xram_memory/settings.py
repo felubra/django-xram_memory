@@ -50,6 +50,7 @@ class Common(Configuration):
         'rest_framework',
         'corsheaders',
         'tags_input',
+        'xram_memory.albums',
     ]
 
     MIDDLEWARE = [
