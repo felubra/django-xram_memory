@@ -3,6 +3,8 @@ from xram_memory.taxonomy.models import Subject, Keyword
 from filer.models.foldermodels import Folder
 from filer.fields.file import FilerFileField
 from django.conf import settings
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 # Create your models here.
 
@@ -33,3 +35,21 @@ class Album(models.Model):
 
     def __str__(self):
         return self.folder.name
+
+
+@receiver(post_save, sender=Folder)
+def create_album_folder(sender, instance, created, **kwargs):
+    # Na criação de uma subpasta da pasta álbums de fotos, crie um álbum e o associe à pasta criada
+    if created and is_album_folder(instance):
+        Album.objects.create(folder=instance)
+
+
+@receiver(post_save, sender=Folder)
+def save_album_folder(sender, instance, **kwargs):
+    # Salve o álbum associado quando salvarmos a pasta
+    try:
+        instance.album.save()
+    except Album.DoesNotExist:
+        # Se a pasta é uma pasta de álbum, mas não existe um associado, crie-o agora.
+        if is_album_folder(instance):
+            Album.objects.create(folder=instance)
