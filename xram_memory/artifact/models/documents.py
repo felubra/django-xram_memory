@@ -19,7 +19,6 @@ class Document(File):
     """
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
-    IMAGE_DOCUMENT_THUMBNAILS_ALIASES = ['1280', '640', '360', 'thumbnail']
     mime_type = models.fields.CharField(
         verbose_name="Tipo",
         help_text="Tipo do arquivo",
@@ -133,12 +132,10 @@ class Document(File):
         """
         Retorna uma lista de thumbnails geradas
         """
-        thumbnails_aliases = ['document_thumbnail', 'document_preview']
+        thumbnails_aliases = ['1280', '640', '360',
+                              'thumbnail', 'document_thumbnail', 'document_preview']
         generated_thumbnails = {}
         try:
-            if getattr(self, 'mime_type', None) and 'image/' in self.mime_type:
-                thumbnails_aliases = thumbnails_aliases + \
-                    self.IMAGE_DOCUMENT_THUMBNAILS_ALIASES
             for alias in thumbnails_aliases:
                 generated_thumbnails[alias] = get_thumbnailer(self.file)[
                     alias].url

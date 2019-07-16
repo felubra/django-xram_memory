@@ -139,32 +139,6 @@ class DocumentTestCase(TransactionTestCase):
                 self.assertFalse(document.determine_mime_type())
                 self.assertEqual(document.mime_type, '')
 
-    def test_thumbnails_presence_for_image_document(self):
-        """
-        Determina se as pré-visualizações adicionais são geradas se o Documento for uma imagem.
-        """
-        image_file_path = Path(os.path.dirname(
-            __file__), './fixtures/image.jpg')
-        with self.open_as_django_file(image_file_path) as django_file:
-            document = Document(file=django_file)
-            document.save()
-            for size in Document.IMAGE_DOCUMENT_THUMBNAILS_ALIASES:
-                self.assertIn(size, document.thumbnails.keys())
-            for generated_thumbnail_url in document.thumbnails.values():
-                self.assertIsNotNone(generated_thumbnail_url)
-
-    def test_image_thumbnails_absence_for_pdf_document(self):
-        """
-        Determina se as pré-visualizações adicionais NÃO são geradas se o Documento não for uma
-        imagem.
-        """
-        image_file_path = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
-        with self.open_as_django_file(image_file_path) as django_file:
-            document = Document(file=django_file)
-            document.save()
-            for size in Document.IMAGE_DOCUMENT_THUMBNAILS_ALIASES:
-                self.assertNotIn(size, document.thumbnails.keys())
-
     def test_for_filer_icon_thumbnails_presence(self):
         """
         Verifica se os tamanhos dos ícones usados pelo app Filer são gerados corretamente.

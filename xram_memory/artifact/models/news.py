@@ -308,7 +308,8 @@ class News(Artifact):
         """
         Retorna uma lista de thumbnails geradas
         """
-        thumbnails_aliases = ['thumbnail', 'image_capture']
+        thumbnails_aliases = ['1280', '640',
+                              '360', 'thumbnail', 'image_capture']
         generated_thumbnails = {}
         try:
             if self.image_capture:
