@@ -38,6 +38,8 @@ urlpatterns = [
     # Taxonomia
     path('api/v1/subjects/page',
          SubjectViewSet.as_view({'get': 'listing'})),
+    path('api/v1/subject/<str:subject_slug>',
+         SubjectViewSet.as_view({'get': 'retrieve'})),
 ] + urlpatterns
 
 # URLs canônicas para documentos do Filer
