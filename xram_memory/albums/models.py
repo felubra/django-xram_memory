@@ -11,7 +11,9 @@ from django.db.models.signals import post_save
 
 def is_album_folder(folder):
     # veririca se uma dada pasta é uma pasta de álbum, ela é se é uma subpasta da pasta de álbuns
-    return folder.parent.id == settings.FOLDER_PHOTO_ALBUMS['id']
+    if folder.parent:
+        return folder.parent.id == settings.FOLDER_PHOTO_ALBUMS['id']
+    return False
 
 
 # TODO: Adicionar funcionalidades outrora implementadas em PhotoAlbumFolderSerializer
