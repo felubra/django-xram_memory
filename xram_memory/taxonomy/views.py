@@ -7,14 +7,17 @@ from django.db.models import Subquery
 from django.db.models import Count, Q
 from django.shortcuts import render
 from rest_framework import viewsets
+from django.conf import settings
 from .models import Subject
 
 # Create your views here.
 
+TIMEOUT = 0 if settings.DEBUG else 60 * 60 * 12
+
 
 class SubjectViewSet(viewsets.ViewSet):
 
-    # @method_decorator(cache_page(60 * 60 * 12))
+    @method_decorator(cache_page(TIMEOUT))
     def listing(self, request):
         """
         Retorna uma lista com dois assuntos aleatórios, usados na página 'Assuntos'.
