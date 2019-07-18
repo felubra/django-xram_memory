@@ -51,13 +51,19 @@ class Subject(TaxonomyItem):
         """
         Retorna uma imagem de captura de uma notícia aleatória, relacionada a este assunto.
         """
-        return choice(self.thumbnails)
+        if self.thumbnails:
+            return choice(self.thumbnails)
+        else:
+            return ''
 
     def big_cover(self):
         """
         Retorna uma imagem de captura de uma notícia aleatória, relacionada a este assunto.
         """
-        return choice(self.image_captures)
+        if self.image_captures:
+            return choice(self.image_captures)
+        else:
+            return ''
 
     @cachedproperty
     def thumbnails(self):
