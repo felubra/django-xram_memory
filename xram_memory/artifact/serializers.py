@@ -67,7 +67,7 @@ class NewsSerializer(ModelSerializer):
         fields = ('title', 'teaser', 'slug',
                   'url', 'archived_news_url', 'authors', 'body', 'published_date', 'language',
                   'newspaper', 'keywords', 'subjects', 'pdf_captures', 'image_capture',
-                  'thumbnail', 'modified_at', 'created_at',)
+                  'thumbnail', 'thumbnails', 'modified_at', 'created_at',)
     newspaper = NewspaperSerializer()
     keywords = KeywordSerializer(many=True)
     subjects = SubjectSerializer(many=True)
