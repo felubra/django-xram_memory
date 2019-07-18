@@ -164,9 +164,15 @@ class Common(Configuration):
                 'upscale': False,
             },
             'document_thumbnail': {
-                'size': (250, 250),
+                'size': (0, 250),
                 'autocrop': True,
                 'crop': 'scale',
+                'upscale': False,
+            },
+            'news_page': {
+                'size': (0, 350),
+                'autocrop': True,
+                'crop': 'smart',
                 'upscale': False,
             },
             'thumbnail': {
