@@ -132,8 +132,7 @@ class Document(File):
         """
         Retorna uma lista de thumbnails geradas
         """
-        thumbnails_aliases = ['1280', '640', '360',
-                              'thumbnail', 'document_thumbnail', 'document_preview']
+        thumbnails_aliases = settings.THUMBNAIL_ALIASES[''].keys()
         generated_thumbnails = {}
         try:
             for alias in thumbnails_aliases:
