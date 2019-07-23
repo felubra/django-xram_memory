@@ -36,12 +36,12 @@ urlpatterns = [
     path('api/v1/album/<str:album_id>',
          AlbumViewSet.as_view({'get': 'retrieve'})),
     # Taxonomia
+    path('api/v1/subjects/featured',
+         SubjectViewSet.as_view({'get': 'featured'})),
     path('api/v1/subjects/initial/<str:initial>',
          SubjectViewSet.as_view({'get': 'subjects_by_initial'})),
     path('api/v1/subjects/initials',
          SubjectViewSet.as_view({'get': 'subjects_initials'})),
-    path('api/v1/subjects/page',
-         SubjectViewSet.as_view({'get': 'page'})),
     path('api/v1/subject/<str:subject_slug>',
          SubjectViewSet.as_view({'get': 'retrieve'})),
 ] + urlpatterns

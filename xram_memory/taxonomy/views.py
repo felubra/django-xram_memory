@@ -16,17 +16,18 @@ import string
 # Create your views here.
 
 TIMEOUT = 0 if settings.DEBUG else 60 * 60 * 12
-INITIAL_REGEX = re.compile('^[a-zA-Z]$')
 
 
 class SubjectViewSet(viewsets.ViewSet):
+    QUERY_INITIAL_REGEX = re.compile('^[a-zA-Z]$')
+    QUERY_LIMIT_REGEX = re.compile('^\d+$')
 
     @method_decorator(cache_page(TIMEOUT))
     def subjects_by_initial(self, request, initial=None):
         """
         Retorna uma lista com todos os assuntos, dada uma letra inicial.
         """
-        if not initial or not INITIAL_REGEX.match(initial):
+        if not initial or not self.QUERY_INITIAL_REGEX.match(initial):
             raise ParseError()
         queryset = Subject.objects.filter(
             name__startswith=initial).order_by('name')
@@ -51,17 +52,20 @@ class SubjectViewSet(viewsets.ViewSet):
         return Response(initials)
 
     @method_decorator(cache_page(TIMEOUT))
-    def page(self, request):
+    def featured(self, request):
         """
-        Retorna uma lista com dois assuntos aleatórios, usados na página 'Assuntos'.
-        Essa lista deve mudar a cada 12 horas, conforme parâmetro de cache acima.
+        Retorna uma lista aleatória com assuntos em destaque, de acordo com a quantidade estipulada
+        pelo cliente.
         """
-        queryset = Subject.objects.filter(pk__in=Subquery(Subject.objects.filter(description__isnull=False).exclude(description__exact='').annotate(num_news=Count(
-            'news'), num_documents=Count('document')).filter(Q(num_documents__gt=0) | Q(num_news__gt=0)).filter(news__image_capture__isnull=False).distinct().values('pk'))).order_by("?")[:2]
-
-        subjects = get_list_or_404(queryset)
-        serializer = SubjectSerializer(subjects, many=True)
-        return Response(serializer.data)
+        limit = self.request.query_params.get('limit', '5')
+        if self.QUERY_LIMIT_REGEX.match(limit):
+            limit = int(limit)
+            random_featured_subjects = Subject.objects.filter(
+                featured=True).order_by("?")[:limit]
+            subjects = get_list_or_404(random_featured_subjects)
+            serializer = SubjectSerializer(subjects, many=True)
+            return Response(serializer.data)
+        raise ParseError()
 
     def retrieve(self, request, subject_slug=None):
         queryset = Subject.objects.all()

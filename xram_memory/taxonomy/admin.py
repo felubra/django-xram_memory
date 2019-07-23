@@ -47,4 +47,6 @@ class SubjectAdmin(TaxonomyItemAdmin):
         super().get_fieldsets(request, obj)
         return self.TAXONOMY_ITEM_FIELDSETS + (('Informações adicionais', {
             'fields': ('description', )
+        }), ('Opções de publicação', {
+            'fields': ('featured', )
         }),)

@@ -46,6 +46,11 @@ class Subject(TaxonomyItem):
         verbose_name="Descrição",
         help_text='Uma descrição detalhada para este Assunto',
         blank=True)
+    featured = models.BooleanField(
+        verbose_name="Em destaque na página de assuntos",
+        help_text='Marque se quiser dar destaque a este assunto na página de assuntos.',
+        default=False
+    )
 
     def cover(self):
         """
