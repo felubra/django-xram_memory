@@ -9,10 +9,8 @@ python = ">=3.7.2"
 [dev-packages]
 Werkzeug = "~=0.14.1"
 autopep8 = "~=1.4.3"
-pylint = ">=2.3"
 pdir2 = "*"
 rope = "*"
-pylint-django = "*"
 requests-mock = "*"
 gitchangelog = "*"
 gevent = "*"
@@ -27,6 +25,9 @@ pytest-mock = "*"
 pytest-antilru = "*"
 ipython = "*"
 pip-licenses = "*"
+pylint = "*"
+pylint-django = "*"
+
 
 [packages]
 dj-database-url = "~=0.5.0"
@@ -61,8 +62,9 @@ django-tags-input = "~=4.4.2"
 greenlet = "~=0.4.15"
 celery= "~=4.2.2"
 redis = "~=3.2.1"
-pdfkit = {ref = "master",git = "https://github.com/JazzCore/python-pdfkit.git",editable = true}
+pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",ref = "master"}
 favicon = "*"
 django-hashid-field = "*"
 python-magic-bin = {version = "*",sys_platform = "== 'win32'"}
 django-currentuser = "==0.3.4"
+django-rest-multiple-models = "*"
