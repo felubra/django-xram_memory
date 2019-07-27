@@ -1,7 +1,10 @@
+from random import choice
 from django.db import models
-
 from ..base_models import TraceableModel
+from xram_memory.utils import no_empty_html
 from xram_memory.utils import unique_slugify
+from boltons.cacheutils import cachedproperty
+from django.core.exceptions import ValidationError
 
 
 class TaxonomyItem(TraceableModel):
@@ -39,6 +42,97 @@ class Keyword(TaxonomyItem):
 
 
 class Subject(TaxonomyItem):
+    description = models.TextField(
+        verbose_name="Descrição",
+        help_text='Uma descrição detalhada para este Assunto',
+        blank=True)
+    featured = models.BooleanField(
+        verbose_name="Em destaque na página de assuntos",
+        help_text='Marque se quiser dar destaque a este assunto na página de assuntos.',
+        default=False
+    )
+
+    def cover(self):
+        """
+        Retorna uma imagem de captura de uma notícia aleatória, relacionada a este assunto.
+        """
+        if self.thumbnails:
+            return choice(self.thumbnails)
+        else:
+            return ''
+
+    def big_cover(self):
+        """
+        Retorna uma imagem de captura de uma notícia aleatória, relacionada a este assunto.
+        """
+        if self.image_captures:
+            return choice(self.image_captures)
+        else:
+            return ''
+
+    @cachedproperty
+    def thumbnails(self):
+        """
+        Retorna até três imagens associadas a este assunto.
+        """
+        images = []
+        try:
+            for news in self.news.filter(image_capture__isnull=False).order_by('?')[0:3]:
+                try:
+                    images.append(news.thumbnails['thumbnail'])
+                except:
+                    continue
+            return images
+        except:
+            return []
+
+    @cachedproperty
+    def image_captures(self):
+        """
+        Retorna até três imagens associadas a este assunto.
+        """
+        images = []
+        try:
+            for news in self.news.filter(image_capture__isnull=False).order_by('?')[0:3]:
+                try:
+                    images.append(news.thumbnails['image_capture'])
+                except:
+                    continue
+            return images
+        except:
+            return []
+
+    @cachedproperty
+    def has_description(self):
+        """
+        Indica se o assunto tem descrição, lida com tags HTML em branco.
+        """
+        try:
+            if self.description:
+                no_empty_html(self.description)
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    @property
+    def items_count(self):
+        """
+        Retorna a quantidade de itens relacionados a este assunto
+        """
+        return self.news.count() + self.document.count()
+
+    def save(self, *args, **kwargs):
+        if not self.has_description:
+            self.description = ''
+        super().save(*args, **kwargs)
+        for attr_name in ['images', 'has_description']:
+            try:
+                delattr(self, attr_name)
+            except AttributeError:
+                pass
+
     class Meta:
         verbose_name = "Assunto"
         verbose_name_plural = "Assuntos"

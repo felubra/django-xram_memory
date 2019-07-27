@@ -2,6 +2,7 @@ import re
 import magic
 from pathlib import Path
 from kombu import Connection
+from bs4 import BeautifulSoup
 from functools import lru_cache
 from django.conf import settings
 from django.db import transaction
@@ -9,6 +10,7 @@ from inspect import getfullargspec
 from functools import wraps, lru_cache
 from kombu.exceptions import OperationalError
 from django.contrib.staticfiles import finders
+from django.utils.translation import gettext as _
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 from django.utils.deconstruct import deconstructible
@@ -212,3 +214,12 @@ class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesS
             (r"""(@import\s*["']\s*(.*?)["'])""", """@import url("%s")"""),
         )),
     )
+
+
+def no_empty_html(value):
+    """
+    Um simples validador que converte html em texto para verificar se o texto não está em branco.
+    """
+    soup = BeautifulSoup(value, features="lxml")
+    if not soup.get_text().strip():
+        raise ValidationError(_('This field is required.'))

@@ -1,8 +1,8 @@
+from django import forms
 from django.contrib import admin
-
-from xram_memory.base_models import TraceableAdminModel
-
 from .models import Keyword, Subject
+from xram_memory.base_models import TraceableAdminModel
+from xram_memory.quill_widget import QuillWidget, make_editor_opt, TEASER_EDITOR_OPTIONS
 
 
 class TaxonomyItemAdmin(TraceableAdminModel):
@@ -24,7 +24,6 @@ class TaxonomyItemAdmin(TraceableAdminModel):
 
     def get_fieldsets(self, request, obj):
         super().get_fieldsets(request, obj)
-        pk = getattr(obj, 'pk', None)
         return self.TAXONOMY_ITEM_FIELDSETS
 
 
@@ -33,6 +32,21 @@ class KeywordAdmin(TaxonomyItemAdmin):
     pass
 
 
+class SubjectAdminForm(forms.ModelForm):
+    class Meta:
+        widgets = {
+            'description': QuillWidget(attrs=make_editor_opt('')),
+        }
+
+
 @admin.register(Subject)
 class SubjectAdmin(TaxonomyItemAdmin):
-    pass
+    form = SubjectAdminForm
+
+    def get_fieldsets(self, request, obj):
+        super().get_fieldsets(request, obj)
+        return self.TAXONOMY_ITEM_FIELDSETS + (('Informações adicionais', {
+            'fields': ('description', )
+        }), ('Opções de publicação', {
+            'fields': ('featured', )
+        }),)

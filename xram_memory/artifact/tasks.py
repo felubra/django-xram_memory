@@ -70,6 +70,11 @@ def news_set_basic_info(news_id, sync=False):
                 add_keywords_for_news(news._keywords, news_id)
             else:
                 add_keywords_for_news.delay(news._keywords, news_id)
+        if getattr(news, '_subjects', None):
+            if sync:
+                add_subjects_for_news(news._subjects, news_id)
+            else:
+                add_subjects_for_news.delay(news._subjects, news_id)
     except:
         raise
     else:
@@ -87,6 +92,23 @@ def add_keywords_for_news(keywords, news_id):
     try:
         news._keywords = keywords
         news.add_fetched_keywords()
+    except:
+        raise
+    else:
+        return True
+
+
+@shared_task(autoretry_for=(OperationalError,), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, rate_limit="10/m",)
+def add_subjects_for_news(subjects, news_id):
+    """
+    Cria uma instância de um Assunto (Taxonomia) para cada assunto identificado por
+    `news_set_basic_info` e associa ele à Notícia.
+    """
+    News = apps.get_model('artifact', 'News')
+    news = News.objects.get(pk=news_id)
+    try:
+        news._subjects = subjects
+        news.add_fetched_subjects()
     except:
         raise
     else:

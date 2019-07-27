@@ -50,6 +50,7 @@ class Common(Configuration):
         'rest_framework',
         'corsheaders',
         'tags_input',
+        'xram_memory.albums',
     ]
 
     MIDDLEWARE = [
@@ -156,10 +157,22 @@ class Common(Configuration):
 
     THUMBNAIL_ALIASES = {
         '': {
-            'document_thumbnail': {
-                'size': (250, 250),
+            'document_preview': {
+                'size': (850, 850),
                 'autocrop': True,
                 'crop': 'scale',
+                'upscale': False,
+            },
+            'document_thumbnail': {
+                'size': (0, 250),
+                'autocrop': True,
+                'crop': 'scale',
+                'upscale': False,
+            },
+            'news_page': {
+                'size': (0, 350),
+                'autocrop': True,
+                'crop': 'smart',
                 'upscale': False,
             },
             'thumbnail': {

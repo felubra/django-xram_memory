@@ -1,10 +1,10 @@
-from django.db import models
+from xram_memory.base_models import TraceableEditorialModel
+from easy_thumbnails.fields import ThumbnailerImageField
 from django.utils.encoding import iri_to_uri
+from xram_memory.utils import no_empty_html
 from django.urls import get_script_prefix
 from django.utils.text import slugify
-from easy_thumbnails.fields import ThumbnailerImageField
-from xram_memory.base_models import TraceableEditorialModel
-from xram_memory.quill_widget import no_empty_html
+from django.db import models
 
 
 # Create your models here.
@@ -44,6 +44,10 @@ class StaticPage(TraceableEditorialModel):
     show_in_menu = models.BooleanField(
         verbose_name="Mostrar no menu",
         help_text='Mostrar um link para esta página no menu principal do site',
+        default=False)
+    show_in_home = models.BooleanField(
+        verbose_name="Mostrar na página inicial",
+        help_text='Mostrar um link para esta página na página inicial, acima da barra de pesquisa',
         default=False)
 
     def __str__(self):

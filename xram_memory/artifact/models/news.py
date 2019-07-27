@@ -1,12 +1,12 @@
 from xram_memory.artifact.models import Artifact, Document, Newspaper
 from xram_memory.artifact import tasks as background_tasks
 from django.db import models, transaction, IntegrityError
+from xram_memory.taxonomy.models import Keyword, Subject
 from xram_memory.logger.decorators import log_process
 from filer.utils.generate_filename import randomized
 from django.template.defaultfilters import slugify
 from easy_thumbnails.files import get_thumbnailer
 from django.core.files import File as DjangoFile
-from xram_memory.taxonomy.models import Keyword
 from django.core.validators import URLValidator
 from django.core.files.base import ContentFile
 from boltons.cacheutils import cachedproperty
@@ -150,8 +150,8 @@ class News(Artifact):
         basic_info = NewsFetcher.fetch_basic_info(self.url)
         # preenche os campos do modelo com as informações obtidas e lida com casos especiais
         for prop, value in basic_info.items():
-            if prop == 'keywords':
-                setattr(self, '_keywords', value)
+            if prop in ('keywords', 'subjects'):
+                setattr(self, '_{}'.format(prop), value)
             elif prop == 'image':
                 setattr(self, '_image', value)
             else:
@@ -214,6 +214,28 @@ class News(Artifact):
             if len(keywords):
                 self.keywords.add(*keywords)
 
+    @log_process(operation="adicionar assuntos")
+    def add_fetched_subjects(self):
+        """
+        Para cada uma dos assuntos descobertos por set_basic_info(), crie um assunto no banco de
+        dados e associe ele a esta notícia
+        """
+        if hasattr(self, '_subjects') and len(self._subjects) > 0:
+            subjects = []
+            for subject in self._subjects:
+                try:
+                    # tente achar a assunto pelo nome
+                    subjects.append(Subject.objects.get(name=subject))
+                except Subject.DoesNotExist:
+                    try:
+                        subjects.append(Subject.objects.create(name=subject,
+                                                               created_by=self.modified_by,
+                                                               modified_by=self.modified_by))
+                    except IntegrityError:
+                        pass
+            if len(subjects):
+                self.subjects.add(*subjects)
+
     @log_process(operation="baixar uma imagem")
     def add_fetched_image(self):
         """
@@ -261,37 +283,45 @@ class News(Artifact):
                     image_document=image_document, original_url=self._image, news=self)
 
         # limpe o cache das flags/campos que dependem de uma captura de imagem
-        for attr_name in ['thumbnail', 'image_capture_indexing']:
+        for attr_name in ['thumbnails']:
             try:
                 delattr(self, attr_name)
             except AttributeError:
                 pass
 
-    @cachedproperty
+    @property
     def image_capture_indexing(self):
         """
         Retorna a url para uma captura de imagem desta notícia, se existente.
         """
-        try:
-            if self.image_capture:
-                url = get_thumbnailer(self.image_capture.image_document.file)[
-                    'image_capture'].url
-                return url
-        except:
-            return None
+        return self.thumbnails.get('image_capture', None)
 
-    @cachedproperty
+    @property
     def thumbnail(self):
         """
         Retorna a url para uma miniatura de uma captura de página desta notícia, se existente.
         """
+        return self.thumbnails.get('thumbnail', None)
+
+    @cachedproperty
+    def thumbnails(self):
+        """
+        Retorna uma lista de thumbnails geradas
+        """
+        thumbnails_aliases = settings.THUMBNAIL_ALIASES[''].keys()
+        generated_thumbnails = {}
         try:
             if self.image_capture:
-                url = get_thumbnailer(self.image_capture.image_document.file)[
-                    'thumbnail'].url
-                return url
+                for alias in thumbnails_aliases:
+                    try:
+                        generated_thumbnails[alias] = get_thumbnailer(self.image_capture.image_document.file)[
+                            alias].url
+                    except:
+                        continue
         except:
-            return None
+            return {}
+        else:
+            return generated_thumbnails
 
     @property
     def published_year(self):

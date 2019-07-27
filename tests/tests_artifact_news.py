@@ -94,15 +94,15 @@ class NewsTestCase(TransactionTestCase):
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
 
-        expected_response_keys = ['title', 'authors', 'body', 'teaser',
-                                  'published_date', 'language', 'image', 'keywords', ]
         # Atributos que não podem estar em branco ('')
-        not_blank_attrs = expected_response_keys[:2]
+        not_blank_attrs = ['title', 'authors']
         # Atributos que não podem estar nulos (None)
-        not_null_attrs = expected_response_keys[2:-2]
+        not_null_attrs = ['body', 'teaser', 'published_date', 'language']
         # Atributos especiais, que começam com '_' e que não podem estar nulos (None)
-        under_attrs = ['_{}'.format(key)
-                       for key in expected_response_keys[-2:]]
+        under_attrs = ['image', 'keywords', 'subjects']
+
+        expected_response_keys = [
+            *not_blank_attrs, *not_null_attrs, *under_attrs]
 
         with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
             result = news.set_basic_info()
@@ -124,10 +124,9 @@ class NewsTestCase(TransactionTestCase):
                     self.assertIsNotNone(news.published_date.tzinfo)
 
             for under_attr in under_attrs:
-                value = getattr(news, under_attr)
+                value = getattr(news, '_{}'.format(under_attr))
                 self.assertIsNotNone(value)
-                if under_attr == '_keywords':
-                    # '_keywords' deve ser do tipo lista
+                if under_attr in ('_keywords', '_subjects'):
                     self.assertIsInstance(value, list)
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
@@ -165,16 +164,38 @@ class NewsTestCase(TransactionTestCase):
                 self.assertIn(fetched_keyword, news.keywords_indexing)
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
+    def test_add_fetched_subjects(self):
+        with self.basic_news() as news:
+            self.assertIsNotNone(news._subjects)
+            news.add_fetched_subjects()
+            self.assertIsNotNone(news.subjects.all())
+            self.assertEqual(len(news.subjects.all()), len(news._subjects))
+
+            for fetched_subject in news._subjects:
+                self.assertIsNotNone(Subject.objects.get(name=fetched_subject))
+
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
+    def test_add_fetched_subjects_with_preexisting_subject(self):
+        with self.basic_news() as news:
+            self.assertIsNotNone(news._subjects)
+            self.assertIn('Pedaladas fiscais', news._subjects)
+            Subject.objects.create(name='Política Externa')
+            news.add_fetched_subjects()
+            self.assertIsNotNone(news.subjects.all())
+            self.assertEqual(len(news.subjects.all()), len(news._subjects))
+
+    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_subjects_indexing(self):
         with self.basic_news() as news:
             self.assertIsNotNone(news.subjects_indexing)
             self.assertIsInstance(news.subjects_indexing, list)
             self.assertEqual(len(news.subjects_indexing), 0)
 
-            politica_subject = Subject.objects.create(name="Política")
-            news.subjects.add(politica_subject)
-            self.assertEqual(len(news.subjects_indexing), 1)
-            self.assertEqual(news.subjects_indexing, ['Política'])
+            news.add_fetched_subjects()
+            self.assertEqual(len(news.subjects_indexing), len(news._subjects))
+
+            for fetched_subject in news._subjects:
+                self.assertIn(fetched_subject, news.subjects_indexing)
 
     def test_null_field_indexing(self):
         news = News()

@@ -9,7 +9,7 @@ class StaticPageSerializer(ModelSerializer):
         model = StaticPage
         fields = ('title', 'teaser', 'url',
                   'body', 'image', 'teaser_text',
-                  'show_in_menu', 'published', 'featured', 'created_at', 'modified_at')
+                  'show_in_menu', 'show_in_home', 'published', 'featured', 'created_at', 'modified_at')
 
 
 class SimpleStaticPageSerializer(ModelSerializer):
@@ -17,4 +17,4 @@ class SimpleStaticPageSerializer(ModelSerializer):
     class Meta:
         model = StaticPage
         fields = ('title', 'teaser', 'url', 'teaser_text',
-                  'show_in_menu', 'published', 'featured',)
+                  'show_in_menu', 'show_in_home', 'published', 'featured',)

@@ -16,17 +16,28 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='StaticPage',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Criado em')),
-                ('modified_at', models.DateTimeField(auto_now=True, verbose_name='Modificado em')),
-                ('published', models.BooleanField(default=True, verbose_name='Publicado?')),
-                ('featured', models.BooleanField(default=True, verbose_name='Em destaque na página inicial?')),
-                ('title', models.CharField(help_text='Título', max_length=255, verbose_name='Título')),
-                ('teaser', models.TextField(blank=True, help_text='Resumo ou chamada', null=True, validators=[xram_memory.quill_widget.no_empty_html], verbose_name='Resumo ou chamada')),
-                ('url', models.CharField(db_index=True, max_length=100, verbose_name='Endereço')),
-                ('body', models.TextField(validators=[xram_memory.quill_widget.no_empty_html], verbose_name='Corpo da página')),
-                ('image', easy_thumbnails.fields.ThumbnailerImageField(blank=True, null=True, upload_to='', verbose_name='Imagem')),
-                ('show_in_menu', models.BooleanField(default=False, help_text='Mostrar um link para esta página no menu principal do site', verbose_name='Mostrar no menu')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(
+                    auto_now_add=True, verbose_name='Criado em')),
+                ('modified_at', models.DateTimeField(
+                    auto_now=True, verbose_name='Modificado em')),
+                ('published', models.BooleanField(
+                    default=True, verbose_name='Publicado?')),
+                ('featured', models.BooleanField(default=True,
+                                                 verbose_name='Em destaque na página inicial?')),
+                ('title', models.CharField(help_text='Título',
+                                           max_length=255, verbose_name='Título')),
+                ('teaser', models.TextField(blank=True, help_text='Resumo ou chamada', null=True,
+                                            validators=[xram_memory.utils.no_empty_html], verbose_name='Resumo ou chamada')),
+                ('url', models.CharField(db_index=True,
+                                         max_length=100, verbose_name='Endereço')),
+                ('body', models.TextField(validators=[
+                 xram_memory.utils.no_empty_html], verbose_name='Corpo da página')),
+                ('image', easy_thumbnails.fields.ThumbnailerImageField(
+                    blank=True, null=True, upload_to='', verbose_name='Imagem')),
+                ('show_in_menu', models.BooleanField(default=False,
+                                                     help_text='Mostrar um link para esta página no menu principal do site', verbose_name='Mostrar no menu')),
             ],
             options={
                 'verbose_name': 'Página',
