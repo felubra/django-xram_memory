@@ -19,8 +19,8 @@ TIMEOUT = 0 if settings.DEBUG else 60 * 60 * 12
 
 
 class SubjectViewSet(viewsets.ViewSet):
-    QUERY_INITIAL_REGEX = re.compile('^[a-zA-Z]$')
-    QUERY_LIMIT_REGEX = re.compile('^\d+$')
+    QUERY_INITIAL_REGEX = re.compile(r"^[a-zA-Z!]$")
+    QUERY_LIMIT_REGEX = re.compile(r"^\d+$")
 
     @method_decorator(cache_page(TIMEOUT))
     def subjects_by_initial(self, request, initial=None):
@@ -29,8 +29,11 @@ class SubjectViewSet(viewsets.ViewSet):
         """
         if not initial or not self.QUERY_INITIAL_REGEX.match(initial):
             raise ParseError()
-        queryset = Subject.objects.filter(
-            name__startswith=initial).order_by('name')
+        if initial == '!':
+            queryset = Subject.objects.exclude(name__regex=r'^[a-zA-Z]')
+        else:
+            queryset = Subject.objects.filter(
+                name__istartswith=initial).order_by('name')
 
         subjects = get_list_or_404(queryset)
         serializer = SimpleSubjectSerializer(subjects, many=True)
@@ -39,15 +42,15 @@ class SubjectViewSet(viewsets.ViewSet):
     @method_decorator(cache_page(TIMEOUT))
     def subjects_initials(self, request):
         initials = []
-        INITIALS_FILTER = '#' + string.ascii_uppercase
+        INITIALS_FILTER = '!' + string.ascii_uppercase
 
-        for filter in INITIALS_FILTER:
-            if filter is '#':
+        for initial in INITIALS_FILTER:
+            if initial == '!':
                 results = Subject.objects.exclude(name__regex=r'^[a-zA-Z]')
             else:
-                results = Subject.objects.filter(name__istartswith=filter)
-            if results.count():
-                initials.append(filter)
+                results = Subject.objects.filter(name__istartswith=initial)
+            if results.count() > 0:
+                initials.append(initial)
 
         return Response(initials)
 
