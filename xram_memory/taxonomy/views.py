@@ -35,7 +35,7 @@ class SubjectViewSet(viewsets.ViewSet):
             queryset = Subject.objects.filter(
                 name__istartswith=initial).order_by('name')
 
-        subjects = get_list_or_404(queryset)
+        subjects = list(queryset)
         serializer = SimpleSubjectSerializer(subjects, many=True)
         return Response(serializer.data)
 
@@ -65,7 +65,7 @@ class SubjectViewSet(viewsets.ViewSet):
             limit = int(limit)
             random_featured_subjects = Subject.objects.filter(
                 featured=True).order_by("?")[:limit]
-            subjects = get_list_or_404(random_featured_subjects)
+            subjects = list(random_featured_subjects)
             serializer = SubjectSerializer(subjects, many=True)
             return Response(serializer.data)
         raise ParseError()
