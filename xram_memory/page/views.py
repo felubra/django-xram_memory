@@ -14,7 +14,7 @@ class InMenuStaticPagesViewSet(viewsets.ViewSet):
     def listing(self, request):
         queryset = StaticPage.objects.filter(
             published=True, show_in_menu=True).order_by('-modified_at')
-        pages = get_list_or_404(queryset)
+        pages = list(queryset)
         serializer = SimpleStaticPageSerializer(pages, many=True)
         return Response(serializer.data)
 
@@ -26,7 +26,7 @@ class FeaturedStaticPagesViewSet(viewsets.ViewSet):
     def listing(self, request):
         queryset = StaticPage.objects.filter(
             published=True, featured=True).order_by('-modified_at')
-        pages = get_list_or_404(queryset)
+        pages = list(queryset)
         serializer = SimpleStaticPageSerializer(pages, many=True)
         return Response(serializer.data)
 

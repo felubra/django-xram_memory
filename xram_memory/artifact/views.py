@@ -50,7 +50,7 @@ class AlbumViewSet(viewsets.ViewSet):
         photo_albums_folder = self._main_photoalbums_folder
         queryset = Folder.objects.annotate(num_files=Count("all_files")).filter(
             parent=photo_albums_folder, num_files__gt=0).order_by("-modified_at")
-        albums = get_list_or_404(queryset)
+        albums = list(queryset)
         serializer = SimplePhotoAlbumFolderSerializer(albums, many=True)
         return Response(serializer.data)
 
