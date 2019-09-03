@@ -7,7 +7,7 @@ name = "pypi"
 python = ">=3.7.2"
 
 [dev-packages]
-Werkzeug = "~=0.14.1"
+Werkzeug = "~=0.15.3"
 autopep8 = "~=1.4.3"
 pdir2 = "*"
 rope = "*"
