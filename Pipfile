@@ -63,8 +63,8 @@ greenlet = "~=0.4.15"
 celery= "~=4.2.2"
 redis = "~=3.2.1"
 pdfkit = {editable = true,git = "https://github.com/JazzCore/python-pdfkit.git",ref = "master"}
-favicon = "*"
-django-hashid-field = "*"
+favicon = ">=0.7.0"
+django-hashid-field = ">=2.1.6"
 python-magic-bin = {version = "*",sys_platform = "== 'win32'"}
 django-currentuser = "==0.3.4"
-django-rest-multiple-models = "*"
+django-rest-multiple-models = ">=2.1.3"
