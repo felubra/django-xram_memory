@@ -95,6 +95,18 @@ class DocumentDocument(DocType):
         """
         return self._doc_type.model._default_manager.filter(document_id__isnull=False).filter(is_user_object=True).filter(is_public=True)
 
+    def update(self, document, refresh=None, action='index', **kwargs):
+        """
+        Somente indexe documentos que tiverem document_id, forem inseridos pelo usuário e públicos.
+        Atualmente `get_queryset` acima é ignorado pelo sistema de sinais built-in, ver:
+        https://github.com/sabricot/django-elasticsearch-dsl/issues/111
+        """
+        if (isinstance(document, Document) and action == "index" and not document.is_public or
+                not document.is_user_object):
+            action = "delete"
+            kwargs = {**kwargs, 'raise_on_error': False}
+        return super().update(document, refresh, action, **kwargs)
+
     class Meta(object):
         model = Document  # O modelo associado a este documento
         parallel_indexing = True
