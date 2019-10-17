@@ -101,8 +101,8 @@ class DocumentDocument(DocType):
         Atualmente `get_queryset` acima é ignorado pelo sistema de sinais built-in, ver:
         https://github.com/sabricot/django-elasticsearch-dsl/issues/111
         """
-        if (isinstance(document, Document) and action == "index" and not document.is_public or
-                not document.is_user_object):
+        if (isinstance(document, Document) and action == "index" and (not document.is_public or
+                                                                      not document.is_user_object)):
             action = "delete"
             kwargs = {**kwargs, 'raise_on_error': False}
         return super().update(document, refresh, action, **kwargs)
