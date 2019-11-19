@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN npm ci --only=production
 
-FROM python:3
+FROM python:3.7
 
 ENV PYTHONUNBUFFERED=1
 ENV NLTK_DATA=/usr/share/nltk_data
