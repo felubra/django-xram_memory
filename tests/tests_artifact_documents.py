@@ -184,3 +184,47 @@ class DocumentTestCase(TransactionTestCase):
                     document.search_thumbnail, search_thumbnail)
                 self.assertNotEqual(document.icon, icon)
                 self.assertNotEqual(document.thumbnails, thumbnails)
+
+    def test_pdf_document_num_pages(self):
+        """
+        Testa a quantidade páginas informada para um documento em pdf
+        """
+        document = Document()
+        self.assertIsNone(document.num_pages)
+        three_page_pdf = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
+        five_page_pdf = Path(os.path.dirname(__file__),
+                             './fixtures/five_page.pdf')
+        with self.open_as_django_file(three_page_pdf) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            self.assertEqual(document.num_pages, 3)
+
+        with self.open_as_django_file(five_page_pdf) as django_file:
+            document.file = django_file
+            self.assertEqual(document.num_pages, 3)
+            document.save()
+            self.assertEqual(document.num_pages, 5)
+
+    def test_image_document_num_pages(self):
+        """
+        Testa a quantidade páginas informada para um documento de imagem
+        """
+        document = Document()
+        self.assertIsNone(document.num_pages)
+        image_file = Path(os.path.dirname(__file__), './fixtures/image.jpg')
+        with self.open_as_django_file(image_file) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            self.assertEqual(document.num_pages, 1)
+
+    def test_unknown_document_num_pages(self):
+        """
+        Testa a quantidade páginas informada para um documento de imagem
+        """
+        document = Document()
+        self.assertIsNone(document.num_pages)
+        image_file = Path(os.path.dirname(__file__), './fixtures/text.txt')
+        with self.open_as_django_file(image_file) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            self.assertEqual(document.num_pages, 1)

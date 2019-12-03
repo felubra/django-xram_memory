@@ -4,6 +4,7 @@ from django.db import models
 from filer.models import File
 from .artifact import Artifact
 from django.conf import settings
+from PyPDF2 import PdfFileReader
 from hashid_field import HashidField
 from django.utils.text import slugify
 from xram_memory.utils import FileValidator
@@ -163,13 +164,32 @@ class Document(File):
         # Este será o modelo genérico para todos os tipos de arquivo, em substituição ao do Filer
         return True
 
+    @cachedproperty
+    def num_pages(self):
+        """
+        Retorna o número de páginas de um documento, se houver arquivo associado.
+        Se for um documento pdf, abre ele usando o PyPDF2 e pega esta informação.
+        Do contrário, o resultado será sempre 1.
+        """
+        try:
+            if not self.file:
+                raise ValueError
+            if self.mime_type == 'application/pdf':
+                with open(self.file.path, mode='rb') as fd:
+                    pdf = PdfFileReader(fd)
+                    return pdf.getNumPages()
+            else:
+                return 1
+        except Exception as e:
+            return None
+
     def save(self, *args, **kwargs):
         # Se o documento não tiver nome, use o nome do arquivo
         if not self.name:
             self.name = self.label
         super().save(*args, **kwargs)
         # limpe o cache das flags/campos, pois o arquivo pode ter mudado
-        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news']:
+        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news', 'num_pages']:
             try:
                 delattr(self, attr_name)
             except AttributeError:
