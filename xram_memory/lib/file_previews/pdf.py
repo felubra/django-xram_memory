@@ -43,7 +43,7 @@ def pdf_preview(source, exif_orientation=True, **options):
 
 
 @contextmanager
-def generate_pdf_page_thumbnails(source, first_page=0, last_page=1, delete_after_exit=True):
+def generate_pdf_page_thumbnails(source, first_page=0, last_page=1, delete_after_exit=True, fmt='ppm'):
     """
     Com base num arquivo PDF de entrada, retorna um gerenciador de contexto com os arquivos
     das visualizações de página gerados
@@ -52,8 +52,8 @@ def generate_pdf_page_thumbnails(source, first_page=0, last_page=1, delete_after
         return
 
     # Gere uma lista de imagens das páginas do PDF
-    images = convert_from_path(
-        source.path, first_page=first_page, last_page=last_page, output_folder=gettempdir())
+    images = convert_from_path(source.path, fmt=fmt, first_page=first_page,
+                               last_page=last_page, output_folder=gettempdir())
     # Retorne a lista
     yield images
 
