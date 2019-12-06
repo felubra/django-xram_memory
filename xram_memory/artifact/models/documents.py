@@ -295,6 +295,10 @@ class DocumentPage(Document):
         Document, on_delete=models.CASCADE, related_name="document_pages")
     page_index = models.PositiveIntegerField("Página")
 
+    class Meta:
+        verbose_name = "Página de documento"
+        verbose_name_plural = "Páginas de documentos"
+
     def delete(self, *args, **kwargs):
         os.remove(self.file.path)
         super().delete(*args, *kwargs)
