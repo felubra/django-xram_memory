@@ -43,4 +43,14 @@ DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(extra_main_fields=('document
 
 @admin.register(DocumentPage)
 class DocumentPageAdmin(DocumentAdmin):
-    pass
+    def has_view_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
