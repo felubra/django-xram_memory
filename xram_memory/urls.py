@@ -27,6 +27,9 @@ urlpatterns = [
     # Documentos
     path('api/v1/document/<str:document_id>',
          DocumentViewSet.as_view({'get': 'retrieve'})),
+    # Páginas de Documentos
+    path('api/v1/document/<str:document_id>/pages',
+         DocumentViewSet.as_view({'get': 'retrieve_pages'})),
     # Notícias
     path('api/v1/news/<str:slug>',
          NewsViewSet.as_view({'get': 'retrieve'})),

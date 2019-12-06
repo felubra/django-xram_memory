@@ -1,4 +1,6 @@
-from xram_memory.artifact.serializers import DocumentSerializer, NewsSerializer, PhotoAlbumFolderSerializer, SimplePhotoAlbumFolderSerializer
+from xram_memory.artifact.serializers import (
+    DocumentSerializer, NewsSerializer, PhotoAlbumFolderSerializer, SimplePhotoAlbumFolderSerializer,
+    DocumentPagesSerializer, )
 from xram_memory.artifact.models import Document, News
 from django.shortcuts import get_object_or_404
 from boltons.cacheutils import cachedproperty
@@ -21,6 +23,12 @@ class DocumentViewSet(viewsets.ViewSet):
         queryset = Document.objects.filter(is_public=True)
         document = get_object_or_404(queryset, document_id=document_id)
         serializer = DocumentSerializer(document)
+        return Response(serializer.data)
+
+    def retrieve_pages(self, request, document_id=None):
+        queryset = Document.objects.filter(is_public=True)
+        document = get_object_or_404(queryset, document_id=document_id)
+        serializer = DocumentPagesSerializer(document)
         return Response(serializer.data)
 
 

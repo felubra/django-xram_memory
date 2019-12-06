@@ -1,7 +1,7 @@
 from easy_thumbnails.widgets import ImageClearableFileInput
 from easy_thumbnails.fields import ThumbnailerField
 from tags_input import admin as tags_input_admin
-from xram_memory.artifact.models import Document
+from xram_memory.artifact.models import Document, DocumentPage
 from filer.admin.fileadmin import FileAdmin
 from django.contrib import admin
 
@@ -39,3 +39,8 @@ DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(extra_main_fields=('document
                                                     extra_advanced_fields=(
                                                         "mime_type",)
                                                     )
+
+
+@admin.register(DocumentPage)
+class DocumentPageAdmin(DocumentAdmin):
+    pass

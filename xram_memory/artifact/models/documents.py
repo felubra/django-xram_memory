@@ -1,19 +1,25 @@
+import os
 import magic
 from pathlib import Path
 from django.db import models
 from filer.models import File
 from .artifact import Artifact
-from django.conf import settings
 from PyPDF2 import PdfFileReader
+from django.conf import settings
+from django.db import transaction
 from hashid_field import HashidField
+from django.utils.timezone import now
 from django.utils.text import slugify
 from xram_memory.utils import FileValidator
 from filer import settings as filer_settings
 from boltons.cacheutils import cachedproperty
 from django.core.files.base import ContentFile
+from django.core.files import File as DjangoFile
 from easy_thumbnails.files import get_thumbnailer
 from easy_thumbnails.fields import ThumbnailerField
 from xram_memory.taxonomy.models import Keyword, Subject
+from xram_memory.lib.file_previews.pdf import generate_pdf_page_thumbnails
+from django.urls import reverse
 
 
 class Document(File):
@@ -130,10 +136,17 @@ class Document(File):
 
     @cachedproperty
     def thumbnails(self):
+        return self.get_thumbnails()
+
+    def get_thumbnails(self, custom_aliases=[]):
         """
-        Retorna uma lista de thumbnails geradas
+        Retorna uma lista de thumbnails geradas.
+        As visualizações são geradas sob demanda.
         """
-        thumbnails_aliases = settings.THUMBNAIL_ALIASES[''].keys()
+        if len(custom_aliases):
+            thumbnails_aliases = custom_aliases
+        else:
+            thumbnails_aliases = settings.THUMBNAIL_ALIASES[''].keys()
         generated_thumbnails = {}
         try:
             for alias in thumbnails_aliases:
@@ -183,13 +196,69 @@ class Document(File):
         except Exception as e:
             return None
 
+    @cachedproperty
+    def pages(self):
+        """
+        Se este documento for do tipo pdf, retorna uma lista com um documento para cada página.
+        Lazy-load: gera as páginas se não existirem.
+        """
+        if not self.mime_type == 'application/pdf':
+            return None
+        try:
+            pages = DocumentPage.objects.filter(
+                parent_document=self).order_by('page_index')
+            if not len(pages) or len(pages) != self.num_pages:
+                self.generate_pages()
+                return self.pages
+            return pages
+        except:
+            return None
+
+    @transaction.atomic
+    def delete_pages(self):
+        """
+        Deleta as páginas-documento deste documento.
+        """
+        previews = DocumentPage.objects.filter(
+            parent_document=self).order_by('page_index')
+        for preview in previews:
+            preview.delete()
+
+    @transaction.atomic
+    def generate_pages(self):
+        """
+        Gera as páginas-documento deste documento.
+        """
+        if not self.mime_type == 'application/pdf':
+            return
+
+        with generate_pdf_page_thumbnails(self.file, last_page=None, fmt='jpeg') as images:
+            for page_index, image in enumerate(images):
+                with open(image.filename, 'rb') as fd:
+                    django_file = DjangoFile(fd, name=image.filename)
+                    filename = "{}_{}".format(
+                        Path(self.file.name).name, page_index)
+                    DocumentPage.objects.create(
+                        file=django_file,
+                        is_public=True,
+                        is_user_object=False,
+                        name=filename,
+                        original_filename=image.filename,
+                        page_index=page_index,
+                        parent_document=self,
+                        published_date=now(),
+                    )
+
     def save(self, *args, **kwargs):
         # Se o documento não tiver nome, use o nome do arquivo
         if not self.name:
             self.name = self.label
         super().save(*args, **kwargs)
+        # Não tente gerar imagens de páginas para documentos que são páginas eles mesmos
+        if not isinstance(self, DocumentPage):
+            self.delete_pages()
         # limpe o cache das flags/campos, pois o arquivo pode ter mudado
-        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news', 'num_pages']:
+        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news', 'num_pages', 'pages']:
             try:
                 delattr(self, attr_name)
             except AttributeError:
@@ -219,3 +288,13 @@ class Document(File):
             return []
         else:
             return news_items
+
+
+class DocumentPage(Document):
+    parent_document = models.ForeignKey(
+        Document, on_delete=models.CASCADE, related_name="document_pages")
+    page_index = models.PositiveIntegerField("Página")
+
+    def delete(self, *args, **kwargs):
+        os.remove(self.file.path)
+        super().delete(*args, *kwargs)
