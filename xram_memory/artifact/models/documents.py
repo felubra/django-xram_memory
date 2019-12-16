@@ -180,17 +180,14 @@ class Document(File):
     @cachedproperty
     def num_pages(self):
         """
-        Retorna o número de páginas de um documento, se houver arquivo associado.
-        Se for um documento pdf, abre ele usando o PyPDF2 e pega esta informação.
-        Do contrário, o resultado será sempre 1.
+        Retorna o número de páginas de um documento.
+        Atualmente, somente documentos pdf tem mais de uma página.
         """
         try:
             if not self.file:
                 raise ValueError
             if self.mime_type == 'application/pdf':
-                with open(self.file.path, mode='rb') as fd:
-                    pdf = PdfFileReader(fd)
-                    return pdf.getNumPages()
+                return len(self.pages)
             else:
                 return 1
         except Exception as e:
@@ -207,7 +204,7 @@ class Document(File):
         try:
             pages = DocumentPage.objects.filter(
                 parent_document=self).order_by('page_index')
-            if not len(pages) or len(pages) != self.num_pages:
+            if not len(pages):
                 self.generate_pages()
                 return self.pages
             return pages
