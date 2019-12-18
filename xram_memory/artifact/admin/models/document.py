@@ -30,11 +30,16 @@ class DocumentAdmin(FileAdmin, tags_input_admin.TagsInputAdmin):
     date_hierarchy = 'uploaded_at'
     search_fields = ('name',)
 
+    def num_pages(self, object):
+        return object.num_pages
+    num_pages.short_description = "Número de páginas"
+
 
 DocumentAdmin.readonly_fields = DocumentAdmin.readonly_fields + \
-    ('mime_type', 'document_id',)
+    ('mime_type', 'document_id', 'num_pages')
 DocumentAdmin.fieldsets = FileAdmin.build_fieldsets(extra_main_fields=('document_id', 'keywords',
                                                                        'subjects', 'published_date',
+                                                                       'num_pages',
                                                                        ),
                                                     extra_advanced_fields=(
                                                         "mime_type",)
