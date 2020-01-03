@@ -60,7 +60,8 @@ class DocumentDocument(DocType):
     id = fields.IntegerField(attr='id')
     created_at = fields.DateField(attr="uploaded_at")
     modified_at = fields.DateField(attr="modified_at")
-    title = fields.TextField(analyzer='rebuilt_portuguese', attr="name")
+    published_date = fields.DateField(attr="modified_at")
+    title = fields.TextField(analyzer='rebuilt_portuguese', attr="name", fields={'raw': fields.KeywordField()})
     teaser = fields.TextField(
         analyzer='rebuilt_portuguese', attr="description")
     keywords = fields.NestedField(properties={

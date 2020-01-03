@@ -61,7 +61,7 @@ class NewsDocument(DocType):
     id = fields.IntegerField(attr='id')
     created_at = fields.DateField()
     modified_at = fields.DateField()
-    title = fields.TextField(analyzer='rebuilt_portuguese')
+    title = fields.TextField(analyzer='rebuilt_portuguese', fields={'raw': fields.KeywordField()})
     teaser = fields.TextField(analyzer='rebuilt_portuguese')
     keywords = fields.NestedField(properties={
         'name': fields.KeywordField(),
