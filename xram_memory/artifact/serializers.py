@@ -60,6 +60,11 @@ class PDFCaptureSerializer(ModelSerializer):
         fields = ('pdf_document', 'pdf_capture_date',)
     pdf_document = SimpleDocumentSerializer()
 
+class ImageCaptureSerializer(ModelSerializer):
+    class Meta:
+        model = NewsImageCapture
+        fields = ('image_document', 'image_capture_date',)
+    image_document = SimpleDocumentSerializer()
 
 class NewsSerializer(ModelSerializer):
     class Meta:
@@ -72,7 +77,7 @@ class NewsSerializer(ModelSerializer):
     keywords = KeywordSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     pdf_captures = PDFCaptureSerializer(many=True)
-    image_capture = CharField(source='image_capture_indexing')
+    image_capture = ImageCaptureSerializer()
     thumbnail = CharField()
 
 
