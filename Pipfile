@@ -34,7 +34,7 @@ dj-database-url = "~=0.5.0"
 django-configurations = "~=2.1"
 django-debug-toolbar = "~=1.10.1"
 django-extensions = "~=2.1.3"
-Django = ">=2.1.11"
+Django = ">=2.1.15"
 psycopg2 = "<2.8" # Bloqueado até que o Django seja atualizado para a versão 2.2
 gunicorn = "~=19.9.0"
 whitenoise = "~=4.1"
