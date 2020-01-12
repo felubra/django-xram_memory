@@ -184,3 +184,114 @@ class DocumentTestCase(TransactionTestCase):
                     document.search_thumbnail, search_thumbnail)
                 self.assertNotEqual(document.icon, icon)
                 self.assertNotEqual(document.thumbnails, thumbnails)
+
+    def test_pdf_document_num_pages(self):
+        """
+        Testa a quantidade páginas informada para um documento em pdf
+        """
+        document = Document()
+        self.assertIsNone(document.num_pages)
+        three_page_pdf = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
+        five_page_pdf = Path(os.path.dirname(__file__),
+                             './fixtures/five_page.pdf')
+        with self.open_as_django_file(three_page_pdf) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            self.assertEqual(document.num_pages, 3)
+
+        with self.open_as_django_file(five_page_pdf) as django_file:
+            document.file = django_file
+            self.assertEqual(document.num_pages, 3)
+            document.save()
+            self.assertEqual(document.num_pages, 5)
+
+    def test_image_document_num_pages(self):
+        """
+        Testa a quantidade páginas informada para um documento de imagem
+        """
+        document = Document()
+        self.assertIsNone(document.num_pages)
+        image_file = Path(os.path.dirname(__file__), './fixtures/image.jpg')
+        with self.open_as_django_file(image_file) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            self.assertEqual(document.num_pages, 1)
+
+    def test_unknown_document_num_pages(self):
+        """
+        Testa a quantidade páginas informada para um documento de imagem
+        """
+        document = Document()
+        self.assertIsNone(document.num_pages)
+        text_file = Path(os.path.dirname(__file__), './fixtures/text.txt')
+        with self.open_as_django_file(text_file) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            self.assertEqual(document.num_pages, 1)
+
+    def test_pdf_file_page_previews(self):
+        """
+        Testa a geração de imagens para cada página num arquivo pdf.
+        """
+        document = Document()
+        self.assertIsNone(document.pages)
+        five_page_pdf = Path(os.path.dirname(__file__),
+                             './fixtures/five_page.pdf')
+        three_page_pdf = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
+        with self.open_as_django_file(five_page_pdf) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            self.assertIsNotNone(document.pages)
+            self.assertEqual(len(document.pages), document.num_pages)
+
+        with self.open_as_django_file(three_page_pdf) as django_file:
+            document.file = django_file
+            document.save()
+            self.assertIsNotNone(document.pages)
+            self.assertEqual(len(document.pages), document.num_pages)
+
+    def test_unknown_file_pages(self):
+        """
+        Um documento do tipo que não seja pdf deve retornar None
+        """
+        document = Document()
+        self.assertIsNone(document.pages)
+        text_file = Path(os.path.dirname(__file__), './fixtures/text.txt')
+        three_page_pdf = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
+        with self.open_as_django_file(text_file) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            self.assertIsNone(document.pages)
+
+        with self.open_as_django_file(three_page_pdf) as django_file:
+            document.file = django_file
+            document.save()
+            self.assertIsNotNone(document.pages)
+            self.assertEqual(len(document.pages), document.num_pages)
+
+    def test_pages_file_mime_type(self):
+        """
+        O mimetype do documento da página deve ser uma imagem jpeg.
+        """
+        three_page_pdf = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
+        with self.open_as_django_file(three_page_pdf) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            for page in document.pages:
+                self.assertEqual(page.mime_type, 'image/jpeg')
+
+    def test_document_delete_pages(self):
+        """
+        Os arquivos das imagens das páginas ser deletados quando um documento for salvo.
+        """
+        three_page_pdf = Path(os.path.dirname(__file__), './fixtures/pdf.pdf')
+        generated_files = []
+        with self.open_as_django_file(three_page_pdf) as django_file:
+            document = Document(file=django_file)
+            document.save()
+            for page in document.pages:
+                self.assertTrue(os.path.exists(page.file.path))
+                generated_files.append(page.file.path)
+            document.save()
+            for generated_file in generated_files:
+                self.assertFalse(os.path.exists(generated_file))

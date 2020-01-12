@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer, CharField, IntegerField, Serializer, Field, SerializerMethodField
-from xram_memory.artifact.models import Document, News, Newspaper, NewsPDFCapture, NewsImageCapture
+from xram_memory.artifact.models import Document, News, Newspaper, NewsPDFCapture, NewsImageCapture, DocumentPage
 from xram_memory.taxonomy.serializers import KeywordSerializer, SubjectSerializer
 from hashid_field.rest import HashidSerializerCharField, Hashid
 from boltons.cacheutils import cachedproperty
@@ -31,6 +31,30 @@ class DocumentSerializer(ModelSerializer):
                   'modified_at', 'mime_type', 'size', 'thumbnail', 'thumbnails', 'news_items')
 
     news_items = SimpleNewsSerializer(source='related_news', many=True)
+
+
+class DocumentPageSerializer(ModelSerializer):
+    document_id = HashidSerializerCharField(
+        source_field='artifact.Document.document_id')
+    thumbnails = SerializerMethodField()
+
+    class Meta:
+        model = DocumentPage
+        fields = ('document_id', 'page_index', 'canonical_url', 'thumbnails',)
+
+    def get_thumbnails(self, obj):
+        return obj.get_thumbnails(custom_aliases=['document_preview', 'document_thumbnail'])
+
+
+class DocumentPagesSerializer(ModelSerializer):
+    document_id = HashidSerializerCharField(
+        source_field='artifact.Document.document_id')
+    pages = DocumentPageSerializer(many=True)
+
+    class Meta:
+        model = Document
+        fields = ('document_id', 'name', 'pages',
+                  'canonical_url', 'num_pages',)
 
 
 class SimpleDocumentSerializer(ModelSerializer):
