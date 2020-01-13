@@ -159,13 +159,13 @@ class Common(Configuration):
         '': {
             'document_preview': {
                 'size': (850, 850),
-                'autocrop': True,
+                'autocrop': False,
                 'crop': 'scale',
                 'upscale': False,
             },
             'document_thumbnail': {
                 'size': (0, 250),
-                'autocrop': True,
+                'autocrop': False,
                 'crop': 'scale',
                 'upscale': False,
             },
@@ -186,6 +186,7 @@ class Common(Configuration):
                 'autocrop': True,
                 'crop': 'scale'
             },
+            # TODO: desabilitar?
             '1280': {
                 'size': (1280, 1280),
                 'crop': 'scale'
