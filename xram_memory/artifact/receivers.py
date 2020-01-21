@@ -1,13 +1,32 @@
-from xram_memory.artifact.models import Document, News, Newspaper
+from xram_memory.artifact.models import Document, News, Newspaper, NewsImageCapture, NewsPDFCapture
 import xram_memory.artifact.tasks as background_tasks
 from xram_memory.utils import celery_is_avaliable
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.db import transaction
 from urllib.parse import urlsplit
 from retrying import retry
 from celery import group
 import random
+
+
+@receiver(post_delete)
+def delete_associated_documents(sender, **kwargs):
+    instance = kwargs['instance']
+
+    if hasattr(instance, '_delete_in_signal'):
+        return
+
+    if isinstance(instance, (NewsPDFCapture,)) or isinstance(instance, (NewsImageCapture,)):
+        try:
+            instance._delete_in_signal = True
+            if isinstance(instance, (NewsPDFCapture)):
+                instance.pdf_document.delete()
+            else:
+                instance.image_document.delete()
+        finally:
+            if hasattr(instance, '_delete_in_signal'):
+                del instance._delete_in_signal
 
 
 @receiver(post_save)

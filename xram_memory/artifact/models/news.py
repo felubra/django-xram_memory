@@ -379,10 +379,6 @@ class NewsPDFCapture(models.Model):
         except AttributeError:
             return "Captura em PDF de notícia"
 
-    def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-        self.pdf_document.delete()
-
 
 class NewsImageCapture(models.Model):
     """
@@ -421,7 +417,3 @@ class NewsImageCapture(models.Model):
             return "Imagem principal de \"{}\"".format(self.news.url)
         except AttributeError:
             return "Imagem principal de notícia"
-
-    def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-        self.image_document.delete()
