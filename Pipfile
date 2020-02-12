@@ -66,5 +66,5 @@ pdfkit = {ref = "master",git = "https://github.com/JazzCore/python-pdfkit.git",e
 favicon = ">=0.7.0"
 django-hashid-field = ">=2.1.6"
 python-magic-bin = {version = "*",sys_platform = "== 'win32'"}
-django-currentuser = "==0.4.2"
+django-currentuser = "==0.4.3"
 django-rest-multiple-models = ">=2.1.3"
