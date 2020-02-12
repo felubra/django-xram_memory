@@ -1029,11 +1029,11 @@
         },
         "pip-licenses": {
             "hashes": [
-                "sha256:7c53592b33ee881caca1b3a772239c9ab5ecc26b04400ff35c52d608c20eac01",
-                "sha256:c1d25fe0cea77eeaab169369001cd0bc2a93237c2c273b570b6e4ec56d8cae8f"
+                "sha256:0816db1cc1d03a42114e94bd81ac00798a2bdfde3f422d719a6a08a3f69598e0",
+                "sha256:941715af24011e96b2a06b24fb7cf51edb93e256d7980c526a863995cfa21925"
             ],
             "index": "pypi",
-            "version": "==2.0.1"
+            "version": "==2.1.0"
         },
         "pluggy": {
             "hashes": [
