@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0abb079d83e04d7504c62134cafc6e95dd9f18cea5bf29e4b266b7212d2540b9"
+            "sha256": "91d0ea3f5a5ea1c771a9458bd073bda152e30aaa43a02fd1c2390fee0bb22446"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -172,11 +172,11 @@
         },
         "django-currentuser": {
             "hashes": [
-                "sha256:4677d6673974e9ce8e20881705eb39b04681ed381dcfdcc51fb399d0a12b091a",
-                "sha256:57245ddd4107d125035685f888b93f2b34125973bc0eafde0366835534bc1c92"
+                "sha256:3da5ab0716c565bbef9e0973e8f6ef15e110cadf55aaffd7bb84fc26f80c4efb",
+                "sha256:c66ce0979af76a769726d85a61905759f7fb885c22ef5bd0125216de76d5a343"
             ],
             "index": "pypi",
-            "version": "==0.4.2"
+            "version": "==0.5.0"
         },
         "django-debug-toolbar": {
             "hashes": [
@@ -622,10 +622,10 @@
         },
         "soupsieve": {
             "hashes": [
-                "sha256:bdb0d917b03a1369ce964056fc195cfdff8819c40de04695a80bc813c3cfa1f5",
-                "sha256:e2c1c5dee4a1c36bcb790e0fabd5492d874b8ebd4617622c4f6a731701060dda"
+                "sha256:e914534802d7ffd233242b785229d5ba0766a7f487385e3f714446a07bf540ae",
+                "sha256:fcd71e08c0aee99aca1b73f45478549ee7e7fc006d51b37bec9e9def7dc22b69"
             ],
-            "version": "==1.9.5"
+            "version": "==2.0"
         },
         "sqlparse": {
             "hashes": [
@@ -830,10 +830,10 @@
         },
         "faker": {
             "hashes": [
-                "sha256:047d4d1791bfb3756264da670d99df13d799bb36e7d88774b1585a82d05dbaec",
-                "sha256:1b1a58961683b30c574520d0c739c4443e0ef6a185c04382e8cc888273dbebed"
+                "sha256:440d68fe0e46c1658b1975b2497abe0c24a7f772e3892253f31e713ffcc48965",
+                "sha256:ee24608768549c2c69e593e9d7a3b53c9498ae735534243ec8390cae5d529f8b"
             ],
-            "version": "==4.0.0"
+            "version": "==4.0.1"
         },
         "flower": {
             "hashes": [
@@ -999,10 +999,10 @@
         },
         "parso": {
             "hashes": [
-                "sha256:56b2105a80e9c4df49de85e125feb6be69f49920e121406f15e7acde6c9dfc57",
-                "sha256:951af01f61e6dccd04159042a0706a31ad437864ec6e25d0d7a96a9fbb9b0095"
+                "sha256:0c5659e0c6eba20636f99a04f469798dca8da279645ce5c387315b2c23912157",
+                "sha256:8515fc12cfca6ee3aa59138741fc5624d62340c97e401c74875769948d4f2995"
             ],
-            "version": "==0.6.1"
+            "version": "==0.6.2"
         },
         "pdir2": {
             "hashes": [
