@@ -1,4 +1,4 @@
-FROM node:8 as builder
+FROM node:12 as builder
 
 WORKDIR /app
 
@@ -30,7 +30,7 @@ RUN set -ex; \
   apt-get update; \
   apt-get install ./wkhtmltox.deb -f --no-install-recommends -y; \
   rm wkhtmltox.deb ; \
-  apt-get install poppler-utils libmagic-dev curl gnupg python3-dev default-libmysqlclient-dev -yq; \  
+  apt-get install poppler-utils libmagic-dev curl gnupg python3-dev default-libmysqlclient-dev -yq; \
   rm -rf /var/lib/apt/lists/;
 
 RUN pipenv install --system --deploy
