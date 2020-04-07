@@ -106,7 +106,7 @@ def determine_additional_tasks_to_run(fields_and_tasks_info, instance):
     return tasks
 
 # Sinais para o processamento de News
-@receiver(post_save)
+
 def news_additional_processing(sender, **kwargs):
     """
     De acorodo com as opções selecionadas pelo usuário, executa ou agenda tarefas para obter informações adicionais

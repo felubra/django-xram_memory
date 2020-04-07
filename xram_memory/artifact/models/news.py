@@ -5,26 +5,27 @@ from xram_memory.taxonomy.models import Keyword, Subject
 from xram_memory.logger.decorators import log_process
 from filer.utils.generate_filename import randomized
 from django.template.defaultfilters import slugify
+from xram_memory.utils import celery_is_avaliable
 from easy_thumbnails.files import get_thumbnailer
 from django.core.files import File as DjangoFile
 from django.core.validators import URLValidator
 from django.core.files.base import ContentFile
 from boltons.cacheutils import cachedproperty
-from django.utils.encoding import iri_to_uri
 from filer.fields.file import FilerFileField
+from django.utils.encoding import iri_to_uri
 from django.db.transaction import on_commit
 from filer.models import File as FilerFile
 from django.urls import get_script_prefix
 from xram_memory.lib import NewsFetcher
-from django.db.models import Prefetch
-from django.utils.timezone import now
 from filer.models import File, Folder
+from django.utils.timezone import now
+from django.db.models import Prefetch
 from django.conf import settings
 from django.db.models import Q
 from pathlib import Path
 from celery import group
-import datetime
 import tempfile
+import datetime
 import urllib
 import os
 
@@ -81,8 +82,7 @@ class News(Artifact):
 
     def save(self, *args, **kwargs):
         """
-        Faz uma validação básica, invoca os mecanismos de preenchimento de dados da notícia, agenda
-        jobs e salva a notícia.
+        Define um título, se não houver; valida a presença da URL.
         """
         if not self.url:
             raise ValueError(
@@ -152,10 +152,8 @@ class News(Artifact):
         basic_info = NewsFetcher.fetch_basic_info(self.url)
         # preenche os campos do modelo com as informações obtidas e lida com casos especiais
         for prop, value in basic_info.items():
-            if prop in ('keywords', 'subjects'):
-                setattr(self, '_{}'.format(prop), value)
-            elif prop == 'image':
-                setattr(self, '_image', value)
+            if prop in ('keywords', 'subjects', 'image'):
+                continue
             else:
                 setattr(self, prop, value)
         return basic_info
@@ -195,65 +193,63 @@ class News(Artifact):
                     news=self, pdf_document=pdf_document)
 
     @log_process(operation="adicionar palavras-chave")
-    def add_fetched_keywords(self):
+    def add_fetched_keywords(self, keywords):
         """
-        Para cada uma das palavras-chave descobertas por set_basic_info(), crie uma palavra-chave no
-        banco de dados e associe ela a esta notícia
+        Dada uma lista de palavras-chave, crie-as no banco de dados e associe-as a esta notícia.
         """
-        if hasattr(self, '_keywords') and len(self._keywords) > 0:
-            keywords = []
-            for keyword in self._keywords:
+        if len(keywords) > 0:
+            keywords_objects = []
+            for keyword in keywords:
                 try:
                     # tente achar a palavra-chave pelo nome
-                    keywords.append(Keyword.objects.get(name=keyword))
+                    keywords_objects.append(Keyword.objects.get(name=keyword))
                 except Keyword.DoesNotExist:
                     try:
-                        keywords.append(Keyword.objects.create(name=keyword,
+                        keywords_objects.append(Keyword.objects.create(name=keyword,
                                                                created_by=self.modified_by,
                                                                modified_by=self.modified_by))
                     except IntegrityError:
                         pass
-            if len(keywords):
-                self.keywords.add(*keywords)
+            if len(keywords_objects):
+                self.keywords.add(*keywords_objects)
 
     @log_process(operation="adicionar assuntos")
-    def add_fetched_subjects(self):
+    def add_fetched_subjects(self, subjects):
         """
-        Para cada uma dos assuntos descobertos por set_basic_info(), crie um assunto no banco de
-        dados e associe ele a esta notícia
+        Dada uma lista de assuntos, crie-os no banco de dados e associe-os a esta notícia.
         """
-        if hasattr(self, '_subjects') and len(self._subjects) > 0:
-            subjects = []
-            for subject in self._subjects:
+        if len(subjects) > 0:
+            subjects_objects = []
+            for subject in subjects:
                 try:
                     # tente achar a assunto pelo nome
-                    subjects.append(Subject.objects.get(name=subject))
+                    subjects_objects.append(Subject.objects.get(name=subject))
                 except Subject.DoesNotExist:
                     try:
-                        subjects.append(Subject.objects.create(name=subject,
+                        subjects_objects.append(Subject.objects.create(name=subject,
                                                                created_by=self.modified_by,
                                                                modified_by=self.modified_by))
                     except IntegrityError:
                         pass
-            if len(subjects):
-                self.subjects.add(*subjects)
+            if len(subjects_objects):
+                self.subjects.add(*subjects_objects)
 
     @log_process(operation="baixar uma imagem")
-    def add_fetched_image(self):
+    def add_fetched_image(self, image_url):
         """
         Com base na url da imagem descoberta por set_basic_info(), baixa a imagem e cria uma
         instância dela como documento de artefato (Document) e captura de imagem de notícia
         (NewsImageCapture).
         TODO: usar um hash com sal na geração do nome do arquivo.
         """
-        original_filename = Path(self._image).name
-        original_extension = Path(self._image).suffix
+        original_filename = Path(image_url).name
+        original_extension = Path(image_url).suffix
         import hashlib
 
-        filename = hashlib.md5("{}{}".format(self._image, settings.FILE_HASHING_SALT).encode(
+        filename = hashlib.md5("{}{}".format(image_url, settings.FILE_HASHING_SALT).encode(
             'utf-8')).hexdigest() + original_extension[:4]
 
-        with NewsFetcher.fetch_image(self._image) as fd:
+        with NewsFetcher.fetch_image(image_url) as fd:
             django_file = DjangoFile(fd, name=filename)
             with transaction.atomic():
                 # tente apagar todas as imagens associadas a esta notícia, pois só pode haver uma
@@ -282,7 +278,7 @@ class News(Artifact):
                 _ = image_document.thumbnail  # força a geração de um thumbnail para esta captura
 
                 NewsImageCapture.objects.create(
-                    image_document=image_document, original_url=self._image, news=self)
+                    image_document=image_document, original_url=image_url, news=self)
 
         # limpe o cache das flags/campos que dependem de uma captura de imagem
         for attr_name in ['thumbnails']:

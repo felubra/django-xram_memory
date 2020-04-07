@@ -57,28 +57,29 @@ def news_set_basic_info(news_id, sync=False):
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)
     try:
-        news.set_basic_info()
+        basic_info = news.set_basic_info()
+        image_url = basic_info.get('image', None)
+        keywords = basic_info.get('keywords', None)
+        subjects = basic_info.get('subjects', None)
         news.save()
 
-        if getattr(news, '_image', None):
-            if sync:
-                add_image_for_news(news._image, news_id)
-            else:
-                add_image_for_news.delay(news._image, news_id)
-        if getattr(news, '_keywords', None):
-            if sync:
-                add_keywords_for_news(news._keywords, news_id)
-            else:
-                add_keywords_for_news.delay(news._keywords, news_id)
-        if getattr(news, '_subjects', None):
-            if sync:
-                add_subjects_for_news(news._subjects, news_id)
-            else:
-                add_subjects_for_news.delay(news._subjects, news_id)
+        additional_tasks = []
+        if image_url:
+            additional_tasks.append(add_image_for_news.s(image_url, news_id))
+        if keywords:
+            additional_tasks.append(add_keywords_for_news.s(keywords, news_id))
+        if subjects:
+            additional_tasks.append(add_subjects_for_news.s(subjects, news_id))
+
+        if sync:
+            group(additional_tasks).apply()
+        else:
+            group(additional_tasks).apply_async()
+
     except:
         raise
     else:
-        return news
+        return basic_info
 
 
 @shared_task(autoretry_for=(OperationalError,), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, rate_limit="10/m",)
@@ -90,8 +91,7 @@ def add_keywords_for_news(keywords, news_id):
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)
     try:
-        news._keywords = keywords
-        news.add_fetched_keywords()
+        news.add_fetched_keywords(keywords)
     except:
         raise
     else:
@@ -107,8 +107,7 @@ def add_subjects_for_news(subjects, news_id):
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)
     try:
-        news._subjects = subjects
-        news.add_fetched_subjects()
+        news.add_fetched_subjects(subjects)
     except:
         raise
     else:
@@ -124,8 +123,7 @@ def add_image_for_news(image_url, news_id):
     News = apps.get_model('artifact', 'News')
     news = News.objects.get(pk=news_id)
     try:
-        news._image = image_url
-        news.add_fetched_image()
+        news.add_fetched_image(image_url)
         return news.image_capture
     except:
         raise

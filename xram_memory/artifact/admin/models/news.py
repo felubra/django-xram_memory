@@ -5,6 +5,7 @@ from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.admin.sites import site as default_site, AdminSite
 from xram_memory.base_models import TraceableEditorialAdminModel
+from xram_memory.artifact import tasks as background_tasks
 from xram_memory.taxonomy.models import Subject, Keyword
 from django.views.decorators.cache import never_cache
 from django.template.response import TemplateResponse
@@ -18,13 +19,14 @@ from django.db.utils import IntegrityError
 from django.utils.html import format_html
 from django.shortcuts import render
 from django.contrib import messages
+from django.db import transaction
 from django.contrib import admin
 from django.urls import reverse
 from django.urls import path
 from loguru import logger
 from django import forms
 from django import forms
-
+from celery import group
 
 class NewsPDFCaptureInline(admin.TabularInline):
     model = NewsPDFCapture
@@ -175,10 +177,26 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
         instance = form.instance
-        # precisamos adicionar as palavras-chave novamente aqui, pois as associações feitas na chamada no método save
-        # serão desfeitas pelo django admin - https://timonweb.com/posts/many-to-many-field-save-method-and-the-django-admin/
-        instance.add_fetched_keywords()
-        instance.add_fetched_subjects()
+
+        # Executa
+        execute_async = celery_is_avaliable()
+        fields_and_tasks_info = [
+            (getattr(instance, '_set_basic_info', False), background_tasks.news_set_basic_info.s(instance.pk, not execute_async)),
+            (getattr(instance, '_fetch_archived_url', False), background_tasks.news_add_archived_url.s(instance.pk)),
+            (getattr(instance, '_add_pdf_capture', False), background_tasks.news_add_pdf_capture.s(instance.pk)),
+            #TODO: (not getattr(instance, 'newspaper', False), background_tasks.associate_newspaper.s(instance.pk)),
+        ]
+
+        tasks_to_run = []
+        for status, task in fields_and_tasks_info:
+            if status:
+                tasks_to_run.append(task)
+        tasks_to_run = group(tasks_to_run)
+
+        if execute_async:
+            transaction.on_commit(lambda : tasks_to_run.apply_async())
+        else:
+            transaction.on_commit(lambda: tasks_to_run.apply())
 
     def get_urls(self):
         urls = super().get_urls()
