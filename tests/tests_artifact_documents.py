@@ -64,28 +64,9 @@ class DocumentTestCase(TransactionTestCase):
         self.assertFalse(document.set_document_id())
         self.assertIsNone(document.document_id)
 
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
-    def test_set_document_id_without_signals(self):
+    def test_save_sets_mime_type_and_document_id(self):
         """
-        Testa o funcionamento de `set_document_id` e o estado de `document_id` após a invocação
-        dessa função. Desativa os sinais do django para poder controlar quando `set_document_id` é 
-        invocada.
-        """
-        image_file_path = Path(os.path.dirname(
-            __file__), './fixtures/image.jpg')
-        with self.open_as_django_file(image_file_path) as django_file:
-            document = Document(file=django_file)
-            document.save()
-            self.assertIsNone(document.document_id)
-            self.assertTrue(document.set_document_id())
-            self.assertIsNotNone(document.document_id)
-            # Uma definido, um document_id não pode ser alterado e a função deve retornar False
-            self.assertFalse(document.set_document_id())
-            self.assertEqual(str(document), document.document_id.hashid)
-
-    def test_set_document_id_after_normal_save(self):
-        """
-        Testa se `set_document_id` é invocada por um sinal depois de `Document.save()`.
+        Testa se, depois de salvo, um documento sempre terá um mime_type e document_id
         """
         image_file_path = Path(os.path.dirname(
             __file__), './fixtures/image.jpg')
@@ -93,38 +74,10 @@ class DocumentTestCase(TransactionTestCase):
             document = Document(file=django_file)
             document.save()
             self.assertIsNotNone(document.document_id)
+            self.assertIsNotNone(document.mime_type)
             self.assertEqual(str(document), document.document_id.hashid)
 
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
-    def test_determine_mime_type_without_signals(self):
-        """
-        Testa o funcionamento de `determine_mime_type` e o estado de `mime_type` após a invocação
-        dessa função. Desativa os sinais do django para poder controlar o momento em que
-        `determine_mime_type` é invocada.
-        """
-        image_file_path = Path(os.path.dirname(
-            __file__), './fixtures/image.jpg')
-        with self.open_as_django_file(image_file_path) as django_file:
-            document = Document(file=django_file)
-            document.save()
-            self.assertEqual(document.mime_type, '')
-            self.assertTrue(document.determine_mime_type())
-            self.assertEqual(document.mime_type, 'image/jpeg')
-            # Se o mesmo mimetype que o anterior for constatado, a função deverá retornar False
-            self.assertFalse(document.determine_mime_type())
 
-    def test_determine_mime_type_after_normal_save(self):
-        """
-        Testa se `determine_mime_type` é invocada por um sinal depois de `Document.save()`.
-        """
-        image_file_path = Path(os.path.dirname(
-            __file__), './fixtures/image.jpg')
-        with self.open_as_django_file(image_file_path) as django_file:
-            document = Document(file=django_file)
-            document.save()
-            with patch.object(Document, 'determine_mime_type') as mocked:
-                mocked.return_value = 'image/jpeg'
-                self.assertEqual(document.mime_type, 'image/jpeg')
 
     def test_determine_mime_type_with_failure(self):
         """

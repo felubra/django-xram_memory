@@ -72,7 +72,7 @@ class Document(File):
 
     def determine_mime_type(self):
         """
-        Utilizando a biblioteca libmagic, determine qual é o mimetype do arquivo deste documento.
+        Utilizando a biblioteca libmagic, determina qual é o mimetype do arquivo deste documento.
         """
         try:
             old_mime_type = self.mime_type
@@ -167,7 +167,15 @@ class Document(File):
         # Se o documento não tiver nome, use o nome do arquivo
         if not self.name:
             self.name = self.label
+
         super().save(*args, **kwargs)
+
+        # Salve a instância novamente se geramos um document_id ou setamos um novo mime_type
+        got_document_id = self.set_document_id()
+        got_new_mime_type = self.determine_mime_type()
+        if got_document_id or got_new_mime_type:
+            super().save(*args, **kwargs)
+
         # limpe o cache das flags/campos, pois o arquivo pode ter mudado
         for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news']:
             try:
