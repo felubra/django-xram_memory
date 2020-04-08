@@ -1,9 +1,12 @@
+import xram_memory.artifact.tasks as background_tasks
 from xram_memory.artifact.tasks import newspaper_set_logo_from_favicon
 from xram_memory.artifact.models import Newspaper
 from xram_memory.utils import celery_is_avaliable
 from ..forms.newspaper import NewspaperAdminForm
 from django.contrib import messages
 from django.contrib import admin
+from celery import group
+from django.db import transaction
 
 
 def schedule_for_logo_acquisition(modeladmin, request, queryset):
@@ -51,3 +54,28 @@ class NewspaperAdmin(admin.ModelAdmin):
         'created_by',
         'modified_by',
     )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        instance = form.instance
+
+        # Executa
+        execute_async = celery_is_avaliable()
+        fields_and_tasks_info = [
+            (getattr(instance, '_set_basic_info', False), background_tasks.newspaper_set_basic_info.s(instance.pk)),
+            (getattr(instance, '_fetch_logo', False), background_tasks.newspaper_set_logo_from_favicon.s(instance.pk)),
+        ]
+
+        tasks_to_run = []
+        for status, task in fields_and_tasks_info:
+            if status:
+                tasks_to_run.append(task)
+        tasks_to_run = group(tasks_to_run)
+
+        if execute_async:
+            transaction.on_commit(lambda : tasks_to_run.apply_async())
+            if len(tasks_to_run):
+                self.message_user(request,
+                    'As informações do site estão sendo atualizadas', messages.INFO)
+        else:
+            transaction.on_commit(lambda: tasks_to_run.apply())

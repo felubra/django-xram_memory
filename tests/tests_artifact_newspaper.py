@@ -49,9 +49,8 @@ def test_has_basic_info2():
             assert newspaper.has_basic_info == True
 
 
-@factory.django.mute_signals(post_save)
 @pytest.mark.django_db(transaction=True)
-def test_has_logo_after_save():
+def test_does_not_have_logo_after_save():
     with minimal_newspaper() as newspaper:
         assert newspaper.has_logo == False
         newspaper.save()
