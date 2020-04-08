@@ -164,7 +164,8 @@ class News(Artifact):
         Captura a notícia em formato para impressão e em PDF.
         TODO: usar um hash com sal na geração do nome do arquivo.
         """
-        import hashlib
+        if not self.url:
+            raise ValueError('Tentativa de adicionar uma captura de notícia em formato HTML com uma notícia sem uma url')
         uniq_filename = (str(datetime.datetime.now().date()) + '_' +
                          str(datetime.datetime.now().time()).replace(':', '.'))
         filename = hashlib.md5("{}{}".format(uniq_filename, settings.FILE_HASHING_SALT).encode(
@@ -176,7 +177,7 @@ class News(Artifact):
                 folder = Folder.objects.get(**settings.FOLDER_PDF_CAPTURES)
                 new_pdf_document = Document(file=django_file, name=filename,
                                             original_filename=filename,
-                                            folder=folder,  owner=self.modified_by,
+                                            folder=folder, owner=self.modified_by,
                                             published_date=now(), is_user_object=False,
                                             is_public=True)
                 # Reaproveite um arquivo já existente, com base no seu hash, de forma que um
@@ -242,6 +243,8 @@ class News(Artifact):
         (NewsImageCapture).
         TODO: usar um hash com sal na geração do nome do arquivo.
         """
+        if not image_url:
+            raise ValueError('Tentativa de adicionar uma imagem de captura de notícia sem a url da imagem')
         original_filename = Path(image_url).name
         original_extension = Path(image_url).suffix
         import hashlib
