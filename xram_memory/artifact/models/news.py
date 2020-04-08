@@ -1,34 +1,27 @@
-from xram_memory.artifact.models import Artifact, Document, Newspaper
-from xram_memory.artifact import tasks as background_tasks
-from django.db import models, transaction, IntegrityError
-from xram_memory.taxonomy.models import Keyword, Subject
-from xram_memory.logger.decorators import log_process
-from filer.utils.generate_filename import randomized
-from django.template.defaultfilters import slugify
-from xram_memory.utils import celery_is_avaliable
-from easy_thumbnails.files import get_thumbnailer
+"""
+Modelos Notícia, Captura de imagem de notícia e Captura de Notícia em PDF
+"""
+from pathlib import Path
+import datetime
+import hashlib
+
+from boltons.cacheutils import cachedproperty
+from django.conf import settings
 from django.core.files import File as DjangoFile
 from django.core.validators import URLValidator
-from django.core.files.base import ContentFile
-from boltons.cacheutils import cachedproperty
-from filer.fields.file import FilerFileField
-from django.utils.encoding import iri_to_uri
-from django.db.transaction import on_commit
-from filer.models import File as FilerFile
-from django.urls import get_script_prefix
-from xram_memory.lib import NewsFetcher
-from filer.models import File, Folder
-from django.utils.timezone import now
+from django.db import models, transaction, IntegrityError
 from django.db.models import Prefetch
-from django.conf import settings
-from django.db.models import Q
-from pathlib import Path
-from celery import group
-import tempfile
-import datetime
-import urllib
-import os
+from django.urls import get_script_prefix
+from django.utils.encoding import iri_to_uri
+from django.utils.timezone import now
+from easy_thumbnails.files import get_thumbnailer
+from filer.fields.file import FilerFileField
+from filer.models import Folder
 
+from xram_memory.artifact.models import Artifact, Document, Newspaper
+from xram_memory.lib import NewsFetcher
+from xram_memory.logger.decorators import log_process
+from xram_memory.taxonomy.models import Keyword, Subject
 
 class News(Artifact):
     """
@@ -247,7 +240,6 @@ class News(Artifact):
             raise ValueError('Tentativa de adicionar uma imagem de captura de notícia sem a url da imagem')
         original_filename = Path(image_url).name
         original_extension = Path(image_url).suffix
-        import hashlib
 
         filename = hashlib.md5("{}{}".format(image_url, settings.FILE_HASHING_SALT).encode(
             'utf-8')).hexdigest() + original_extension[:4]
