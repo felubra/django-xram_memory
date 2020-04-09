@@ -22,20 +22,20 @@ logger.remove()
 # TODO: converter para o estilo pytest quando https://github.com/pytest-dev/pytest-django/pull/721 for aceita
 
 
+@factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
 @pytest.mark.django_db(transaction=True)
 class NewsTestCase(TransactionTestCase):
     serialized_rollback = True
 
     @contextmanager
     def basic_news(self):
-        with factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete):
-            newspaper = fixtures.NewspaperFactory()
-            newspaper.save()
-            news = News(
-                url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html", newspaper=newspaper)
-            with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
-                raw_news_data = news.set_basic_info()
-            news.save()
+        newspaper = fixtures.NewspaperFactory()
+        newspaper.save()
+        news = News(
+            url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html", newspaper=newspaper)
+        with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
+            raw_news_data = news.set_basic_info()
+        news.save()
         yield news, raw_news_data
 
     def test_require_url_on_save(self):

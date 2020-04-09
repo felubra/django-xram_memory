@@ -18,6 +18,7 @@ logger.remove()
 # Create your tests here.
 
 
+@factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
 @pytest.mark.django_db(transaction=True)
 class DocumentTestCase(TransactionTestCase):
     serialized_rollback = True
