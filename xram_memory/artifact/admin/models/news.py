@@ -184,7 +184,7 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
             (getattr(instance, '_set_basic_info', False), background_tasks.news_set_basic_info.s(instance.pk, not execute_async)),
             (getattr(instance, '_fetch_archived_url', False), background_tasks.news_add_archived_url.s(instance.pk)),
             (getattr(instance, '_add_pdf_capture', False), background_tasks.news_add_pdf_capture.s(instance.pk)),
-            #TODO: (not getattr(instance, 'newspaper', False), background_tasks.associate_newspaper.s(instance.pk)),
+            (not getattr(instance, 'newspaper', False), background_tasks.news_set_newspaper.s(instance.pk)),
         ]
 
         tasks_to_run = []
@@ -195,6 +195,9 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
 
         if execute_async:
             transaction.on_commit(lambda : tasks_to_run.apply_async())
+            if len(tasks_to_run):
+                self.message_user(request,
+                    'As informações da notícia estão sendo atualizadas', messages.INFO)
         else:
             transaction.on_commit(lambda: tasks_to_run.apply())
 

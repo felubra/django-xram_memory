@@ -6,6 +6,7 @@ from celery import shared_task, group
 from django.db.utils import IntegrityError, OperationalError
 from django.core.exceptions import ValidationError
 from django.db.transaction import TransactionManagementError
+from urllib.parse import urlsplit
 
 
 PROCESSING_TASK_TIMEOUT = 300
@@ -81,6 +82,31 @@ def news_set_basic_info(news_id, sync=False):
     else:
         return basic_info
 
+@shared_task(autoretry_for=(OperationalError,), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, rate_limit="10/m",)
+def news_set_newspaper(news_id):
+    """
+    Com base na URL da notícia, associa ela com um jornal existente ou cria este jornal e, por fim, faz a associação.
+    """
+    try:
+        News = apps.get_model('artifact', 'News')
+        Newspaper = apps.get_model('artifact', 'Newspaper')
+
+        news = News.objects.get(pk=news_id)
+        base_url = "{uri.scheme}://{uri.netloc}".format(uri=urlsplit(news.url))
+        newspaper, created = Newspaper.objects.get_or_create(
+            url=base_url,
+            defaults={
+                'title':base_url,
+                'created_by':news.created_by,
+                'modified_by':news.modified_by
+            }
+        )
+        news.newspaper = newspaper
+    except:
+        raise
+    else:
+        news.save()
+        return newspaper
 
 @shared_task(autoretry_for=(OperationalError,), retry_backoff=5, max_retries=10, retry_backoff_max=300, retry_jitter=True, rate_limit="10/m",)
 def add_keywords_for_news(keywords, news_id):
