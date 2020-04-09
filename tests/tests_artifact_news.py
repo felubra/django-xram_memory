@@ -34,22 +34,28 @@ class NewsTestCase(TransactionTestCase):
             news = News(
                 url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html", newspaper=newspaper)
             with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
-                news.set_basic_info()
+                raw_news_data = news.set_basic_info()
             news.save()
-        yield news
+        yield news, raw_news_data
 
     def test_require_url_on_save(self):
+        """ Não deve ser possível salvar uma Notícia sem uma URL"""
         news = News(title="Abacate")
         self.assertRaises(ValueError, news.save)
 
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_save_without_title(self):
+        """ Tentativa de salvar notícia sem título deve tentar buscar o título na web """
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
-        news.save()
-        self.assertNotEqual(news.title, '')
+
+        with patch.object(NewsFetcher, 'fetch_web_title') as mocked:
+            mocked.return_value = 'Dilma paga pedaladas até de 2015  para enfraquecer argumento do impeachment'
+            news.save()
+            self.assertTrue(mocked.called)
+            self.assertEqual(news.title, mocked.return_value)
 
     def test_string_value(self):
+        """ Testa a representação do objeto da notícia """
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
         self.assertEqual(str(news), '(sem título)')
@@ -57,9 +63,10 @@ class NewsTestCase(TransactionTestCase):
         self.assertEqual(str(news), news.title)
 
     def test_initial_flags_state(self):
+        """ Testa o estado inicial das propriedades do objeto Notícia """
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
-        for field in ['thumbnail', 'published_year', 'image_capture_indexing', 'body', 'teaser', 'published_date']:
+        for field in ['thumbnail', 'published_year', 'image_capture_indexing', 'body', 'teaser', 'published_date', 'newspaper']:
             value = getattr(news, field)
             self.assertIsNone(value)
 
@@ -71,16 +78,8 @@ class NewsTestCase(TransactionTestCase):
             value = getattr(news, field)
             self.assertFalse(value)
 
-    def test_set_web_title(self):
-        news = News(
-            url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
-        self.assertEqual(news.title, '')
-        with patch.object(NewsFetcher, 'fetch_web_title') as mocked:
-            mocked.return_value = 'Dilma paga pedaladas até de 2015 para enfraquecer argumento do impeachment'
-            news.set_web_title()
-            self.assertNotEqual(news.title, '')
-
     def test_fetch_archived_url(self):
+        """ news.fetch_archived_url deve chamar NewsFetcher.fetch_archived_url e setar a propriedade News.archived_news_url """
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
         self.assertIsNone(news.archived_news_url)
@@ -88,9 +87,11 @@ class NewsTestCase(TransactionTestCase):
             mocked.return_value = fixtures.mocked_news_fetch_archived_url(
                 news.url)
             news.fetch_archived_url()
-            self.assertIsNotNone(news.archived_news_url)
+            self.assertTrue(mocked.called)
+            self.assertEqual(news.archived_news_url, mocked.return_value)
 
     def test_set_basic_info(self):
+        """ News.set_basic_info deve chamar NewsFetcher.fetch_basic_info e setar as propriedades relacionadas """
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
 
@@ -98,11 +99,9 @@ class NewsTestCase(TransactionTestCase):
         not_blank_attrs = ['title', 'authors']
         # Atributos que não podem estar nulos (None)
         not_null_attrs = ['body', 'teaser', 'published_date', 'language']
-        # Atributos especiais, que começam com '_' e que não podem estar nulos (None)
-        under_attrs = ['image', 'keywords', 'subjects']
 
         expected_response_keys = [
-            *not_blank_attrs, *not_null_attrs, *under_attrs]
+            *not_blank_attrs, *not_null_attrs]
 
         with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
             result = news.set_basic_info()
@@ -123,97 +122,72 @@ class NewsTestCase(TransactionTestCase):
                     # ...e deve conter informações do fuso-horário (não pode ser uma data ingênua)
                     self.assertIsNotNone(news.published_date.tzinfo)
 
-            for under_attr in under_attrs:
-                value = getattr(news, '_{}'.format(under_attr))
-                self.assertIsNotNone(value)
-                if under_attr in ('_keywords', '_subjects'):
-                    self.assertIsInstance(value, list)
-
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_keywords(self):
-        with self.basic_news() as news:
-            self.assertIsNotNone(news._keywords)
-            news.add_fetched_keywords()
+        """ News.add_fetched_keywords deve criar as palavras-chave e associá-las à notícia """
+        with self.basic_news() as (news, raw_news_data,):
+            news.add_fetched_keywords(raw_news_data['keywords'])
             self.assertIsNotNone(news.keywords.all())
-            self.assertEqual(len(news.keywords.all()), len(news._keywords))
+            self.assertEqual(len(news.keywords.all()), len(raw_news_data['keywords']))
 
-            for fetched_keyword in news._keywords:
+            for fetched_keyword in raw_news_data['keywords']:
                 self.assertIsNotNone(Keyword.objects.get(name=fetched_keyword))
 
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
-    def test_add_fetched_keywords_with_preexisting_keyword(self):
-        with self.basic_news() as news:
-            self.assertIsNotNone(news._keywords)
-            self.assertIn('2015', news._keywords)
-            Keyword.objects.create(name='2015')
-            news.add_fetched_keywords()
-            self.assertIsNotNone(news.keywords.all())
-            self.assertEqual(len(news.keywords.all()), len(news._keywords))
+    def test_add_fetched_subjects(self):
+        """ News.add_fetched_subject deve criar os assuntos e associá-los à notícia """
+        with self.basic_news() as (news, raw_news_data,):
+            news.add_fetched_subjects(raw_news_data['subjects'])
+            self.assertIsNotNone(news.subjects.all())
+            self.assertEqual(len(news.subjects.all()), len(raw_news_data['subjects']))
 
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
+            for fetched_subject in raw_news_data['subjects']:
+                self.assertIsNotNone(Subject.objects.get(name=fetched_subject))
+
     def test_keywords_indexing(self):
-        with self.basic_news() as news:
+        """ News.keywords_indexing deve ser uma lista com as palavras-chave associadas """
+        with self.basic_news() as (news, raw_news_data,):
             self.assertIsNotNone(news.keywords_indexing)
             self.assertIsInstance(news.keywords_indexing, list)
             self.assertEqual(len(news.keywords_indexing), 0)
 
-            news.add_fetched_keywords()
-            self.assertEqual(len(news.keywords_indexing), len(news._keywords))
+            news.add_fetched_keywords(raw_news_data['keywords'])
+            self.assertEqual(len(news.keywords_indexing), len(raw_news_data['keywords']))
 
-            for fetched_keyword in news._keywords:
+            for fetched_keyword in raw_news_data['keywords']:
                 self.assertIn(fetched_keyword, news.keywords_indexing)
 
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
-    def test_add_fetched_subjects(self):
-        with self.basic_news() as news:
-            self.assertIsNotNone(news._subjects)
-            news.add_fetched_subjects()
-            self.assertIsNotNone(news.subjects.all())
-            self.assertEqual(len(news.subjects.all()), len(news._subjects))
-
-            for fetched_subject in news._subjects:
-                self.assertIsNotNone(Subject.objects.get(name=fetched_subject))
-
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
-    def test_add_fetched_subjects_with_preexisting_subject(self):
-        with self.basic_news() as news:
-            self.assertIsNotNone(news._subjects)
-            self.assertIn('Pedaladas fiscais', news._subjects)
-            Subject.objects.create(name='Política Externa')
-            news.add_fetched_subjects()
-            self.assertIsNotNone(news.subjects.all())
-            self.assertEqual(len(news.subjects.all()), len(news._subjects))
-
-    @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_subjects_indexing(self):
-        with self.basic_news() as news:
+        """ News.subjects_indexing deve ser uma lista com os assuntos associados """
+        with self.basic_news() as (news, raw_news_data,):
             self.assertIsNotNone(news.subjects_indexing)
             self.assertIsInstance(news.subjects_indexing, list)
             self.assertEqual(len(news.subjects_indexing), 0)
 
-            news.add_fetched_subjects()
-            self.assertEqual(len(news.subjects_indexing), len(news._subjects))
+            news.add_fetched_subjects(raw_news_data['subjects'])
+            self.assertEqual(len(news.subjects_indexing), len(raw_news_data['subjects']))
 
-            for fetched_subject in news._subjects:
+            for fetched_subject in raw_news_data['subjects']:
                 self.assertIn(fetched_subject, news.subjects_indexing)
 
     def test_null_field_indexing(self):
+        """ News.null_field_indexing deve retornar None """
         news = News()
         self.assertIsNone(news.null_field_indexing)
 
     @pytest.mark.django_db(transaction=True)
     def test_has_image_and_test_add_fetched_image(self):
-        with self.basic_news() as news:
-            news.add_fetched_image()
+        """ Testa News.has_image depois de adicionar uma imagem """
+        with self.basic_news() as (news, raw_news_data,):
+            news.add_fetched_image(raw_news_data['image'])
             self.assertTrue(news.has_image)
 
     @pytest.mark.django_db(transaction=True)
     def test_add_fetched_image(self):
-        with self.basic_news() as news:
+        """ News.add_fetched_image deve gerar `NewsImageCapture` e associá-la a notícia """
+        with self.basic_news() as (news, raw_news_data,):
             with patch.object(NewsFetcher, 'fetch_image') as mocked:
-                with fixtures.mocked_news_add_fetched_image('abacate') as f:
+                with fixtures.mocked_news_add_fetched_image(raw_news_data['image']) as f:
                     mocked.return_value.__enter__.return_value = f
-                    news.add_fetched_image()
+                    news.add_fetched_image(raw_news_data['image'])
                     self.assertIsNotNone(news.image_capture)
                     self.assertIsInstance(news.image_capture, NewsImageCapture)
                     self.assertIsNotNone(news.thumbnail)
@@ -221,13 +195,14 @@ class NewsTestCase(TransactionTestCase):
 
     @pytest.mark.django_db(transaction=True)
     def test_add_another_fetched_image(self):
-        with self.basic_news() as news:
+        """ Uma notícia deve ter apenas uma captura de imagem """
+        with self.basic_news() as (news, raw_news_data,):
             with patch.object(NewsFetcher, 'fetch_image') as mocked:
-                with fixtures.mocked_news_add_fetched_image('abacate') as f:
+                with fixtures.mocked_news_add_fetched_image(raw_news_data['image']) as f:
                     mocked.return_value.__enter__.return_value = f
-                    news.add_fetched_image()
+                    news.add_fetched_image(raw_news_data['image'])
                     first_image_capture_pk = news.image_capture.pk
-                    news.add_fetched_image()
+                    news.add_fetched_image(raw_news_data['image'])
                     self.assertNotEqual(first_image_capture_pk,
                                         news.image_capture.pk)
                     with self.assertRaises(NewsImageCapture.DoesNotExist):
@@ -240,22 +215,23 @@ class NewsTestCase(TransactionTestCase):
         Um Documento de captura de imagem não pode ter o nome de seu arquivo original deduzível a
         partir de um hash simples sem sal. Em outras palavras, a função `add_fetched_image` deve
         sempre usar um sal na geração do nome do arquivo.
+        TODO: revisar
         """
-        with self.basic_news() as news:
+        with self.basic_news() as (news, raw_news_data,):
             with patch.object(NewsFetcher, 'fetch_image') as mocked:
-                with fixtures.mocked_news_add_fetched_image('abacate') as f:
+                with fixtures.mocked_news_add_fetched_image(raw_news_data['image']) as f:
                     mocked.return_value.__enter__.return_value = f
                     hashed_image_filename = hashlib.md5(
-                        news._image.encode('utf-8')).hexdigest()
-                    news.add_fetched_image()
-                    self.assertNotIn(hashed_image_filename,
-                                     news.image_capture.image_document.name)
+                        raw_news_data['image'].encode('utf-8')).hexdigest()
+                    news.add_fetched_image(raw_news_data['image'])
+                    self.assertNotIn(hashed_image_filename, news.image_capture.image_document.name)
 
     @pytest.mark.django_db(transaction=True)
     def test_add_pdf_capture(self):
-        with self.basic_news() as news:
+        """ Testa News.add_pdf_capture, inclusive com a adição de mais de uma captura """
+        with self.basic_news() as (news, raw_news_data,):
             with patch.object(NewsFetcher, 'get_pdf_capture') as mocked:
-                with fixtures.mocked_news_get_pdf_capture('abacate') as f:
+                with fixtures.mocked_news_get_pdf_capture(raw_news_data['image']) as f:
                     mocked.return_value.__enter__.return_value = f
                     news.add_pdf_capture()
                     self.assertEqual(len(news.pdf_captures.all()), 1)
