@@ -22,7 +22,8 @@ def open_as_django_file(filename):
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_non_user_document_indexed():
     """
-    Testa se um documento marcado como não sendo do usuário não está sendo indexado.
+    Testa se um documento marcado como não sendo do usuário não está sendo indexado pelo Elastic Search.
+    NOTA: Este teste requer que o serviço do Elastic Search esteja rodando conforme definido na configuração.
     """
     pdf_file_path = Path(os.path.dirname(
         __file__), './fixtures/pdf.pdf')
