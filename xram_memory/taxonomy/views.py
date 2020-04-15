@@ -12,6 +12,7 @@ from django.conf import settings
 from .models import Subject
 import re
 import string
+from natsort import natsorted
 
 # Create your views here.
 
@@ -30,12 +31,18 @@ class SubjectViewSet(viewsets.ViewSet):
         if not initial or not self.QUERY_INITIAL_REGEX.match(initial):
             raise ParseError()
         if initial == '!':
-            queryset = Subject.objects.exclude(name__regex=r'^[a-zA-Z]')
+            queryset = (
+                Subject.objects
+                .exclude(slug__regex=r'^[a-zA-Z]')
+            )
         else:
-            queryset = Subject.objects.filter(
-                name__istartswith=initial).order_by('name')
+            queryset = (
+                Subject.objects
+                .filter(slug__istartswith=initial)
+            )
 
-        subjects = list(queryset)
+
+        subjects = natsorted(list(queryset), lambda subject: subject.slug.lower())
         serializer = SimpleSubjectSerializer(subjects, many=True)
         return Response(serializer.data)
 
@@ -46,9 +53,9 @@ class SubjectViewSet(viewsets.ViewSet):
 
         for initial in INITIALS_FILTER:
             if initial == '!':
-                results = Subject.objects.exclude(name__regex=r'^[a-zA-Z]')
+                results = Subject.objects.exclude(slug__regex=r'^[a-zA-Z]')
             else:
-                results = Subject.objects.filter(name__istartswith=initial)
+                results = Subject.objects.filter(slug__istartswith=initial)
             if results.count() > 0:
                 initials.append(initial)
 
