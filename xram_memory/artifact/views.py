@@ -38,6 +38,7 @@ class NewsViewSet(viewsets.ViewSet):
 
 class AlbumViewSet(viewsets.ViewSet):
     # TODO: filtrar, pelo mimetype, os arquivos das pastas para apenas retornar imagens
+    # TODO: prever caso em que teremos que limpar este cache
     @cachedproperty
     def _main_photoalbums_folder(self):
         return Folder.objects.get(
