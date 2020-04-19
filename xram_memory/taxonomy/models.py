@@ -127,6 +127,7 @@ class Subject(TaxonomyItem):
         if not self.has_description:
             self.description = ''
         super().save(*args, **kwargs)
+        #FIXME: mais atributos precisam ter seu cache invalidado.
         for attr_name in ['images', 'has_description']:
             try:
                 delattr(self, attr_name)

@@ -23,7 +23,6 @@ class SubjectViewSet(viewsets.ViewSet):
     QUERY_INITIAL_REGEX = re.compile(r"^[a-zA-Z!]$")
     QUERY_LIMIT_REGEX = re.compile(r"^\d+$")
 
-    @method_decorator(cache_page(TIMEOUT))
     def subjects_by_initial(self, request, initial=None):
         """
         Retorna uma lista com todos os assuntos, dada uma letra inicial.
@@ -46,7 +45,6 @@ class SubjectViewSet(viewsets.ViewSet):
         serializer = SimpleSubjectSerializer(subjects, many=True)
         return Response(serializer.data)
 
-    @method_decorator(cache_page(TIMEOUT))
     def subjects_initials(self, request):
         initials = []
         INITIALS_FILTER = '!' + string.ascii_uppercase
@@ -61,7 +59,6 @@ class SubjectViewSet(viewsets.ViewSet):
 
         return Response(initials)
 
-    @method_decorator(cache_page(TIMEOUT))
     def featured(self, request):
         """
         Retorna uma lista aleatória com assuntos em destaque, de acordo com a quantidade estipulada
