@@ -98,13 +98,21 @@ class PhotoAlbumFolderSerializer(ModelSerializer):
 
     def get_cover(self, obj):
         try:
-            return obj.files.filter(is_public=True).order_by('modified_at')[0].thumbnail
+            return (obj.files
+                .filter(is_public=True)
+                .order_by('-modified_at')
+                    [0].thumbnail
+            )
         except Exception as e:
             return ''
 
     def get_big_cover(self, obj):
         try:
-            return obj.files.filter(is_public=True).order_by('modified_at')[0].thumbnails['1280']
+            return (obj.files
+                .filter(is_public=True)
+                .order_by('-modified_at')
+                    [0].thumbnails['1280']
+            )
         except Exception as e:
             return ''
 

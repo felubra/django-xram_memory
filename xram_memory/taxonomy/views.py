@@ -12,6 +12,7 @@ from django.conf import settings
 from .models import Subject
 import re
 import string
+from natsort import natsorted
 
 # Create your views here.
 
@@ -22,7 +23,6 @@ class SubjectViewSet(viewsets.ViewSet):
     QUERY_INITIAL_REGEX = re.compile(r"^[a-zA-Z!]$")
     QUERY_LIMIT_REGEX = re.compile(r"^\d+$")
 
-    @method_decorator(cache_page(TIMEOUT))
     def subjects_by_initial(self, request, initial=None):
         """
         Retorna uma lista com todos os assuntos, dada uma letra inicial.
@@ -30,31 +30,35 @@ class SubjectViewSet(viewsets.ViewSet):
         if not initial or not self.QUERY_INITIAL_REGEX.match(initial):
             raise ParseError()
         if initial == '!':
-            queryset = Subject.objects.exclude(name__regex=r'^[a-zA-Z]')
+            queryset = (
+                Subject.objects
+                .exclude(slug__regex=r'^[a-zA-Z]')
+            )
         else:
-            queryset = Subject.objects.filter(
-                name__istartswith=initial).order_by('name')
+            queryset = (
+                Subject.objects
+                .filter(slug__istartswith=initial)
+            )
 
-        subjects = list(queryset)
+
+        subjects = natsorted(list(queryset), lambda subject: subject.slug.lower())
         serializer = SimpleSubjectSerializer(subjects, many=True)
         return Response(serializer.data)
 
-    @method_decorator(cache_page(TIMEOUT))
     def subjects_initials(self, request):
         initials = []
         INITIALS_FILTER = '!' + string.ascii_uppercase
 
         for initial in INITIALS_FILTER:
             if initial == '!':
-                results = Subject.objects.exclude(name__regex=r'^[a-zA-Z]')
+                results = Subject.objects.exclude(slug__regex=r'^[a-zA-Z]')
             else:
-                results = Subject.objects.filter(name__istartswith=initial)
+                results = Subject.objects.filter(slug__istartswith=initial)
             if results.count() > 0:
                 initials.append(initial)
 
         return Response(initials)
 
-    @method_decorator(cache_page(TIMEOUT))
     def featured(self, request):
         """
         Retorna uma lista aleatória com assuntos em destaque, de acordo com a quantidade estipulada

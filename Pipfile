@@ -69,3 +69,4 @@ python-magic-bin = {version = "*",sys_platform = "== 'win32'"}
 django-currentuser = "==0.4.2"
 django-rest-multiple-models = ">=2.1.3"
 lunr = {extras = ["languages"],version = "*"}
+natsort = ">=7.0.1"
