@@ -40,7 +40,7 @@ class Common(Configuration):
         'xram_memory.taxonomy',
         'xram_memory.logger',
         'xram_memory.search_indexes',
-        'xram_memory.lunr_search',
+        'xram_memory.lunr_index',
 
         'xram_memory.quill_widget',
         'xram_memory.artifact',
