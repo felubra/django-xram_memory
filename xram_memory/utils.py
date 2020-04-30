@@ -1,3 +1,4 @@
+import os
 import re
 import magic
 from pathlib import Path
@@ -16,6 +17,7 @@ from django.template.defaultfilters import slugify
 from django.utils.deconstruct import deconstructible
 from django.template.defaultfilters import filesizeformat
 from whitenoise.storage import CompressedManifestStaticFilesStorage
+from django.core.files.storage import FileSystemStorage, DefaultStorage
 
 
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None,
@@ -215,6 +217,22 @@ class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesS
         )),
     )
 
+
+class OverwriteStorageMixin(FileSystemStorage):
+    '''
+    Muda o comportamento padrão do Django e o faz sobrescrever arquivos de
+    mesmo nome que foram carregados pelo usuário ao invés de renomeá-los.
+    Fonte: https://gist.github.com/fabiomontefuscolo/1584462
+    '''
+    def get_available_name(self, name, max_length=None):
+        if self.exists(name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        return name
+
+class OverwriteDefaultStorage(OverwriteStorageMixin, FileSystemStorage):
+    """
+    Classe que salva arquivo por cima do outro.
+    """
 
 def no_empty_html(value):
     """
