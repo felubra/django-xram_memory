@@ -303,6 +303,14 @@ class Common(Configuration):
     FILE_HASHING_SALT = values.Value(
         'hs204ViIUpIu45CTTUl3KsoQJgVtnmrHpXvRl8u5')
 
+    LUNR_INDEX = {
+        # Intervalo mínimo entre a criação de arquivos de índice do Lunr
+        'REBUILD_INTERVAL': 10 * 60, # 10 minutos
+        # Tempo máximo que a operação deve levar, após o qual falhará
+        'REBUILD_TIMEOUT': 5 * 60, # 5 minutos
+        # Caminho do arquivo do índice
+        'FILE_PATH': os.path.join(BASE_DIR, 'static', 'lunr_index.json'),
+    }
 
 class Development(Common):
     """
