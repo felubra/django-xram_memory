@@ -308,8 +308,8 @@ class Common(Configuration):
         'REBUILD_INTERVAL': 10 * 60, # 10 minutos
         # Tempo máximo que a operação deve levar, após o qual falhará
         'REBUILD_TIMEOUT': 5 * 60, # 5 minutos
-        # Caminho do arquivo do índice
-        'FILE_PATH': os.path.join(BASE_DIR, 'static', 'lunr_index.json'),
+        # Caminho do arquivo do índice relativo a MEDIA_ROOT
+        'FILE_PATH': 'lunr_index/index.json',
     }
 
 class Development(Common):
