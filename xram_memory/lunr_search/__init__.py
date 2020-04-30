@@ -1,0 +1,1 @@
+default_app_config = 'xram_memory.lunr_search.apps.LunrSearchConfig'
