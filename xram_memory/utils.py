@@ -2,12 +2,16 @@ import os
 import re
 import magic
 from pathlib import Path
+from loguru import logger
 from kombu import Connection
 from bs4 import BeautifulSoup
 from functools import lru_cache
 from django.conf import settings
+from celery.five import monotonic
 from django.db import transaction
 from inspect import getfullargspec
+from django.core.cache import cache
+from contextlib import contextmanager
 from functools import wraps, lru_cache
 from kombu.exceptions import OperationalError
 from django.contrib.staticfiles import finders
@@ -241,3 +245,38 @@ def no_empty_html(value):
     soup = BeautifulSoup(value, features="lxml")
     if not soup.get_text().strip():
         raise ValidationError(_('This field is required.'))
+
+def release_memcache_lock(lock_id, timeout_at, status):
+    logger.debug("release_memcache_lock: início da invocação")
+    # memcache delete is very slow, but we have to use it to take
+    # advantage of using add() for atomic locking
+    if monotonic() < timeout_at and status:
+        # don't release the lock if we exceeded the timeout
+        # to lessen the chance of releasing an expired lock
+        # owned by someone else
+        # also don't release the lock if we didn't acquire it
+        cache.delete(lock_id)
+        logger.debug("release_fn: lock limpo")
+
+@contextmanager
+def memcache_lock(lock_id, oid, timeout, sync=True):
+    """
+    Gerenciador de contexto que garante a execução de apenas uma operação
+    identificada por um lock_id e um timeout especificado, utilizando para isso
+    uma trava definida via sistema de cache.
+    Suporta operações síncronas ou assíncronas.
+    Requer um sistema de cache distribuído que garanta a atomiciade de operações
+    add().
+    Em caso de operações asssíncronas, o usuário deve usar as informações do lock devolvidas
+    no gerenciador de contexto para limpar a trava quando achar melhor.
+    Retorna, via gerenciador de contexto, se a trava foi conseguida e suas informações.
+    """
+    timeout_at = monotonic() + timeout - 3
+    # cache.add falha e retorna False se a entrada no cache já existir
+    lock_acquired = cache.add(lock_id, oid, timeout)
+    try:
+        yield lock_acquired, (lock_id, timeout_at, lock_acquired,)
+    finally:
+        if sync:
+            # Se a operação for síncrona, libere o lock agora, pois a operação já foi realizada
+            release_memcache_lock(lock_id, timeout_at, lock_acquired)
