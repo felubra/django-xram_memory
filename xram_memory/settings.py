@@ -403,7 +403,7 @@ class Staging(Common):
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': 'unix:/tmp/memcached.sock',
+            'LOCATION': values.Value('127.0.0.1:11211', True, environ_name='MEMCACHED_URL'),
         }
     }
 
