@@ -22,7 +22,9 @@ def log_process(operation=None):
         @wraps(func)
         def logged(*_args, **_kwargs):
             try:
-                obj = _args[0]
+                obj = _args[0] if len(_args) else None
+                object_id = 'N/A'
+                object_type = 'N/A'
                 try:
                     username = getattr(get_current_user(),
                                        'username', None)
@@ -35,7 +37,7 @@ def log_process(operation=None):
                     object_type = obj._meta.verbose_name.title()
                 else:
                     object_id = '(id não disponível)'
-                    object_type = '(Artefato)'
+                    object_type = '(tipo não disponível)'
 
                 logger.info(
                     '[{username} - {object_id} - {object_type}] Início: {op}.'.format(

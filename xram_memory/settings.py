@@ -40,6 +40,7 @@ class Common(Configuration):
         'xram_memory.taxonomy',
         'xram_memory.logger',
         'xram_memory.search_indexes',
+        'xram_memory.lunr_index',
 
         'xram_memory.quill_widget',
         'xram_memory.artifact',
@@ -302,6 +303,14 @@ class Common(Configuration):
     FILE_HASHING_SALT = values.Value(
         'hs204ViIUpIu45CTTUl3KsoQJgVtnmrHpXvRl8u5')
 
+    LUNR_INDEX = {
+        # Intervalo mínimo entre a criação de arquivos de índice do Lunr
+        'REBUILD_INTERVAL': 10 * 60, # 10 minutos
+        # Tempo máximo que a operação deve levar, após o qual falhará
+        'REBUILD_TIMEOUT': 5 * 60, # 5 minutos
+        # Caminho do arquivo do índice relativo a MEDIA_ROOT
+        'FILE_PATH': 'lunr_index/index.json',
+    }
 
 class Development(Common):
     """
@@ -347,6 +356,12 @@ class Development(Common):
 
     CORS_ORIGIN_ALLOW_ALL = True
 
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
+
 
 class Staging(Common):
     """
@@ -383,6 +398,13 @@ class Staging(Common):
                 'level': 'ERROR',
             },
         },
+    }
+
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': values.Value('127.0.0.1:11211', True, environ_name='MEMCACHED_URL'),
+        }
     }
 
 
