@@ -21,7 +21,7 @@ def schedule_lunr_index_rebuild(sender, instance, **kwargs):
             if not sync:
                 lunr_index_rebuild.apply_async(eta=datetime.utcnow() + timedelta(seconds=REBUILD_INTERVAL), args=[lock_info])
             else:
-                lunr_index_rebuild.apply()
+                lunr_index_rebuild.apply(args=[lock_info])
     # FIXME: implementar failback para o caso do celery não estar disponível
 
 
