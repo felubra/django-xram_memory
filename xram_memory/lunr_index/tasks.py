@@ -46,6 +46,9 @@ def lunr_index_rebuild(self, lock_info=None):
             'subjects': " ".join([k.name for k in d.subjects.all()]),
             'keywords': " ".join([k.name for k in d.keywords.all()]),
         } for d in Documents.objects.prefetch_related('keywords', 'subjects')
+            .filter(document_id__isnull=False)
+            .filter(is_user_object=True)
+            .filter(is_public=True)
     ]
     try:
         if (len(items)):
