@@ -31,14 +31,17 @@ def lunr_index_rebuild(self, lock_info=None):
             'id': n.id,
             'title': n.title,
             'teaser': n.teaser,
+            'uri': n.slug,
             'subjects': " ".join([k.name for k in n.subjects.all()]),
             'keywords': " ".join([k.name for k in n.keywords.all()]),
         } for n in News.objects.prefetch_related('keywords', 'subjects')
     ]
+    #FIXME: não repetir ids
     items += [
         {
             'id': d.id,
             'title': d.name,
+            'uri': d.document_id.hashid,
             'teaser': d.description,
             'subjects': " ".join([k.name for k in d.subjects.all()]),
             'keywords': " ".join([k.name for k in d.keywords.all()]),
