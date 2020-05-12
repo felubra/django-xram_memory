@@ -8,13 +8,15 @@ from datetime import timedelta
 from django.apps import apps
 from loguru import logger
 from lunr import lunr
+import requests
 import json
 
 
-SETTINGS = settings.LUNR_INDEX
-FILE_PATH = SETTINGS['FILE_PATH']
-REBUILD_TIMEOUT = SETTINGS['REBUILD_TIMEOUT']
-REBUILD_INTERVAL = SETTINGS['REBUILD_INTERVAL']
+LUNR_SETTINGS = settings.LUNR_INDEX
+FILE_PATH = LUNR_SETTINGS['FILE_PATH']
+REBUILD_TIMEOUT = LUNR_SETTINGS['REBUILD_TIMEOUT']
+REBUILD_INTERVAL = LUNR_SETTINGS['REBUILD_INTERVAL']
+REBUILD_TYPE = LUNR_SETTINGS['REBUILD_TYPE']
 
 @shared_task(soft_time_limit=REBUILD_TIMEOUT)
 def lunr_index_rebuild(self, lock_info=None):
@@ -52,14 +54,23 @@ def lunr_index_rebuild(self, lock_info=None):
     ]
     try:
         if (len(items)):
-            idx = lunr(
-                ref='id',
-                fields=[k for k in items[0].keys() if k != 'id'],
-                documents=items, languages=['pt','en']
-            )
-            serialized = idx.serialize()
-            storage = get_storage_class('xram_memory.utils.OverwriteDefaultStorage')()
-            path = storage.save(FILE_PATH, ContentFile(json.dumps(serialized)))
+            if REBUILD_TYPE == 'remote':
+                REBUILD_REMOTE_HOST = LUNR_SETTINGS['REBUILD_REMOTE_HOST']
+                REBUILD_REMOTE_SECRET = LUNR_SETTINGS['REBUILD_REMOTE_SECRET']
+
+                with requests.post(REBUILD_REMOTE_HOST, json=items, headers={
+                    'Authorization': f'Bearer {REBUILD_REMOTE_SECRET}'
+                }) as r:
+                    r.raise_for_status()
+            else:
+                idx = lunr(
+                    ref='id',
+                    fields=[k for k in items[0].keys() if k != 'id'],
+                    documents=items, languages=['pt','en']
+                )
+                serialized = idx.serialize()
+                storage = get_storage_class('xram_memory.utils.OverwriteDefaultStorage')()
+                path = storage.save(FILE_PATH, ContentFile(json.dumps(serialized)))
     finally:
         if lock_info:
             logger.debug("lunr_index_rebuild: limpando o lock")
