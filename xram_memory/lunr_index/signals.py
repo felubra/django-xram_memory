@@ -8,9 +8,8 @@ from .tasks import lunr_index_rebuild
 from django.conf import settings
 from loguru import logger
 
-SETTINGS = settings.LUNR_INDEX
-REBUILD_INTERVAL = SETTINGS['REBUILD_INTERVAL']
-REBUILD_TIMEOUT = SETTINGS['REBUILD_TIMEOUT']
+REBUILD_INTERVAL = settings.LUNR_INDEX_REBUILD_INTERVAL
+REBUILD_TIMEOUT = settings.LUNR_INDEX_REBUILD_TIMEOUT
 
 @log_process(operation="agendar para reconstruir índice lunr")
 def schedule_lunr_index_rebuild(sender, instance, **kwargs):

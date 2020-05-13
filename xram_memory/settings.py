@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 from configurations import Configuration, values
+from xram_memory.lunr_index.util import LunrBackendValue
 
 
 class Common(Configuration):
@@ -303,26 +304,23 @@ class Common(Configuration):
     FILE_HASHING_SALT = values.Value(
         'hs204ViIUpIu45CTTUl3KsoQJgVtnmrHpXvRl8u5')
 
-    #TODO: valores dessa configuração devem vir de variáveis ambiente
-    LUNR_INDEX = {
-        # Intervalo mínimo entre a criação de arquivos de índice do Lunr
-        'REBUILD_INTERVAL': 10 * 60, # 10 minutos
-        # Tempo máximo que a operação deve levar, após o qual falhará
-        'REBUILD_TIMEOUT': 5 * 60, # 5 minutos
-        # Se devemos salvar o documento no indice - somente suportado pelo Elastic Lunr
-        'SAVE_DOCUMENT': True,
-        # Quais campos dos modelos indexar para busca
-        'SEARCH_FIELDS': ['title', 'teaser'],
-        # Caminho do arquivo do índice relativo a MEDIA_ROOT
-        'FILE_PATH': 'lunr_index/index.json',
-        # Tipo de reconstrução: 'local' (usa lunr.py para gerar localmente) ou 'remote' envia requisição http com dados
-        # a serem indexados para o servidor definido em REMOTE_HOST
-        'BACKEND': 'remote',
-        # Host para onde as instâncias dos modelos a serem indexados devem ser enviados
-        'REMOTE_HOST': 'http://localhost:3000',
-        # Segredo usado para autenticação http Bearer Token no servidor REMOTE_HOST
-        'REMOTE_SECRET': 'alabamba'
-    }
+    # Intervalo mínimo entre a criação de arquivos de índice do Lunr
+    LUNR_INDEX_REBUILD_INTERVAL = values.IntegerValue(10 * 60) # 10 minutos
+    # Tempo máximo que a operação deve levar, após o qual falhará
+    LUNR_INDEX_REBUILD_TIMEOUT = values.IntegerValue(5 * 60) # 5 minutos
+    # Se devemos salvar o documento no indice - somente suportado pelo Elastic Lunr
+    LUNR_INDEX_SAVE_DOCUMENT = values.BooleanValue(True)
+    # Quais campos dos modelos indexar para busca
+    LUNR_INDEX_SEARCH_FIELDS = values.ListValue(['title', 'teaser'])
+    # Caminho do arquivo do índice relativo a MEDIA_ROOT
+    LUNR_INDEX_FILE_PATH = values.PathValue(os.path.join(MEDIA_ROOT, 'lunr_index/index.json'))
+    # Tipo de reconstrução: 'local' (usa lunr.py para gerar localmente) ou 'remote' envia requisição http com dados
+    # a serem indexados para o servidor definido em REMOTE_HOST
+    LUNR_INDEX_BACKEND = LunrBackendValue('remote')
+    # Host para onde as instâncias dos modelos a serem indexados devem ser enviados
+    LUNR_INDEX_REMOTE_HOST = values.URLValue(environ_required=True)
+    # Segredo usado para autenticação http Bearer Token no servidor REMOTE_HOST
+    LUNR_INDEX_REMOTE_SECRET = values.SecretValue()
 
 class Development(Common):
     """
