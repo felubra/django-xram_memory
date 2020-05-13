@@ -303,21 +303,25 @@ class Common(Configuration):
     FILE_HASHING_SALT = values.Value(
         'hs204ViIUpIu45CTTUl3KsoQJgVtnmrHpXvRl8u5')
 
-    #TODO: variáveis devem ser setadas de acordo com variáveis ambiente
+    #TODO: valores dessa configuração devem vir de variáveis ambiente
     LUNR_INDEX = {
         # Intervalo mínimo entre a criação de arquivos de índice do Lunr
         'REBUILD_INTERVAL': 10 * 60, # 10 minutos
         # Tempo máximo que a operação deve levar, após o qual falhará
         'REBUILD_TIMEOUT': 5 * 60, # 5 minutos
+        # Se devemos salvar o documento no indice - somente suportado pelo Elastic Lunr
+        'SAVE_DOCUMENT': True,
+        # Quais campos dos modelos indexar para busca
+        'SEARCH_FIELDS': ['title', 'teaser'],
         # Caminho do arquivo do índice relativo a MEDIA_ROOT
         'FILE_PATH': 'lunr_index/index.json',
         # Tipo de reconstrução: 'local' (usa lunr.py para gerar localmente) ou 'remote' envia requisição http com dados
-        # a serem indexados para o servidor definido em REBUILD_REMOTE_HOST
-        'REBUILD_TYPE': 'remote',
+        # a serem indexados para o servidor definido em REMOTE_HOST
+        'BACKEND': 'remote',
         # Host para onde as instâncias dos modelos a serem indexados devem ser enviados
-        'REBUILD_REMOTE_HOST': 'http://localhost:3000',
-        # Segredo usado para autenticação http Bearer Token no servidor REBUILD_REMOTE_HOST
-        'REBUILD_REMOTE_SECRET': 'alabamba'
+        'REMOTE_HOST': 'http://localhost:3000',
+        # Segredo usado para autenticação http Bearer Token no servidor REMOTE_HOST
+        'REMOTE_SECRET': 'alabamba'
     }
 
 class Development(Common):

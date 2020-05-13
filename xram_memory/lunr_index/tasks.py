@@ -16,7 +16,11 @@ LUNR_SETTINGS = settings.LUNR_INDEX
 FILE_PATH = LUNR_SETTINGS['FILE_PATH']
 REBUILD_TIMEOUT = LUNR_SETTINGS['REBUILD_TIMEOUT']
 REBUILD_INTERVAL = LUNR_SETTINGS['REBUILD_INTERVAL']
-REBUILD_TYPE = LUNR_SETTINGS['REBUILD_TYPE']
+BACKEND = LUNR_SETTINGS['BACKEND']
+SEARCH_FIELDS = LUNR_SETTINGS['SEARCH_FIELDS']
+REMOTE_HOST = LUNR_SETTINGS['REMOTE_HOST']
+REMOTE_SECRET = LUNR_SETTINGS['REMOTE_SECRET']
+SAVE_DOCUMENT = LUNR_SETTINGS['SAVE_DOCUMENT']
 
 @shared_task(soft_time_limit=REBUILD_TIMEOUT)
 def lunr_index_rebuild(self, lock_info=None):
@@ -54,18 +58,21 @@ def lunr_index_rebuild(self, lock_info=None):
     ]
     try:
         if (len(items)):
-            if REBUILD_TYPE == 'remote':
-                REBUILD_REMOTE_HOST = LUNR_SETTINGS['REBUILD_REMOTE_HOST']
-                REBUILD_REMOTE_SECRET = LUNR_SETTINGS['REBUILD_REMOTE_SECRET']
-
-                with requests.post(REBUILD_REMOTE_HOST, json=items, headers={
-                    'Authorization': f'Bearer {REBUILD_REMOTE_SECRET}'
+            if BACKEND == 'remote':
+                with requests.post(REMOTE_HOST, json={
+                    "documents": items,
+                    "config": {
+                        "searchFields": SEARCH_FIELDS,
+                        "saveDocument": SAVE_DOCUMENT
+                    }
+                }, headers={
+                    'Authorization': f'Bearer {REMOTE_SECRET}'
                 }) as r:
                     r.raise_for_status()
             else:
                 idx = lunr(
                     ref='id',
-                    fields=[k for k in items[0].keys() if k != 'id'],
+                    fields=[field for field in SEARCH_FIELDS if field != 'id'],
                     documents=items, languages=['pt','en']
                 )
                 serialized = idx.serialize()
