@@ -1,4 +1,5 @@
 from xram_memory.utils import memcache_lock, release_memcache_lock
+from xram_memory.lunr_index.util import LunrBackendValue
 from django.core.files.storage import get_storage_class
 from django.core.files.base import ContentFile
 from celery import shared_task, group
@@ -11,14 +12,14 @@ from lunr import lunr
 import requests
 import json
 
-FILE_PATH = settings.LUNR_INDEX_FILE_PATH
-REBUILD_TIMEOUT = settings.LUNR_INDEX_REBUILD_TIMEOUT
-REBUILD_INTERVAL = settings.LUNR_INDEX_REBUILD_INTERVAL
 BACKEND = settings.LUNR_INDEX_BACKEND
-SEARCH_FIELDS = settings.LUNR_INDEX_SEARCH_FIELDS
+FILE_PATH = settings.LUNR_INDEX_FILE_PATH
+REBUILD_INTERVAL = settings.LUNR_INDEX_REBUILD_INTERVAL
+REBUILD_TIMEOUT = settings.LUNR_INDEX_REBUILD_TIMEOUT
 REMOTE_HOST = settings.LUNR_INDEX_REMOTE_HOST
 REMOTE_SECRET = settings.LUNR_INDEX_REMOTE_SECRET
 SAVE_DOCUMENT = settings.LUNR_INDEX_SAVE_DOCUMENT
+SEARCH_FIELDS = settings.LUNR_INDEX_SEARCH_FIELDS
 
 @shared_task(soft_time_limit=REBUILD_TIMEOUT)
 def lunr_index_rebuild(self, lock_info=None):
@@ -56,7 +57,7 @@ def lunr_index_rebuild(self, lock_info=None):
     ]
     try:
         if (len(items)):
-            if BACKEND == 'remote':
+            if BACKEND == LunrBackendValue.BACKEND_REMOTE:
                 with requests.post(REMOTE_HOST, json={
                     "documents": items,
                     "config": {

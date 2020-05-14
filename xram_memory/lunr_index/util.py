@@ -1,8 +1,11 @@
 from configurations.values import Value, ValidationMixin, SecretValue
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
 class LunrBackendValue(ValidationMixin, Value):
-    VALID_BACKENDS=['remote', 'local']
+    BACKEND_LOCAL = 'local'
+    BACKEND_REMOTE = 'remote'
+    VALID_BACKENDS=[BACKEND_REMOTE, BACKEND_LOCAL]
 
     @classmethod
     def validator(cls, value):
