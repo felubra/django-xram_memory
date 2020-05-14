@@ -316,7 +316,12 @@ class Common(Configuration):
     LUNR_INDEX_FILE_PATH = values.PathValue(os.path.join(MEDIA_ROOT, 'lunr_index/index.json'))
     # Tipo de reconstrução: 'local' (usa lunr.py para gerar localmente) ou 'remote' envia requisição http com dados
     # a serem indexados para o servidor definido em REMOTE_HOST
-    LUNR_INDEX_BACKEND = LunrBackendValue(LunrBackendValue.BACKEND_LOCAL)
+
+    # FIXME: exigência condicional de variável não funciona, porque o valor não pode ser lido instantaneamente aqui;
+    # alternativa: usar uma connection string: file:///path/to/the/file para processamento local ou
+    # http://secret@host:port para processamento remoto, eliminando as variáveis LUNR_INDEX_BACKEND,
+    # LUNR_INDEX_FILE_PATH, LUNR_INDEX_REMOTE_HOST e LUNR_INDEX_REMOTE_SECRET
+    LUNR_INDEX_BACKEND = LunrBackendValue(environ_required=True)
     # Host para onde as instâncias dos modelos a serem indexados devem ser enviados
     LUNR_INDEX_REMOTE_HOST = values.URLValue(environ_required=LUNR_INDEX_BACKEND == LunrBackendValue.BACKEND_REMOTE)
     # Segredo usado para autenticação http Bearer Token no servidor REMOTE_HOST
