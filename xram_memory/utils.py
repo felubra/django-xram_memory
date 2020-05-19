@@ -1,6 +1,7 @@
 import os
 import re
 import magic
+import datetime
 from pathlib import Path
 from loguru import logger
 from kombu import Connection
@@ -280,3 +281,7 @@ def memcache_lock(lock_id, oid, timeout, sync=True):
         if sync:
             # Se a operação for síncrona, libere o lock agora, pois a operação já foi realizada
             release_memcache_lock(lock_id, timeout_at, lock_acquired)
+
+def datetime_to_string(obj: datetime.datetime):
+    if isinstance(obj, datetime.datetime):
+        return str(obj)
