@@ -17,7 +17,7 @@ REBUILD_TIMEOUT = SETTINGS['REBUILD_TIMEOUT']
 REBUILD_INTERVAL = SETTINGS['REBUILD_INTERVAL']
 
 @shared_task(soft_time_limit=REBUILD_TIMEOUT)
-def lunr_index_rebuild(self, lock_info=None):
+def lunr_index_rebuild(lock_info=None):
     # Construa um índice com documentos e notícias
     # TODO: otimizar
     # TODO: tentar novamente em caso de erro
