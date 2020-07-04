@@ -1,18 +1,16 @@
-from django.db.models.signals import post_save, m2m_changed, pre_delete, post_delete
-from xram_memory.artifact.models import News, NewsImageCapture, NewsPDFCapture
-from xram_memory.taxonomy.models import Keyword, Subject
-from django.test import TestCase, TransactionTestCase
-from filer.models.foldermodels import Folder
-from xram_memory.lib import NewsFetcher
-from contextlib import contextmanager
-from django.conf import settings
-from unittest.mock import patch
-from loguru import logger
-from . import fixtures
-import datetime
+import pytest
 import hashlib
 import factory
-import pytest
+import datetime
+from xram_memory.taxonomy.models import Keyword, Subject
+from xram_memory.lib import NewsFetcher
+from xram_memory.artifact.models import News, NewsImageCapture, NewsPDFCapture
+from unittest.mock import patch
+from loguru import logger
+from django.test import TransactionTestCase
+from django.db.models.signals import post_save, m2m_changed, pre_delete, post_delete
+from .utils import basic_news_with_newspaper as basic_news
+from . import fixtures
 
 logger.remove()
 
@@ -25,18 +23,6 @@ logger.remove()
 @pytest.mark.django_db(transaction=True)
 class NewsTestCase(TransactionTestCase):
     serialized_rollback = True
-
-    @contextmanager
-    def basic_news(self):
-        with factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete):
-            newspaper = fixtures.NewspaperFactory()
-            newspaper.save()
-            news = News(
-                url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html", newspaper=newspaper)
-            with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
-                news.set_basic_info()
-            news.save()
-        yield news
 
     def test_require_url_on_save(self):
         news = News(title="Abacate")
@@ -131,7 +117,7 @@ class NewsTestCase(TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_keywords(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             self.assertIsNotNone(news._keywords)
             news.add_fetched_keywords()
             self.assertIsNotNone(news.keywords.all())
@@ -142,7 +128,7 @@ class NewsTestCase(TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_keywords_with_preexisting_keyword(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             self.assertIsNotNone(news._keywords)
             self.assertIn('2015', news._keywords)
             Keyword.objects.create(name='2015')
@@ -152,7 +138,7 @@ class NewsTestCase(TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_keywords_indexing(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             self.assertIsNotNone(news.keywords_indexing)
             self.assertIsInstance(news.keywords_indexing, list)
             self.assertEqual(len(news.keywords_indexing), 0)
@@ -165,7 +151,7 @@ class NewsTestCase(TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_subjects(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             self.assertIsNotNone(news._subjects)
             news.add_fetched_subjects()
             self.assertIsNotNone(news.subjects.all())
@@ -176,7 +162,7 @@ class NewsTestCase(TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_subjects_with_preexisting_subject(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             self.assertIsNotNone(news._subjects)
             self.assertIn('Pedaladas fiscais', news._subjects)
             Subject.objects.create(name='Política Externa')
@@ -186,7 +172,7 @@ class NewsTestCase(TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_subjects_indexing(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             self.assertIsNotNone(news.subjects_indexing)
             self.assertIsInstance(news.subjects_indexing, list)
             self.assertEqual(len(news.subjects_indexing), 0)
@@ -203,13 +189,13 @@ class NewsTestCase(TransactionTestCase):
 
     @pytest.mark.django_db(transaction=True)
     def test_has_image_and_test_add_fetched_image(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             news.add_fetched_image()
             self.assertTrue(news.has_image)
 
     @pytest.mark.django_db(transaction=True)
     def test_add_fetched_image(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             with patch.object(NewsFetcher, 'fetch_image') as mocked:
                 with fixtures.mocked_news_add_fetched_image('abacate') as f:
                     mocked.return_value.__enter__.return_value = f
@@ -221,7 +207,7 @@ class NewsTestCase(TransactionTestCase):
 
     @pytest.mark.django_db(transaction=True)
     def test_add_another_fetched_image(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             with patch.object(NewsFetcher, 'fetch_image') as mocked:
                 with fixtures.mocked_news_add_fetched_image('abacate') as f:
                     mocked.return_value.__enter__.return_value = f
@@ -241,7 +227,7 @@ class NewsTestCase(TransactionTestCase):
         partir de um hash simples sem sal. Em outras palavras, a função `add_fetched_image` deve
         sempre usar um sal na geração do nome do arquivo.
         """
-        with self.basic_news() as news:
+        with basic_news() as news:
             with patch.object(NewsFetcher, 'fetch_image') as mocked:
                 with fixtures.mocked_news_add_fetched_image('abacate') as f:
                     mocked.return_value.__enter__.return_value = f
@@ -253,7 +239,7 @@ class NewsTestCase(TransactionTestCase):
 
     @pytest.mark.django_db(transaction=True)
     def test_add_pdf_capture(self):
-        with self.basic_news() as news:
+        with basic_news() as news:
             with patch.object(NewsFetcher, 'get_pdf_capture') as mocked:
                 with fixtures.mocked_news_get_pdf_capture('abacate') as f:
                     mocked.return_value.__enter__.return_value = f
