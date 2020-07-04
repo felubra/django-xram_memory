@@ -34,6 +34,7 @@ class Common(Configuration):
         'django.contrib.messages',
         'whitenoise.runserver_nostatic',
         'django.contrib.staticfiles',
+        'django_elasticsearch_dsl',
 
         'django_extensions',
         'xram_memory.users',
