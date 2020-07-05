@@ -47,11 +47,12 @@ def _prepare_documents_for_indexing(flat_taxonomy=False):
                 index_document['title'] = item.title
                 index_document['teaser'] = item.teaser
                 index_document['uri'] = item.slug
-                index_document['newspaper'] = {
-                    'title': item.newspaper.title,
-                    'favicon_logo': item.newspaper.favicon_logo,
-                    'url': item.newspaper.url,
-                }
+                if getattr(item, 'newspaper', None):
+                    index_document['newspaper'] = {
+                        'title': item.newspaper.title,
+                        'favicon_logo': item.newspaper.favicon_logo,
+                        'url': item.newspaper.url,
+                    }
             else:
                 index_document['published_date'] = datetime_to_string(item.uploaded_at)
                 index_document['newspaper'] = None
