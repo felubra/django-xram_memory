@@ -9,12 +9,18 @@ from django.core.files.base import ContentFile
 from django.apps import apps
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
 from lunr import lunr
 from loguru import logger
 
-from xram_memory.utils import  datetime_to_string
+from xram_memory.utils import datetime_to_string
 
 def _prepare_documents_for_indexing(flat_taxonomy=False):
+    """
+    Obtém e prepara uma lista com os artefatos (Notícias e Documentos) para serem indexados.
+    """
     News = apps.get_model('artifact', 'News')
     Documents = apps.get_model('artifact', 'Document')
     documents_to_index = []
@@ -36,7 +42,7 @@ def _prepare_documents_for_indexing(flat_taxonomy=False):
                 keywords = " ".join(keywords)
 
             index_document = {
-                'id': idx,
+                'id': item.id,
                 'type': 'news' if isinstance(item, News) else 'document',
                 'thumbnail': item.thumbnail,
                 'subjects': subjects,
@@ -78,13 +84,24 @@ def build_with_lunr_py(output_file_path: str):
 
 def build_with_remote_elastic_lunr(remote_url: str, remote_secret: str, search_fields: list, save_document=True):
     documents_to_index = _prepare_documents_for_indexing()
-    with requests.post(remote_url,
-                       json={
-                           "documents": documents_to_index,
-                           "config": {
-                               "searchFields": search_fields,
-                               "saveDocument": save_document}},
-                       headers={
-                           'Authorization': f'Bearer {remote_secret}'}) as response:
+    retry_strategy = Retry(
+        total=5,
+        status_forcelist=[429, 500, 502, 503, 504],
+        method_whitelist=["HEAD", "GET", "OPTIONS", "POST"],
+        backoff_factor=5
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+    with http.post(
+            remote_url,
+            json={
+                "documents": documents_to_index,
+                "config": {
+                    "searchFields": search_fields,
+                    "saveDocument": save_document}},
+            headers={
+                'Authorization': f'Bearer {remote_secret}'}) as response:
         response.raise_for_status()
         return response.ok
