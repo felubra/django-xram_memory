@@ -139,9 +139,10 @@ class NewsFactory(factory.django.DjangoModelFactory):
     teaser = body = factory.Faker("text", max_nb_chars=200)
     published_date = factory.Faker("date_time")
     language = factory.Faker("language_code")
-    image = factory.Faker('image_url')
-    keywords = factory.Faker('words', nb=int(random() * 100))
-    subjects = factory.Faker('words', nb=int(random() * 100))
+    #FIXME: criar factories relacionadas para os itens abaixo
+    #image = factory.Faker('image_url')
+    #keywords = factory.Faker('words', nb=int(random() * 100))
+    #subjects = factory.Faker('words', nb=int(random() * 100))
 
     class Meta:
         model = models.News
