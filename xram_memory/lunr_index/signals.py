@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from .tasks import lunr_index_rebuild
 from django.conf import settings
 from loguru import logger
+from xram_memory.lunr_index.util import LunrBackendValue
 
 REBUILD_INTERVAL = settings.LUNR_INDEX_REBUILD_INTERVAL
 REBUILD_TIMEOUT = settings.LUNR_INDEX_REBUILD_TIMEOUT
@@ -24,7 +25,9 @@ def schedule_lunr_index_rebuild(sender, instance, **kwargs):
     # FIXME: implementar failback para o caso do celery não estar disponível
 
 
-for Model in [News, Newspaper, Keyword, Subject, Document]:
-    post_save.connect(schedule_lunr_index_rebuild, Model)
-    m2m_changed.connect(schedule_lunr_index_rebuild, Model)
-    post_delete.connect(schedule_lunr_index_rebuild, Model)
+# Somente conecte os sinais se o backend for válido, útil para testes
+if getattr(settings, 'LUNR_INDEX_BACKEND', None) in LunrBackendValue.VALID_BACKENDS:
+    for Model in [News, Newspaper, Keyword, Subject, Document]:
+        post_save.connect(schedule_lunr_index_rebuild, Model)
+        m2m_changed.connect(schedule_lunr_index_rebuild, Model)
+        post_delete.connect(schedule_lunr_index_rebuild, Model)
