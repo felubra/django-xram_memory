@@ -6,9 +6,12 @@ import pytest
 import json
 import os
 from lunr.index import Index
+from .utils import without_elastic_search
 
+@without_elastic_search()
+@pytest.mark.last
 @pytest.mark.django_db(transaction=True)
-def disabled_test_localsearch_remote_elastic_lunr(settings):
+def test_localsearch_remote_elastic_lunr(settings):
     #FIXME: mocar os métodos de NewsFetcher
     settings.LUNR_INDEX_BACKEND = 'remote'
     settings.LUNR_INDEX_REMOTE_HOST = 'http://localhost:5000'
@@ -24,8 +27,10 @@ def disabled_test_localsearch_remote_elastic_lunr(settings):
         reqs = [r for r in m.request_history if settings.LUNR_INDEX_REMOTE_HOST in r.url]
         assert len(reqs)
 
+@without_elastic_search()
+@pytest.mark.last
 @pytest.mark.django_db(transaction=True)
-def disabled_test_localsearch_lunr_py(settings):
+def test_localsearch_lunr_py(settings):
     #FIXME: mocar os métodos de NewsFetcher
     settings.LUNR_INDEX_BACKEND = 'local'
 

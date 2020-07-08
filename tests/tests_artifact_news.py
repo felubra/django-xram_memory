@@ -11,6 +11,7 @@ from django.test import TransactionTestCase
 from django.db.models.signals import post_save, m2m_changed, pre_delete, post_delete
 from .utils import basic_news_with_newspaper as basic_news
 from . import fixtures
+from .utils import DisabledIndexingAppsMixin
 
 logger.remove()
 
@@ -21,7 +22,7 @@ logger.remove()
 
 
 @pytest.mark.django_db(transaction=True)
-class NewsTestCase(TransactionTestCase):
+class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
     serialized_rollback = True
 
     def test_require_url_on_save(self):
