@@ -10,7 +10,7 @@ from celery import group
 import random
 
 
-@receiver(post_save)
+@receiver(post_save, sender=Document)
 def set_document_info(sender, **kwargs):
     """
     Defina o mimetype do arquivo para documentos e seu document_id.
@@ -106,7 +106,7 @@ def determine_additional_tasks_to_run(fields_and_tasks_info, instance):
     return tasks
 
 # Sinais para o processamento de News
-@receiver(post_save)
+@receiver(post_save, sender=News)
 def news_additional_processing(sender, **kwargs):
     """
     De acorodo com as opções selecionadas pelo usuário, executa ou agenda tarefas para obter informações adicionais
@@ -140,7 +140,7 @@ def news_additional_processing(sender, **kwargs):
 
 
 # Sinais para o processamento de Newspaper
-@receiver(post_save)
+@receiver(post_save, sender=Newspaper)
 def newspaper_additional_processing(sender, **kwargs):
     """
     Agenda ou executa tarefa para obter informações básicas sobre um Jornal.
