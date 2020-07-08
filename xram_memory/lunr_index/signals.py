@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from xram_memory.artifact.models import Document, News, Newspaper
 from xram_memory.utils import celery_is_avaliable, memcache_lock
+from xram_memory.utils.decorators import disable_for_loaddata
 from xram_memory.taxonomy.models import Keyword, Subject
 from xram_memory.logger.decorators import log_process
 from datetime import datetime, timedelta
@@ -39,6 +40,7 @@ class SignalProcessor:
             post_delete.disconnect(self.schedule_lunr_index_rebuild, model)
 
     @log_process(operation="agendar para reconstruir índice lunr")
+    @disable_for_loaddata
     def schedule_lunr_index_rebuild(self, **kwargs):
         """
         Com base nas configurações, obtém uma trava e agenda a execução das funções de indexação

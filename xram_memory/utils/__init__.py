@@ -285,3 +285,4 @@ def memcache_lock(lock_id, oid, timeout, sync=True):
 def datetime_to_string(obj: datetime.datetime):
     if isinstance(obj, datetime.datetime):
         return str(obj)
+

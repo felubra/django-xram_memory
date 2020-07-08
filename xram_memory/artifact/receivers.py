@@ -8,9 +8,10 @@ from urllib.parse import urlsplit
 from retrying import retry
 from celery import group
 import random
-
+from xram_memory.utils.decorators import disable_for_loaddata
 
 @receiver(post_save, sender=Document)
+@disable_for_loaddata
 def set_document_info(sender, **kwargs):
     """
     Defina o mimetype do arquivo para documentos e seu document_id.
@@ -107,6 +108,7 @@ def determine_additional_tasks_to_run(fields_and_tasks_info, instance):
 
 # Sinais para o processamento de News
 @receiver(post_save, sender=News)
+@disable_for_loaddata
 def news_additional_processing(sender, **kwargs):
     """
     De acorodo com as opções selecionadas pelo usuário, executa ou agenda tarefas para obter informações adicionais
@@ -141,6 +143,7 @@ def news_additional_processing(sender, **kwargs):
 
 # Sinais para o processamento de Newspaper
 @receiver(post_save, sender=Newspaper)
+@disable_for_loaddata
 def newspaper_additional_processing(sender, **kwargs):
     """
     Agenda ou executa tarefa para obter informações básicas sobre um Jornal.

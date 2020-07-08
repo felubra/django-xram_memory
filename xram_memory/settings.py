@@ -233,6 +233,7 @@ class Common(Configuration):
         'xram_memory.search_indexes.documents.news': 'artifact_news',
         'xram_memory.search_indexes.documents.document': 'artifact_document',
     }
+
     ELASTICSEARCH_DSL = {
         'default': {
             'hosts': values.Value('localhost:9200', True, environ_name="ELASTICSEARCH_HOST", environ_prefix="DJANGO"),
@@ -240,6 +241,8 @@ class Common(Configuration):
             'timeout': 30,
         },
     }
+
+    ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'xram_memory.search_indexes.signals.FixtureAwareSignalProcessor'
 
     REST_FRAMEWORK = {
         'DEFAULT_PARSER_CLASSES': (
