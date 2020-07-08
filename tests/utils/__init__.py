@@ -5,9 +5,11 @@ from .. import fixtures
 from xram_memory.artifact.models import News
 from unittest.mock import patch
 from loguru import logger
-logger.remove()
 from xram_memory.lib import NewsFetcher
+from django.apps import apps
+from functools import wraps
 
+logger.remove()
 
 @contextmanager
 def basic_news():
@@ -29,3 +31,67 @@ def basic_news_with_newspaper():
             news.set_basic_info()
         news.save()
     yield news
+
+def toggle_elastic_search_signals(disable=True):
+    try:
+        signal_processor = apps.get_app_config('django_elasticsearch_dsl').signal_processor
+    except:
+        return
+    else:
+        if disable:
+            signal_processor.teardown()
+        else:
+            signal_processor.setup()
+
+def toggle_local_search_signals(disable=True):
+    try:
+        signal_processor = apps.get_app_config('lunr_index').signal_processor
+    except Exception as e:
+        return
+    else:
+        if disable:
+            signal_processor.teardown()
+        else:
+            signal_processor.setup()
+
+
+def toggle_indexing_apps_signals(disable=True):
+    toggle_elastic_search_signals(disable)
+    toggle_local_search_signals(disable)
+
+@contextmanager
+def without_indexing_apps():
+    toggle_indexing_apps_signals()
+    yield
+    toggle_indexing_apps_signals(False)
+
+@contextmanager
+def without_local_search():
+    toggle_local_search_signals()
+    yield
+    toggle_local_search_signals(False)
+
+@contextmanager
+def without_elastic_search():
+    toggle_elastic_search_signals()
+    yield
+    toggle_elastic_search_signals(False)
+
+
+@contextmanager
+def without_elastic_search():
+    toggle_elastic_search_signals()
+    yield
+    toggle_elastic_search_signals(False)
+
+class DisabledIndexingAppsMixin(object):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        toggle_indexing_apps_signals()
+
+    @classmethod
+    def tearDownClass(cls):
+        toggle_indexing_apps_signals(False)
+        super().tearDownClass()
+
