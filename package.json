@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "pipenv run python manage.py test",
+    "test": "pipenv run py.test",
+    "test:cov": "pipenv run py.test --cov-report xml:cov.xml --cov xram_memory",
     "celery-windows": "celery worker --app=xram_memory --pool=gevent --loglevel=INFO"
   },
   "repository": {
