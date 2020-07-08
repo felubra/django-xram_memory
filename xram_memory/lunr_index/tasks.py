@@ -13,7 +13,6 @@ from xram_memory.lunr_index.lib.index_builders import (
 @shared_task(soft_time_limit=settings.LUNR_INDEX_REBUILD_TIMEOUT)
 def lunr_index_rebuild(self, lock_info=None, sync=False):
     # Construa um índice com documentos e notícias
-    # TODO: tentar novamente em caso de erro
     try:
         logger.debug("lunr_index_rebuild: início da execução")
         if settings.LUNR_INDEX_BACKEND == LunrBackendValue.BACKEND_REMOTE:
