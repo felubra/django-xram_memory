@@ -53,10 +53,10 @@ class SignalProcessor:
                 if not sync:
                     lunr_index_rebuild.apply_async(
                         eta=datetime.utcnow() + timedelta(seconds=self.rebuild_interval),
-                        args=[lock_info]
+                        args=[lock_info, sync]
                     )
                 else:
-                    lunr_index_rebuild.apply(args=[lock_info])
+                    lunr_index_rebuild.apply(args=[lock_info, sync])
 
 
 

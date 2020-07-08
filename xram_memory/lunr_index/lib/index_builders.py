@@ -82,15 +82,18 @@ def build_with_lunr_py(output_file_path: str):
     storage = get_storage_class('xram_memory.utils.OverwriteDefaultStorage')()
     return storage.save(output_file_path, ContentFile(json.dumps(serialized)))
 
-def build_with_remote_elastic_lunr(remote_url: str, remote_secret: str, search_fields: list, save_document=True):
+def build_with_remote_elastic_lunr(remote_url: str, remote_secret: str, search_fields: list, save_document=True, retry=True):
     documents_to_index = _prepare_documents_for_indexing()
-    retry_strategy = Retry(
-        total=5,
-        status_forcelist=[429, 500, 502, 503, 504],
-        method_whitelist=["HEAD", "GET", "OPTIONS", "POST"],
-        backoff_factor=5
-    )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
+    if retry:
+        retry_strategy = Retry(
+            total=5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            method_whitelist=["HEAD", "GET", "OPTIONS", "POST"],
+            backoff_factor=5
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+    else:
+        adapter = HTTPAdapter()
     http = requests.Session()
     http.mount("https://", adapter)
     http.mount("http://", adapter)
