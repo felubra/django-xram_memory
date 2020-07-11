@@ -156,6 +156,11 @@ class DocumentTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
                 self.assertIsNotNone(generated_icon_url)
 
     def test_if_document_saves_clear_thumbnails_caches(self):
+        """
+        Testa se um salvamento sucessivo, com mudança no arquivo, altera o
+        valor das propriedades cacheadas com a url das thumbnails desses
+        arquivos.
+        """
         document = Document()
         self.assertEqual(document.thumbnail, '')
         self.assertEqual(document.search_thumbnail, '')

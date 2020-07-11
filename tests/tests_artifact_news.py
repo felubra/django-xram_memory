@@ -26,17 +26,28 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
     serialized_rollback = True
 
     def test_require_url_on_save(self):
+        """
+        Verifica se uma exceção ValueError é invocada numa tentativa de salvar
+        uma Notícia sem URL.
+        """
         news = News(title="Abacate")
         self.assertRaises(ValueError, news.save)
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_save_without_title(self):
+        """
+        Verifica se uma notícia é salva com um título mesmo no caso dos plugins
+        de obtenção de informações não rodarem.
+        """
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
         news.save()
         self.assertNotEqual(news.title, '')
 
     def test_string_value(self):
+        """
+        Verifica a implentação de __str__ para notícia.
+        """
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
         self.assertEqual(str(news), '(sem título)')
@@ -44,6 +55,9 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
         self.assertEqual(str(news), news.title)
 
     def test_initial_flags_state(self):
+        """
+        Verifica o estado inicial de várias flags e propriedades de Notícia
+        """
         news = News(
             url="https://internacional.estadao.com.br/noticias/geral,venezuela-anuncia-reabertura-da-fronteira-com-brasil-e-aruba,70002823580")
         for field in ['thumbnail', 'published_year', 'image_capture_indexing', 'body', 'teaser', 'published_date']:
@@ -59,6 +73,10 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
             self.assertFalse(value)
 
     def test_set_web_title(self):
+        """
+        Verifica o funcionamento de news.set_web_title(), que deve popular
+        news.title.
+        """
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
         self.assertEqual(news.title, '')
@@ -68,6 +86,10 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
             self.assertNotEqual(news.title, '')
 
     def test_fetch_archived_url(self):
+        """
+        Verifica o funcionamento de news.fetch_archived_url(), que deve popular
+        news.archived_news_url
+        """
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
         self.assertIsNone(news.archived_news_url)
@@ -78,6 +100,10 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
             self.assertIsNotNone(news.archived_news_url)
 
     def test_set_basic_info(self):
+        """
+        Verifica o funcionamento de news.set_basic_info(), que deve popular
+        várias propriedades de News.
+        """
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html")
 
@@ -118,6 +144,10 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_keywords(self):
+        """
+        Verifica o funcionamento de news.add_fetched_keywords(), que deve popular
+        news.keywords.
+        """
         with basic_news() as news:
             self.assertIsNotNone(news._keywords)
             news.add_fetched_keywords()
@@ -129,6 +159,10 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_keywords_with_preexisting_keyword(self):
+        """
+        Verifica o funcionamento de news.add_fetched_keywords(), que não deve
+        adicionar palavras-chave repetidas.
+        """
         with basic_news() as news:
             self.assertIsNotNone(news._keywords)
             self.assertIn('2015', news._keywords)
@@ -139,6 +173,9 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_keywords_indexing(self):
+        """
+        Verifica o valor de news.keywords_indexing, usado para indexação.
+        """
         with basic_news() as news:
             self.assertIsNotNone(news.keywords_indexing)
             self.assertIsInstance(news.keywords_indexing, list)
@@ -152,6 +189,10 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_subjects(self):
+        """
+        Verifica o funcionamento de news.add_fetched_subjects(), que deve popular
+        news.subjects.
+        """
         with basic_news() as news:
             self.assertIsNotNone(news._subjects)
             news.add_fetched_subjects()
@@ -163,6 +204,10 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_add_fetched_subjects_with_preexisting_subject(self):
+        """
+        Verifica o funcionamento de news.add_fetched_subjects(), que não deve
+        adicionar assuntos repetidos.
+        """
         with basic_news() as news:
             self.assertIsNotNone(news._subjects)
             self.assertIn('Pedaladas fiscais', news._subjects)
@@ -173,6 +218,9 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete)
     def test_subjects_indexing(self):
+        """
+        Verifica o valor de news.subjects_indexing, usado para indexação.
+        """
         with basic_news() as news:
             self.assertIsNotNone(news.subjects_indexing)
             self.assertIsInstance(news.subjects_indexing, list)
@@ -190,16 +238,28 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @pytest.mark.django_db(transaction=True)
     def test_has_image_and_test_add_fetched_image(self):
+        """
+        Verifica news.has_image.
+        """
         with basic_news() as news:
+            self.assertFalse(news.has_image)
             news.add_fetched_image()
             self.assertTrue(news.has_image)
 
     @pytest.mark.django_db(transaction=True)
     def test_add_fetched_image(self):
+        """
+        Verifica se news.add_fetched_image popula as propriedades
+        news.image_capture, news.thumbnail e news.image_capture_indexing.
+        """
         with basic_news() as news:
             with patch.object(NewsFetcher, 'fetch_image') as mocked:
                 with fixtures.mocked_news_add_fetched_image('abacate') as f:
                     mocked.return_value.__enter__.return_value = f
+                    with self.assertRaises(News.image_capture.RelatedObjectDoesNotExist):
+                        news.image_capture
+                    self.assertIsNone(news.thumbnail)
+                    self.assertIsNone(news.image_capture_indexing)
                     news.add_fetched_image()
                     self.assertIsNotNone(news.image_capture)
                     self.assertIsInstance(news.image_capture, NewsImageCapture)
@@ -208,6 +268,10 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @pytest.mark.django_db(transaction=True)
     def test_add_another_fetched_image(self):
+        """
+        Verifica se uma captura de imagem substitui uma outra já existente
+        em news.add_fetched_image().
+        """
         with basic_news() as news:
             with patch.object(NewsFetcher, 'fetch_image') as mocked:
                 with fixtures.mocked_news_add_fetched_image('abacate') as f:
@@ -240,9 +304,14 @@ class NewsTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
 
     @pytest.mark.django_db(transaction=True)
     def test_add_pdf_capture(self):
+        """
+        Verifica news.has_pdf_capture e se news.add_pdf_capture() adiciona
+        outra captura de página em PDF.
+        """
         with basic_news() as news:
             with patch.object(NewsFetcher, 'get_pdf_capture') as mocked:
                 with fixtures.mocked_news_get_pdf_capture('abacate') as f:
+                    self.assertFalse(news.has_pdf_capture)
                     mocked.return_value.__enter__.return_value = f
                     news.add_pdf_capture()
                     self.assertEqual(len(news.pdf_captures.all()), 1)

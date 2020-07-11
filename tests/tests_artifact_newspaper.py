@@ -32,6 +32,9 @@ def minimal_newspaper():
 
 
 def test_has_basic_info():
+    """
+    Verifica newspaper.has_basic_info com definição direta de propriedades
+    """
     with minimal_newspaper() as newspaper:
         assert newspaper.has_basic_info == False
 
@@ -43,8 +46,12 @@ def test_has_basic_info():
 
 
 def test_has_basic_info2():
+    """
+    Verifica newspaper.has_basic_info com o uso de set_basic_info()
+    """
     with minimal_newspaper() as newspaper:
         with mock.patch('xram_memory.lib.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
+            assert newspaper.has_basic_info == False
             newspaper.set_basic_info()
             assert newspaper.has_basic_info == True
 
@@ -52,6 +59,9 @@ def test_has_basic_info2():
 @factory.django.mute_signals(post_save)
 @pytest.mark.django_db(transaction=True)
 def test_has_logo_after_save():
+    """
+    Verifica se o logotipo do jornal é definido depois de seu salvamento
+    """
     with minimal_newspaper() as newspaper:
         assert newspaper.has_logo == False
         newspaper.save()
@@ -59,6 +69,9 @@ def test_has_logo_after_save():
 
 
 def test_string_value():
+    """
+    Verifica a implementação de Newspaper.__str__
+    """
     with minimal_newspaper() as newspaper:
         assert str(newspaper) == '(site sem título)'
         with mock.patch('xram_memory.lib.NewsFetcher.build_newspaper', return_value=BOGUS_NEWSPAPER):
@@ -67,6 +80,9 @@ def test_string_value():
 
 
 def test_initial_flags_state():
+    """
+    Verifica o estado inicial de algumas flags e propriedades
+    """
     newspaper = Newspaper()
     assert newspaper.has_basic_info == False
     assert newspaper.has_logo == False
@@ -74,6 +90,9 @@ def test_initial_flags_state():
 
 
 def test_set_logo_from_favicon_without_a_saved_instance(shared_datadir):
+    """
+    Verifica se tentar definir um logo para uma instância não salva é rejeitado
+    """
     with minimal_newspaper() as newspaper:
         result = newspaper.set_logo_from_favicon()
         assert result == False
@@ -83,6 +102,9 @@ def test_set_logo_from_favicon_without_a_saved_instance(shared_datadir):
 @pytest.mark.django_db(transaction=True)
 @factory.django.mute_signals(post_save)
 def test_set_logo_from_favicon(shared_datadir):
+    """
+    Testa set_logo_from_favicon() e newspaper.has_logo com logotipos obtidos
+    """
     with minimal_newspaper() as newspaper:
         newspaper.save()
         contents = (shared_datadir / 'newspaper_favicon.png')
@@ -91,6 +113,7 @@ def test_set_logo_from_favicon(shared_datadir):
                 mocked.return_value = [
                     Favicon(url='http://example.com/icon.gif', format='gif')]
                 with requests_mock.Mocker() as m:
+                    assert newspaper.has_logo == False
                     m.register_uri('GET', 'http://example.com/icon.gif',
                                    content=f.read())
                     result = newspaper.set_logo_from_favicon()
@@ -106,9 +129,14 @@ def test_set_logo_from_favicon(shared_datadir):
 @pytest.mark.django_db(transaction=True)
 @factory.django.mute_signals(post_save)
 def test_set_logo_from_favicon_no_favicons():
+    """
+    Testa set_logo_from_favicon() e newspaper.has_logo sem logotipos obtidos
+    """
     with minimal_newspaper() as newspaper:
         newspaper.save()
         with mock.patch.object(favicon, 'get') as affected_function:
             affected_function.return_value = []
+            assert newspaper.has_logo == False
             result = newspaper.set_logo_from_favicon()
             assert result == False
+            assert newspaper.has_logo == False

@@ -10,25 +10,37 @@ from django.test import TestCase
 import pytest
 
 
-FUNCTIONS_THAT_ACCEPT_URL = (NewsFetcher.fetch_archived_url, NewsFetcher.fetch_basic_info,
+def test_function_with_invalid_urls():
+    """
+    Testa o validador de urls em todas funções que aceitam uma url
+    """
+    functions_that_accept_url = (NewsFetcher.fetch_archived_url, NewsFetcher.fetch_basic_info,
                              NewsFetcher.fetch_web_title, NewsFetcher.get_pdf_capture,
                              NewsFetcher.fetch_image, NewsFetcher.build_newspaper,)
-
-
-def test_function_with_invalid_urls():
-    for function in FUNCTIONS_THAT_ACCEPT_URL:
+    for function in functions_that_accept_url:
         with pytest.raises(ValidationError) as f:
             with function('invalid_url'):
                 pass
 
 
+################################%##
+# Testes com fetch_archived_url() #
+##################################%
+
 def test_fetch_archived_url_with_valid_url(news_fetcher_plugin_factory):
+    """
+    Testa o plugin mockado FunctionalPlugin
+    """
     ArchivePluginBase.plugins = news_fetcher_plugin_factory()
     url = NewsFetcher.fetch_archived_url(VALID_NEWS_URL)
     assert url == 'OK'
 
 
 def test_fetch_archived_url_with_no_plugins():
+    """
+    Um erro deve ser levantado quisermos usar a funcionalidade
+    sem plugins registrados
+    """
     ArchivePluginBase.plugins = []
     with pytest.raises(RuntimeError) as f:
         NewsFetcher.fetch_archived_url(VALID_NEWS_URL)
@@ -36,12 +48,18 @@ def test_fetch_archived_url_with_no_plugins():
 
 
 def test_fetch_archived_url_with_blank_plugin(news_fetcher_plugin_factory):
+    """
+    Testa o plugin mockado BlankPlugin
+    """
     ArchivePluginBase.plugins = news_fetcher_plugin_factory([BlankPlugin])
     url = NewsFetcher.fetch_archived_url(VALID_NEWS_URL)
     assert url == ''
 
 
 def test_fetch_archived_url_with_blank_plugin_failed_plugin(news_fetcher_plugin_factory):
+    """
+    Testa a exceção lançada no caso de plugins sem resultado e com falha
+    """
     ArchivePluginBase.plugins = news_fetcher_plugin_factory([
         BlankPlugin, NonFunctionalPlugin])
     with pytest.raises(RuntimeError) as f:
@@ -50,18 +68,23 @@ def test_fetch_archived_url_with_blank_plugin_failed_plugin(news_fetcher_plugin_
 
 
 def test_fetch_archived_url_with_blank_failed_functional_plugin(news_fetcher_plugin_factory):
+    """
+    Testa o comportamento no caso de ao menos um plugin funcional
+    """
     ArchivePluginBase.plugins = news_fetcher_plugin_factory([FunctionalPlugin,
                                                              BlankPlugin,
                                                              NonFunctionalPlugin])
     url = NewsFetcher.fetch_archived_url(VALID_NEWS_URL)
     assert url == 'OK'
 
-###############################
-# Testes com get_pdf_capture()#
-###############################
-
+################################
+# Testes com get_pdf_capture() #
+################################
 
 def test_get_pdf_capture_with_valid_url(news_fetcher_plugin_factory):
+    """
+    Testa o plugin mockado FunctionalPlugin
+    """
     PDFCapturePluginBase.plugins = news_fetcher_plugin_factory(
         [FunctionalPlugin])
     with NewsFetcher.get_pdf_capture(VALID_NEWS_URL) as f:
@@ -69,6 +92,10 @@ def test_get_pdf_capture_with_valid_url(news_fetcher_plugin_factory):
 
 
 def test_get_pdf_capture_with_no_plugins():
+    """
+    Um erro deve ser levantado quisermos usar a funcionalidade
+    sem plugins registrados
+    """
     PDFCapturePluginBase.plugins = []
     with pytest.raises(RuntimeError) as f:
         with NewsFetcher.get_pdf_capture(VALID_NEWS_URL) as f:
@@ -77,6 +104,9 @@ def test_get_pdf_capture_with_no_plugins():
 
 
 def test_get_pdf_capture_with_non_functional_plugin(news_fetcher_plugin_factory):
+    """
+    Testa a exceção lançada no caso de plugins com falha
+    """
     PDFCapturePluginBase.plugins = news_fetcher_plugin_factory(
         [NonFunctionalPlugin])
     with pytest.raises(RuntimeError) as f:
@@ -84,9 +114,9 @@ def test_get_pdf_capture_with_non_functional_plugin(news_fetcher_plugin_factory)
             pass
     assert 'alguns plugins falharam' in f.value.args[0]
 
-################################
-# Testes com fetch_basic_info()#
-################################
+#################################
+# Testes com fetch_basic_info() #
+#################################
 
 
 def test_fetch_basic_info_with_valid_url(news_fetcher_plugin_factory):
@@ -98,6 +128,10 @@ def test_fetch_basic_info_with_valid_url(news_fetcher_plugin_factory):
 
 
 def test_fetch_basic_info_with_no_plugins():
+    """
+    Um erro deve ser levantado quisermos usar a funcionalidade
+    sem plugins registrados
+    """
     BasicInfoPluginBase.plugins = []
     with pytest.raises(RuntimeError) as f:
         NewsFetcher.fetch_basic_info.cache_clear()
@@ -106,6 +140,10 @@ def test_fetch_basic_info_with_no_plugins():
 
 
 def test_fetch_basic_info_with_blank_plugin(news_fetcher_plugin_factory):
+    """
+    Um erro deve ser levantado todos os plugins
+    retornarem resultado em branco
+    """
     BasicInfoPluginBase.plugins = news_fetcher_plugin_factory([BlankPlugin])
 
     with pytest.raises(RuntimeError) as f:
@@ -115,6 +153,9 @@ def test_fetch_basic_info_with_blank_plugin(news_fetcher_plugin_factory):
 
 
 def test_fetch_basic_info_with_blank_plugin_failed_plugin(news_fetcher_plugin_factory):
+    """
+    Testa a exceção lançada no caso de plugins com falha
+    """
     BasicInfoPluginBase.plugins = news_fetcher_plugin_factory([
         BlankPlugin, NonFunctionalPlugin])
     with pytest.raises(RuntimeError) as f:
@@ -124,6 +165,9 @@ def test_fetch_basic_info_with_blank_plugin_failed_plugin(news_fetcher_plugin_fa
 
 
 def test_fetch_basic_info_with_blank_failed_functional_plugin(news_fetcher_plugin_factory):
+    """
+    Testa o comportamento no caso de ao menos um plugin funcional
+    """
     BasicInfoPluginBase.plugins = news_fetcher_plugin_factory([FunctionalPlugin,
                                                                BlankPlugin,
                                                                NonFunctionalPlugin])
@@ -133,6 +177,11 @@ def test_fetch_basic_info_with_blank_failed_functional_plugin(news_fetcher_plugi
 
 
 def test_fetch_basic_info_conservative_nature(news_fetcher_plugin_factory):
+    """
+    Testa o comportamento 'conservador' no tratamento dos campos 'keywords' e
+    'subjects', ou seja, o máximo de itens não repetidos deve ser obtido de
+    todos os plugins registrados
+    """
     BasicInfoPluginBase.plugins = news_fetcher_plugin_factory([FunctionalPlugin,
                                                                NonFunctionalPlugin])
     BasicInfoPluginBase.plugins[0].parse = lambda url, html: NEWS_ITEMS[0]
