@@ -92,6 +92,7 @@ def test_get_pdf_capture_with_non_functional_plugin(news_fetcher_plugin_factory)
 def test_fetch_basic_info_with_valid_url(news_fetcher_plugin_factory):
     BasicInfoPluginBase.plugins = news_fetcher_plugin_factory(
         [FunctionalPlugin])
+    NewsFetcher.fetch_basic_info.cache_clear()
     url = NewsFetcher.fetch_basic_info(VALID_NEWS_URL)
     assert url in [NEWS_ITEMS[1], NEWS_ITEMS[0]]
 
@@ -99,6 +100,7 @@ def test_fetch_basic_info_with_valid_url(news_fetcher_plugin_factory):
 def test_fetch_basic_info_with_no_plugins():
     BasicInfoPluginBase.plugins = []
     with pytest.raises(RuntimeError) as f:
+        NewsFetcher.fetch_basic_info.cache_clear()
         NewsFetcher.fetch_basic_info(VALID_NEWS_URL)
     assert 'Nenhum' in f.value.args[0]
 
@@ -107,6 +109,7 @@ def test_fetch_basic_info_with_blank_plugin(news_fetcher_plugin_factory):
     BasicInfoPluginBase.plugins = news_fetcher_plugin_factory([BlankPlugin])
 
     with pytest.raises(RuntimeError) as f:
+        NewsFetcher.fetch_basic_info.cache_clear()
         NewsFetcher.fetch_basic_info(VALID_NEWS_URL)
     assert 'nenhum plugin' in f.value.args[0]
 
@@ -115,6 +118,7 @@ def test_fetch_basic_info_with_blank_plugin_failed_plugin(news_fetcher_plugin_fa
     BasicInfoPluginBase.plugins = news_fetcher_plugin_factory([
         BlankPlugin, NonFunctionalPlugin])
     with pytest.raises(RuntimeError) as f:
+        NewsFetcher.fetch_basic_info.cache_clear()
         NewsFetcher.fetch_basic_info(VALID_NEWS_URL)
     assert 'plugins falharam' in f.value.args[0]
 
@@ -123,6 +127,7 @@ def test_fetch_basic_info_with_blank_failed_functional_plugin(news_fetcher_plugi
     BasicInfoPluginBase.plugins = news_fetcher_plugin_factory([FunctionalPlugin,
                                                                BlankPlugin,
                                                                NonFunctionalPlugin])
+    NewsFetcher.fetch_basic_info.cache_clear()
     url = NewsFetcher.fetch_basic_info(VALID_NEWS_URL)
     assert url in [NEWS_ITEMS[1], NEWS_ITEMS[0]]
 
@@ -132,6 +137,7 @@ def test_fetch_basic_info_conservative_nature(news_fetcher_plugin_factory):
                                                                NonFunctionalPlugin])
     BasicInfoPluginBase.plugins[0].parse = lambda url, html: NEWS_ITEMS[0]
     BasicInfoPluginBase.plugins[1].parse = lambda url, html: NEWS_ITEMS[1]
+    NewsFetcher.fetch_basic_info.cache_clear()
     url = NewsFetcher.fetch_basic_info(VALID_NEWS_URL)
     for key in BasicInfoPluginBase.BASIC_EMPTY_INFO.keys():
         if key in ('keywords', 'subjects'):
