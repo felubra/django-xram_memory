@@ -39,6 +39,29 @@ def test_g1_pdf_plugin(datadir,  mocker):
     with pdf_captures.G1PDFCapture.get_pdf_capture(G1_NEWS_URL) as pdf_file:
         pdfkit.from_string.assert_called_once()
 
+@pytest.mark.skip(reason="não pode ser testado ainda, vide fixme no começo do módulo")
+def test_usage_of_default_pdf_capture_plugin(datadir, mocker):
+    """
+    Verifica se o plugin padrão de captura de pdf é utilizado
+    """
+    mocker.patch("xram_memory.lib.news_fetcher.plugins.defaults.DefaultPDFCapture.get_pdf_capture")
+    with NewsFetcher.get_pdf_capture(FOLHA_NEWS_URL):
+        try:
+            DefaultPDFCapture.get_pdf_capture.assert_called_once()
+        except RuntimeError:
+            pass
+
+@pytest.mark.skip(reason="não pode ser testado ainda, vide fixme no começo do módulo")
+def test_usage_of_specialized_pdf_capture_plugin(datadir, mocker):
+    """
+    Verifica se o plugin de captura de pdf especializado para páginas do G1
+    é utilizado em urls do G1.
+    """
+    mocker.patch("xram_memory.lib.news_fetcher.plugins.defaults.DefaultPDFCapture.get_pdf_capture")
+    mocker.patch("xram_memory.lib.news_fetcher.plugins.pdf_captures.G1PDFCapture.get_pdf_capture")
+    with NewsFetcher.get_pdf_capture(G1_NEWS_URL):
+        pdf_captures.G1PDFCapture.get_pdf_capture.assert_called_once()
+        DefaultPDFCapture.get_pdf_capture.assert_not_called()
 
 def test_parsers_result_is_valid_dictionary(datadir, mocker):
     """

@@ -9,6 +9,14 @@ from django.utils.timezone import now
 from django.test import TestCase
 import pytest
 
+"""
+TODO: criar gerenciador de contexto ou decorador que permita definir
+temporariamente os plugins num registro de plugins.
+Da forma como os testes estão implementados, há pouluição no registro de
+plugins, ou seja, outros testes podem falhar se esperarem que esse registro
+esteja populado com plugins reais não mockados.
+"""
+
 
 def test_function_with_invalid_urls():
     """
