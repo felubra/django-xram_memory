@@ -120,14 +120,25 @@ class BlankPlugin(type):
 
 @pytest.fixture
 def news_fetcher_plugin_factory():
-    def _plugin_factory(plugins_to_build=[FunctionalPlugin, FunctionalPlugin, FunctionalPlugin]):
-        plugins = []
-        for plugin_no, plugin_type in enumerate(plugins_to_build):
-            class Plugin(metaclass=plugin_type):
-                pass
-            Plugin.__name__ = 'Plugin{}'.format(plugin_no)
-            plugins.append(Plugin)
-        return plugins
+    """
+    Fixure gerenciador de contexto que permite definir temporariamente os
+    plugins num registro de plugins.
+    """
+    @contextmanager
+    def _plugin_factory(registry, plugins_to_build=[FunctionalPlugin, FunctionalPlugin, FunctionalPlugin]):
+        old_plugins = registry.plugins
+        try:
+            plugins = []
+            for plugin_no, plugin_type in enumerate(plugins_to_build):
+                class Plugin(metaclass=plugin_type):
+                    pass
+                Plugin.__name__ = 'Plugin{}'.format(plugin_no)
+                plugins.append(Plugin)
+
+            registry.plugins = plugins
+            yield plugins
+        finally:
+            registry.plugins = old_plugins
     return _plugin_factory
 
 
