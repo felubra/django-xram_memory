@@ -39,7 +39,6 @@ def test_g1_pdf_plugin(datadir,  mocker):
     with pdf_captures.G1PDFCapture.get_pdf_capture(G1_NEWS_URL) as pdf_file:
         pdfkit.from_string.assert_called_once()
 
-@pytest.mark.skip(reason="não pode ser testado ainda, vide fixme no começo do módulo")
 def test_usage_of_default_pdf_capture_plugin(datadir, mocker):
     """
     Verifica se o plugin padrão de captura de pdf é utilizado
@@ -51,7 +50,6 @@ def test_usage_of_default_pdf_capture_plugin(datadir, mocker):
         except RuntimeError:
             pass
 
-@pytest.mark.skip(reason="não pode ser testado ainda, vide fixme no começo do módulo")
 def test_usage_of_specialized_pdf_capture_plugin(datadir, mocker):
     """
     Verifica se o plugin de captura de pdf especializado para páginas do G1
