@@ -55,6 +55,21 @@ def toggle_local_search_signals(disable=True):
             signal_processor.setup()
 
 
+def toggle_artifact_signals(disable=True, models=[]):
+    if not models:
+        return
+    try:
+        signal_processors = apps.get_app_config('artifact').signal_processors
+    except Exception as e:
+        return
+    else:
+        for model in models:
+            signal_processor = signal_processors[model]
+            if disable:
+                signal_processor.teardown()
+            else:
+                signal_processor.setup()
+
 def toggle_indexing_apps_signals(disable=True):
     toggle_elastic_search_signals(disable)
     toggle_local_search_signals(disable)
@@ -83,6 +98,12 @@ def without_elastic_search():
     toggle_elastic_search_signals()
     yield
     toggle_elastic_search_signals(False)
+
+@contextmanager
+def without_artifact_auto_processing(models=["documents", "news", "newspaper"]):
+    toggle_artifact_signals(True, models)
+    yield
+    toggle_artifact_signals(False, models)
 
 class DisabledIndexingAppsMixin(object):
     @classmethod
