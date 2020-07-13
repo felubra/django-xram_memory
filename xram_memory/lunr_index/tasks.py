@@ -6,8 +6,8 @@ from loguru import logger
 import requests
 
 from xram_memory.lunr_index.lib.index_builders import (
-    build_with_lunr_py,
-    build_with_remote_elastic_lunr
+    LunrIndexBuilder,
+    RemoteElasticLunrIndexBuilder
 )
 
 @shared_task(soft_time_limit=settings.LUNR_INDEX_REBUILD_TIMEOUT)
@@ -16,7 +16,7 @@ def lunr_index_rebuild(lock_info=None, sync=False):
     try:
         logger.debug("lunr_index_rebuild: início da execução")
         if settings.LUNR_INDEX_BACKEND == LunrBackendValue.BACKEND_REMOTE:
-            build_with_remote_elastic_lunr(
+            RemoteElasticLunrIndexBuilder.build(
                 settings.LUNR_INDEX_REMOTE_HOST,
                 settings.LUNR_INDEX_REMOTE_SECRET,
                 settings.LUNR_INDEX_SEARCH_FIELDS,
@@ -24,7 +24,7 @@ def lunr_index_rebuild(lock_info=None, sync=False):
                 retry=not sync
             )
         elif settings.LUNR_INDEX_BACKEND == LunrBackendValue.BACKEND_LOCAL:
-            build_with_lunr_py(settings.LUNR_INDEX_FILE_PATH)
+            LunrIndexBuilder.build(settings.LUNR_INDEX_FILE_PATH)
     finally:
         if lock_info:
             logger.debug("lunr_index_rebuild: limpando o lock")
