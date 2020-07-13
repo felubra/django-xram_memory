@@ -6,4 +6,10 @@ class ArtifactConfig(AppConfig):
     verbose_name = "Artefatos do acervo"
 
     def ready(self):
-        from xram_memory.artifact import receivers
+        from xram_memory.artifact.receivers import (
+            DocumentSignalProcessor, NewsSignalProcessor, NewspaperSignalProcessor)
+        self.signal_processors = {
+            'documents': DocumentSignalProcessor(),
+            'news': NewsSignalProcessor(),
+            'newspaper': NewspaperSignalProcessor()
+        }

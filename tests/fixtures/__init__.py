@@ -120,14 +120,25 @@ class BlankPlugin(type):
 
 @pytest.fixture
 def news_fetcher_plugin_factory():
-    def _plugin_factory(plugins_to_build=[FunctionalPlugin, FunctionalPlugin, FunctionalPlugin]):
-        plugins = []
-        for plugin_no, plugin_type in enumerate(plugins_to_build):
-            class Plugin(metaclass=plugin_type):
-                pass
-            Plugin.__name__ = 'Plugin{}'.format(plugin_no)
-            plugins.append(Plugin)
-        return plugins
+    """
+    Fixure gerenciador de contexto que permite definir temporariamente os
+    plugins num registro de plugins.
+    """
+    @contextmanager
+    def _plugin_factory(registry, plugins_to_build=[FunctionalPlugin, FunctionalPlugin, FunctionalPlugin]):
+        old_plugins = registry.plugins
+        try:
+            plugins = []
+            for plugin_no, plugin_type in enumerate(plugins_to_build):
+                class Plugin(metaclass=plugin_type):
+                    pass
+                Plugin.__name__ = 'Plugin{}'.format(plugin_no)
+                plugins.append(Plugin)
+
+            registry.plugins = plugins
+            yield plugins
+        finally:
+            registry.plugins = old_plugins
     return _plugin_factory
 
 
@@ -139,9 +150,10 @@ class NewsFactory(factory.django.DjangoModelFactory):
     teaser = body = factory.Faker("text", max_nb_chars=200)
     published_date = factory.Faker("date_time")
     language = factory.Faker("language_code")
-    image = factory.Faker('image_url')
-    keywords = factory.Faker('words', nb=int(random() * 100))
-    subjects = factory.Faker('words', nb=int(random() * 100))
+    #FIXME: criar factories relacionadas para os itens abaixo
+    #image = factory.Faker('image_url')
+    #keywords = factory.Faker('words', nb=int(random() * 100))
+    #subjects = factory.Faker('words', nb=int(random() * 100))
 
     class Meta:
         model = models.News

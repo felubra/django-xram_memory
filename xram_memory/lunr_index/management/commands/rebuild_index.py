@@ -1,0 +1,1 @@
+#TODO: comando para recriar o índice

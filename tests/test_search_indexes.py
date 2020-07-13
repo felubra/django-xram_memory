@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from pathlib import Path
 import pytest
 import os
-
+from .utils import without_local_search
 
 @contextmanager
 def open_as_django_file(filename):
@@ -19,6 +19,7 @@ def open_as_django_file(filename):
 
 
 @pytest.mark.last
+@without_local_search()
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_non_user_document_indexed():
     """

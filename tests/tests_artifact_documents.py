@@ -12,6 +12,7 @@ import factory
 import magic
 import os
 import pytest
+from .utils import DisabledIndexingAppsMixin
 
 
 logger.remove()
@@ -19,7 +20,7 @@ logger.remove()
 
 
 @pytest.mark.django_db(transaction=True)
-class DocumentTestCase(TransactionTestCase):
+class DocumentTestCase(DisabledIndexingAppsMixin, TransactionTestCase):
     serialized_rollback = True
 
     @contextmanager
@@ -68,7 +69,7 @@ class DocumentTestCase(TransactionTestCase):
     def test_set_document_id_without_signals(self):
         """
         Testa o funcionamento de `set_document_id` e o estado de `document_id` após a invocação
-        dessa função. Desativa os sinais do django para poder controlar quando `set_document_id` é 
+        dessa função. Desativa os sinais do django para poder controlar quando `set_document_id` é
         invocada.
         """
         image_file_path = Path(os.path.dirname(
@@ -155,6 +156,11 @@ class DocumentTestCase(TransactionTestCase):
                 self.assertIsNotNone(generated_icon_url)
 
     def test_if_document_saves_clear_thumbnails_caches(self):
+        """
+        Testa se um salvamento sucessivo, com mudança no arquivo, altera o
+        valor das propriedades cacheadas com a url das thumbnails desses
+        arquivos.
+        """
         document = Document()
         self.assertEqual(document.thumbnail, '')
         self.assertEqual(document.search_thumbnail, '')
