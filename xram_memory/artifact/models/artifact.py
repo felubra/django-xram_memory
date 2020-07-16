@@ -49,6 +49,8 @@ class Artifact(TraceableEditorialModel):
         if not self.title:
             raise ValueError(
                 "Não é possível criar um artefato sem título.")
+        # limite o título ao tamanho máximo do campo
+        self.title = self.title[:255]
         super().save(*args, **kwargs)
 
     @property
