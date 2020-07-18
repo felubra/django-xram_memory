@@ -1,4 +1,4 @@
-FROM node:lts-alpine as builder
+FROM node:8 as builder
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN npm ci --only=production
 
-FROM python:3.7-slim-buster
+FROM python:3.7
 
 ENV PYTHONUNBUFFERED=1
 ENV NLTK_DATA=/usr/share/nltk_data
@@ -20,28 +20,25 @@ COPY --from=builder /app  .
 COPY scripts/download_corpora.py Pipfile* ./
 
 RUN set -ex; \
-  apt-get update; \
-  apt-get install git poppler-utils libmagic-dev curl gnupg python3-dev default-libmysqlclient-dev -yq;
-
-RUN set -ex; \
   pip install pipenv; \
   pip install nltk; \
   python ./download_corpora.py; \
   rm ./download_corpora.py; \
-  curl -f -L https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb > wkhtmltox.deb; \
+  curl -f -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb > wkhtmltox.deb;
+
+RUN set -ex; \
+  apt-get update; \
   apt-get install ./wkhtmltox.deb -f --no-install-recommends -y; \
   rm wkhtmltox.deb ; \
+  apt-get install poppler-utils libmagic-dev curl gnupg python3-dev default-libmysqlclient-dev -yq; \  
   rm -rf /var/lib/apt/lists/;
 
-ARG PIPENV_DEV=false
-ARG PIPENV_SYSTEM=true
-
-RUN pipenv install --deploy
+RUN pipenv install --system --deploy
 
 COPY . .
 
 EXPOSE 8000
 
-USER 1000
+USER www-data
 
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -1,5 +1,5 @@
 .env
-db.sqlite3*
+db.sqlite3
 
 # ignore arquivos estáticos coletados pelo Django e arquivos gerados
 staticfiles/
