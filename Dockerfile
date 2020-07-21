@@ -1,4 +1,4 @@
-FROM node:lts-alpine as node_installer
+FROM node:lts-alpine as pre_install
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN npm ci --only=production
 
-FROM python:3.7-slim-buster as python_base_install
+FROM python:3.7-slim-buster as production
 
 ENV PYTHONUNBUFFERED=1
 ENV NLTK_DATA=/usr/share/nltk_data
@@ -15,7 +15,7 @@ LABEL author=felipe.lubra@gmail.com
 
 WORKDIR /app
 
-COPY --from=node_installer /app  .
+COPY --from=pre_install /app  .
 
 COPY scripts/download_corpora.py Pipfile* ./
 
@@ -42,7 +42,7 @@ USER www-data
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-FROM python_base_install as development_install
+FROM production as development
 
 USER root
 
