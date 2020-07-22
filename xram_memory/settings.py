@@ -418,7 +418,7 @@ class Staging(IndexingWithElasticSearch):
         ('HTTP_X_FORWARDED_PROTO', 'https')
     )
 
-    ALLOWED_HOSTS = ['xram-memory.felipelube.com']
+    ALLOWED_HOSTS = values.ListValue(default=['xram-memory.felipelube.com', 'xram-memory.localhost'])
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
