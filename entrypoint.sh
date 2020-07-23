@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e;
-python manage.py collectstatic --noinput --noinput -i jquery-ui* # Colecione arquivos estáticos
+python manage.py collectstatic --noinput # Colecione arquivos estáticos
 python manage.py migrate # Aplique as migrações de banco de dados
 
 environment="${ENVIRONMENT:-production}"
