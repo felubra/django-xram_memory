@@ -401,6 +401,13 @@ class Development(IndexingWithAllApps):
     }
 
 
+class DevelopmentWithDocker(Development):
+    # Habilite o debug toolbar no ambiente docker
+    # https://gist.github.com/douglasmiranda/9de51aaba14543851ca3
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'xram_memory.utils.show_toolbar',
+    }
+
 class Staging(IndexingWithElasticSearch):
     """
     The in-staging settings.

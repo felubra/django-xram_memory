@@ -286,3 +286,9 @@ def datetime_to_string(obj: datetime.datetime):
     if isinstance(obj, datetime.datetime):
         return str(obj)
 
+
+# Exiba a toolbar apenas se requisição não for ajax
+def show_toolbar(request):
+    if request.is_ajax():
+        return False
+    return True
