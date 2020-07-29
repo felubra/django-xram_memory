@@ -34,14 +34,11 @@ class Common(Configuration):
         'django.contrib.messages',
         'whitenoise.runserver_nostatic',
         'django.contrib.staticfiles',
-        'django_elasticsearch_dsl',
 
         'django_extensions',
         'xram_memory.users',
         'xram_memory.taxonomy',
         'xram_memory.logger',
-        'xram_memory.search_indexes',
-        'xram_memory.lunr_index',
 
         'xram_memory.quill_widget',
         'xram_memory.artifact',
@@ -229,20 +226,7 @@ class Common(Configuration):
         'quill': [os.path.join('dist', '*')],
         'screenfull': [os.path.join('dist', '*')],
     }
-    ELASTICSEARCH_INDEX_NAMES = {
-        'xram_memory.search_indexes.documents.news': 'artifact_news',
-        'xram_memory.search_indexes.documents.document': 'artifact_document',
-    }
 
-    ELASTICSEARCH_DSL = {
-        'default': {
-            'hosts': values.Value('localhost:9200', True, environ_name="ELASTICSEARCH_HOST", environ_prefix="DJANGO"),
-            'http_auth': values.TupleValue(environ_name="ELASTICSEARCH_CREDENTIALS", environ_prefix="DJANGO"),
-            'timeout': 30,
-        },
-    }
-
-    ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'xram_memory.search_indexes.signals.FixtureAwareSignalProcessor'
 
     REST_FRAMEWORK = {
         'DEFAULT_PARSER_CLASSES': (
@@ -307,6 +291,34 @@ class Common(Configuration):
     FILE_HASHING_SALT = values.Value(
         'hs204ViIUpIu45CTTUl3KsoQJgVtnmrHpXvRl8u5')
 
+class IndexingWithElasticSearch(Common):
+    # Application definition
+    INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'django_elasticsearch_dsl',
+        'xram_memory.search_indexes',
+    ]
+
+    ELASTICSEARCH_INDEX_NAMES = {
+        'xram_memory.search_indexes.documents.news': 'artifact_news',
+        'xram_memory.search_indexes.documents.document': 'artifact_document',
+    }
+
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': values.Value('localhost:9200', True, environ_name="ELASTICSEARCH_HOST", environ_prefix="DJANGO"),
+            'http_auth': values.TupleValue(environ_name="ELASTICSEARCH_CREDENTIALS", environ_prefix="DJANGO"),
+            'timeout': 30,
+        },
+    }
+
+    ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'xram_memory.search_indexes.signals.FixtureAwareSignalProcessor'
+
+class IndexingWithLunrSearch(Common):
+    # Application definition
+    INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'xram_memory.lunr_index',
+    ]
+
     # Intervalo mínimo entre a criação de arquivos de índice do Lunr
     LUNR_INDEX_REBUILD_INTERVAL = values.IntegerValue(10 * 60) # 10 minutos
     # Tempo máximo que a operação deve levar, após o qual falhará
@@ -316,7 +328,7 @@ class Common(Configuration):
     # Quais campos dos modelos indexar para busca
     LUNR_INDEX_SEARCH_FIELDS = values.ListValue(['title', 'teaser'])
     # Caminho do arquivo do índice relativo a MEDIA_ROOT
-    LUNR_INDEX_FILE_PATH = values.PathValue(os.path.join(MEDIA_ROOT, 'lunr_index/index.json'))
+    LUNR_INDEX_FILE_PATH = values.PathValue(os.path.join(Common.MEDIA_ROOT, 'lunr_index/index.json'))
     # Tipo de reconstrução: 'local' (usa lunr.py para gerar localmente) ou 'remote' envia requisição http com dados
     # a serem indexados para o servidor definido em REMOTE_HOST
 
@@ -330,7 +342,15 @@ class Common(Configuration):
     # Segredo usado para autenticação http Bearer Token no servidor REMOTE_HOST
     LUNR_INDEX_REMOTE_SECRET = values.Value(environ_required=LUNR_INDEX_BACKEND == LunrBackendValue.BACKEND_REMOTE)
 
-class Development(Common):
+class IndexingWithAllApps(IndexingWithElasticSearch, IndexingWithLunrSearch, Common):
+    # Application definition
+    INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'django_elasticsearch_dsl',
+        'xram_memory.search_indexes',
+        'xram_memory.lunr_index',
+    ]
+
+class Development(IndexingWithAllApps):
     """
     The in-development settings and the default configuration.
     """
@@ -347,7 +367,7 @@ class Development(Common):
         'debug_toolbar.middleware.DebugToolbarMiddleware'
     ]
 
-    INSTALLED_APPS = Common.INSTALLED_APPS + [
+    INSTALLED_APPS = IndexingWithAllApps.INSTALLED_APPS + [
         'debug_toolbar',
     ]
 
@@ -381,7 +401,14 @@ class Development(Common):
     }
 
 
-class Staging(Common):
+class DevelopmentWithDocker(Development):
+    # Habilite o debug toolbar no ambiente docker
+    # https://gist.github.com/douglasmiranda/9de51aaba14543851ca3
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'xram_memory.utils.show_toolbar',
+    }
+
+class Staging(IndexingWithElasticSearch):
     """
     The in-staging settings.
     """
@@ -398,7 +425,7 @@ class Staging(Common):
         ('HTTP_X_FORWARDED_PROTO', 'https')
     )
 
-    ALLOWED_HOSTS = ['xram-memory.felipelube.com']
+    ALLOWED_HOSTS = values.ListValue(default=['xram-memory.felipelube.com', 'xram-memory.localhost'])
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
