@@ -21,7 +21,7 @@ def lunr_index_rebuild(lock_info=None, sync=False):
                 settings.LUNR_INDEX_REMOTE_SECRET,
                 settings.LUNR_INDEX_SEARCH_FIELDS,
                 settings.LUNR_INDEX_SAVE_DOCUMENT,
-                retry=not sync
+                retry=False
             )
         elif settings.LUNR_INDEX_BACKEND == LunrBackendValue.BACKEND_LOCAL:
             LunrIndexBuilder.build(settings.LUNR_INDEX_FILE_PATH)
