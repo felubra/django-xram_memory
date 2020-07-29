@@ -102,6 +102,7 @@ class RemoteElasticLunrIndexBuilder(LocalSearchIndexBuilder):
         http = requests.Session()
         http.mount("https://", adapter)
         http.mount("http://", adapter)
+        return http
 
     @classmethod
     def build(cls, remote_url: str, remote_secret: str, search_fields: list, save_document=True, retry=True):
