@@ -368,7 +368,7 @@ class Development(IndexingWithAllApps):
     ]
 
     INSTALLED_APPS = IndexingWithAllApps.INSTALLED_APPS + [
-        'debug_toolbar',
+        'debug_toolbar', 'cache_fallback',
     ]
 
     LOGGING = {
@@ -396,8 +396,16 @@ class Development(IndexingWithAllApps):
 
     CACHES = {
         'default': {
+            'BACKEND': 'cache_fallback.FallbackCache',
+        },
+        'main_cache': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': values.Value('127.0.0.1:11211', True, environ_name='MEMCACHED_URL'),
+        },
+        'fallback_cache': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        }
+            'LOCATION': 'unique'
+        },
     }
 
 
