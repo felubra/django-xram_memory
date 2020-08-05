@@ -1,6 +1,6 @@
 from .page.views import InMenuStaticPagesViewSet, StaticPageViewSet, FeaturedStaticPagesViewSet
 from xram_memory.artifact.views import DocumentViewSet, NewsViewSet, AlbumViewSet
-from xram_memory.taxonomy.views import SubjectViewSet
+from xram_memory.taxonomy.views import SubjectViewSet, KeywordViewSet
 from django.conf.urls.static import static
 from django.urls import include, path
 from django.conf import settings
@@ -44,6 +44,8 @@ urlpatterns = [
          SubjectViewSet.as_view({'get': 'subjects_initials'})),
     path('api/v1/subject/<str:subject_slug>',
          SubjectViewSet.as_view({'get': 'retrieve'})),
+    path('api/v1/keywords/top',
+         KeywordViewSet.as_view({'get': 'top_keywords'})),
 ] + urlpatterns
 
 # URLs canônicas para documentos do Filer

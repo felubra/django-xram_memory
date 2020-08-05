@@ -9,7 +9,10 @@ from django.db.models import Count, Q
 from django.shortcuts import render
 from rest_framework import viewsets
 from django.conf import settings
-from .models import Subject
+from .models import Subject, Keyword
+from xram_memory.artifact.models import News
+from xram_memory.lib.stopwords import stopwords
+from django.db.models import Prefetch, Q
 import re
 import string
 from natsort import natsorted
@@ -17,6 +20,27 @@ from natsort import natsorted
 # Create your views here.
 
 TIMEOUT = 0 if settings.DEBUG else 60 * 60 * 12
+
+class KeywordViewSet(viewsets.ViewSet):
+    def top_keywords(self, request):
+        #TODO: otimizar, seja com cache ou a nível de DB
+        pt_stopwords = stopwords.get("pt", [])
+
+        keywords_list = (
+            Keyword.objects
+            .values("name", "slug")
+            .annotate(news_count=Count('news'))
+            .filter(
+                Q(news_count__gt=0)
+            )
+            .prefetch_related(
+                Prefetch('news_set', queryset=News.objects.filter(published=True))
+            )
+            .exclude(name__in=pt_stopwords)
+            .order_by("-news_count")
+            [:250]
+        )
+        return Response(keywords_list)
 
 
 class SubjectViewSet(viewsets.ViewSet):
