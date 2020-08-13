@@ -9,14 +9,47 @@ from django.db.models import Count, Q
 from django.shortcuts import render
 from rest_framework import viewsets
 from django.conf import settings
-from .models import Subject
+from .models import Subject, Keyword
+from xram_memory.artifact.models import News
+from xram_memory.lib.stopwords import stopwords
+from django.db.models import Prefetch, Q
 import re
 import string
 from natsort import natsorted
+from django.db.models.functions import Lower
 
 # Create your views here.
 
 TIMEOUT = 0 if settings.DEBUG else 60 * 60 * 12
+
+class KeywordViewSet(viewsets.ViewSet):
+    def top_keywords(self, request):
+        pt_stopwords = stopwords.get("pt", [])
+
+        max_keywords = request.GET.get("max", "250")
+        if not max_keywords or not max_keywords.isnumeric():
+            raise ParseError()
+
+        max_keywords = int(max_keywords, 10)
+        if max_keywords < 1:
+            raise ValueError()
+
+        keywords_list = (
+            Keyword.objects
+            .values("name", "slug")
+            .annotate(name_lower=Lower("name") )
+            .annotate(news_count=Count('news'))
+            .filter(
+                Q(news_count__gt=0)
+            )
+            .prefetch_related(
+                Prefetch('news_set', queryset=News.objects.filter(published=True))
+            )
+            .exclude(name_lower__in=pt_stopwords)
+            .order_by("-news_count")
+            [:max_keywords]
+        )
+        return Response(keywords_list)
 
 
 class SubjectViewSet(viewsets.ViewSet):

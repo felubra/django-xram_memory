@@ -8,6 +8,5 @@ try:
     # Arquivo de: https://github.com/stopwords-iso/stopwords-iso
     with open(stopwords_json_file, encoding='utf-8') as f:
         stopwords = json.loads(f.read())
-        pass
 except TypeError:
     stopwords = {}
