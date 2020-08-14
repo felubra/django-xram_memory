@@ -1,4 +1,4 @@
-from .serializers import SubjectSerializer, SimpleSubjectSerializer
+from .serializers import SubjectSerializer, SimpleSubjectSerializer, KeywordSerializer
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
@@ -9,6 +9,7 @@ from django.db.models import Count, Q
 from django.shortcuts import render
 from rest_framework import viewsets
 from django.conf import settings
+from xram_memory.artifact.serializers import ArtifactSerializer
 from .models import Subject, Keyword
 from xram_memory.artifact.models import News
 from xram_memory.lib.stopwords import stopwords
@@ -50,6 +51,13 @@ class KeywordViewSet(viewsets.ViewSet):
             [:max_keywords]
         )
         return Response(keywords_list)
+
+    def artifacts_for_keyword(self, request, keyword_slug):
+        queryset = Keyword.objects.all()
+        keyword = get_object_or_404(queryset, slug=keyword_slug)
+        serialized_news = ArtifactSerializer(keyword.news, many=True)
+        serialized_documents = ArtifactSerializer(keyword.document, many=True)
+        return Response(serialized_news.data + serialized_documents.data)
 
 
 class SubjectViewSet(viewsets.ViewSet):

@@ -46,6 +46,8 @@ urlpatterns = [
          SubjectViewSet.as_view({'get': 'retrieve'})),
     path('api/v1/keywords/top',
          KeywordViewSet.as_view({'get': 'top_keywords'})),
+    path('api/v1/keyword/<str:keyword_slug>',
+         KeywordViewSet.as_view({'get': 'artifacts_for_keyword'})),
 ] + urlpatterns
 
 # URLs canônicas para documentos do Filer
