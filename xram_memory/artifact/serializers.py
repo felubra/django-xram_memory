@@ -7,6 +7,55 @@ from filer.models import Folder, File
 from django.conf import settings
 
 
+class ArtifactSerializer(Serializer):
+    slug = SerializerMethodField()
+    thumbnail = SerializerMethodField()
+    title = SerializerMethodField()
+    description = SerializerMethodField()
+    type = SerializerMethodField()
+
+
+    def get_slug(self, obj):
+        if isinstance(obj, News):
+            return obj.slug
+        elif isinstance(obj, Document):
+            return obj.document_id_indexing
+        else:
+            raise NotImplementedError('Tipo de modelo não suportado')
+
+    def get_type(self, obj):
+        if isinstance(obj, News):
+            return 'news'
+        elif isinstance(obj, Document):
+            return 'document'
+        else:
+            raise NotImplementedError('Tipo de modelo não suportado')
+
+    def get_thumbnail(self, obj):
+        if isinstance(obj, News):
+            return obj.thumbnail
+        elif isinstance(obj, Document):
+            return obj.search_thumbnail
+        else:
+            raise NotImplementedError('Tipo de modelo não suportado')
+
+    def get_title(self, obj):
+        if isinstance(obj, News):
+            return obj.title
+        elif isinstance(obj, Document):
+            return obj.name
+        else:
+            raise NotImplementedError('Tipo de modelo não suportado')
+
+    def get_description(self, obj):
+        if isinstance(obj, News):
+            return obj.teaser
+        elif isinstance(obj, Document):
+            return obj.description
+        else:
+            raise NotImplementedError('Tipo de modelo não suportado')
+
+
 class NewspaperSerializer(ModelSerializer):
     class Meta:
         model = Newspaper
