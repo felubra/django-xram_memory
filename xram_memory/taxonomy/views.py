@@ -120,3 +120,10 @@ class SubjectViewSet(viewsets.ViewSet):
         subject = get_object_or_404(queryset, slug=subject_slug)
         serializer = SubjectSerializer(subject)
         return Response(serializer.data)
+
+    def artifacts_for_subject(self, request, subject_slug):
+        queryset = Subject.objects.all()
+        subject = get_object_or_404(queryset, slug=subject_slug)
+        serialized_news = ArtifactSerializer(subject.news, many=True)
+        serialized_documents = ArtifactSerializer(subject.document, many=True)
+        return Response(serialized_news.data + serialized_documents.data)

@@ -44,9 +44,11 @@ urlpatterns = [
          SubjectViewSet.as_view({'get': 'subjects_initials'})),
     path('api/v1/subject/<str:subject_slug>',
          SubjectViewSet.as_view({'get': 'retrieve'})),
+    path('api/v1/subject/<str:subject_slug>/items',
+         SubjectViewSet.as_view({'get': 'artifacts_for_subject'})),
     path('api/v1/keywords/top',
          KeywordViewSet.as_view({'get': 'top_keywords'})),
-    path('api/v1/keyword/<str:keyword_slug>',
+    path('api/v1/keyword/<str:keyword_slug>/items',
          KeywordViewSet.as_view({'get': 'artifacts_for_keyword'})),
 ] + urlpatterns
 

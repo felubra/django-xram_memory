@@ -8,14 +8,30 @@ from django.conf import settings
 
 
 class ArtifactSerializer(Serializer):
-    slug = SerializerMethodField()
+    uri = SerializerMethodField()
     thumbnail = SerializerMethodField()
     title = SerializerMethodField()
     description = SerializerMethodField()
     type = SerializerMethodField()
+    newspaper = SerializerMethodField()
 
 
-    def get_slug(self, obj):
+    def get_newspaper(self, obj: News):
+        if isinstance(obj, News):
+            if getattr(obj, 'newspaper', None):
+                return {
+                    "title": obj.newspaper.title,
+                    "image": obj.newspaper.favicon_logo,
+                    "url": obj.newspaper.url
+                }
+            return None
+        elif isinstance(obj, Document):
+            return None
+        else:
+            raise NotImplementedError('Tipo de modelo não suportado')
+
+
+    def get_uri(self, obj):
         if isinstance(obj, News):
             return obj.slug
         elif isinstance(obj, Document):
