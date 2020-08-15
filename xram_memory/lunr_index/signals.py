@@ -43,6 +43,8 @@ class LunrIndexSignalProcessor(SignalProcessor):
                     )
                 else:
                     lunr_index_rebuild.apply(args=[lock_info, sync])
+            else:
+                logger.debug("schedule_lunr_index_rebuild: lock NÃO adquirido")
 
 
 
