@@ -51,7 +51,11 @@ class LocalSearchIndexBuilder:
                     'keywords': keywords,
                 }
                 if isinstance(item, News):
-                    index_document['published_date'] = datetime_to_string(item.published_date)
+                    # use a data de publicação da notícia ou, caso não haja esta informação, a data de modificação
+                    # em seu lugar
+                    index_document['published_date'] = (datetime_to_string(item.published_date)
+                                                        if item.published_date is not None
+                                                        else datetime_to_string(item.modified_at))
                     index_document['title'] = item.title
                     index_document['teaser'] = item.teaser
                     index_document['uri'] = item.slug
