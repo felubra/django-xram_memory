@@ -418,7 +418,7 @@ class DevelopmentWithDocker(Development):
         'SHOW_TOOLBAR_CALLBACK': 'xram_memory.utils.show_toolbar',
     }
 
-class Staging(IndexingWithElasticSearch):
+class Staging(IndexingWithLunrSearch):
     """
     The in-staging settings.
     """
