@@ -291,6 +291,20 @@ class Common(Configuration):
     FILE_HASHING_SALT = values.Value(
         'hs204ViIUpIu45CTTUl3KsoQJgVtnmrHpXvRl8u5')
 
+    CACHES = {
+        'default': {
+            'BACKEND': 'cache_fallback.FallbackCache',
+        },
+        'main_cache': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': values.Value('127.0.0.1:11211', True, environ_name='MEMCACHED_URL'),
+        },
+        'fallback_cache': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique'
+        },
+    }
+
 class IndexingWithElasticSearch(Common):
     # Application definition
     INSTALLED_APPS = Common.INSTALLED_APPS + [
@@ -394,19 +408,7 @@ class Development(IndexingWithAllApps):
 
     CORS_ORIGIN_ALLOW_ALL = True
 
-    CACHES = {
-        'default': {
-            'BACKEND': 'cache_fallback.FallbackCache',
-        },
-        'main_cache': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': values.Value('127.0.0.1:11211', True, environ_name='MEMCACHED_URL'),
-        },
-        'fallback_cache': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'unique'
-        },
-    }
+
 
 
 class DevelopmentWithDocker(Development):
