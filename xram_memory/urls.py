@@ -40,18 +40,17 @@ urlpatterns = [
          AlbumViewSet.as_view({'get': 'retrieve'})),
 
     # Taxonomia
-    path(API_BASE + '/subjects/featured',
-         SubjectViewSet.as_view({'get': 'featured'})),
-    path(API_BASE + '/subjects/initial/<str:initial>',
-         SubjectViewSet.as_view({'get': 'subjects_by_initial'})),
+    path(API_BASE + '/subjects',
+         SubjectViewSet.as_view({'get': 'listing'})),
     path(API_BASE + '/subjects/initials',
          SubjectViewSet.as_view({'get': 'subjects_initials'})),
     path(API_BASE + '/subject/<str:subject_slug>',
          SubjectViewSet.as_view({'get': 'retrieve'})),
     path(API_BASE + '/subject/<str:subject_slug>/items',
          SubjectViewSet.as_view({'get': 'artifacts_for_subject'})),
-    path(API_BASE + '/keywords/top',
-         KeywordViewSet.as_view({'get': 'top_keywords'})),
+
+    path(API_BASE + '/keywords',
+         KeywordViewSet.as_view({'get': 'listing'})),
     path(API_BASE + '/keyword/<str:keyword_slug>/items',
          KeywordViewSet.as_view({'get': 'artifacts_for_keyword'})),
 ] + urlpatterns
