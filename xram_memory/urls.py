@@ -1,4 +1,4 @@
-from .page.views import InMenuStaticPagesViewSet, StaticPageViewSet, FeaturedStaticPagesViewSet
+from .page.views import StaticPagesViewSet
 from xram_memory.artifact.views import DocumentViewSet, NewsViewSet, AlbumViewSet
 from xram_memory.taxonomy.views import SubjectViewSet, KeywordViewSet
 from django.conf.urls.static import static
@@ -20,12 +20,10 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 API_BASE = 'api/v1'
 urlpatterns = [
     # Páginas
-    path(API_BASE + '/pages/in_menu',
-         InMenuStaticPagesViewSet.as_view({'get': 'listing'})),
-    path(API_BASE + '/pages/featured',
-         FeaturedStaticPagesViewSet.as_view({'get': 'listing'})),
-    path(API_BASE + '/pages/<str:url>',
-         StaticPageViewSet.as_view({'get': 'retrieve'})),
+    path(API_BASE + '/pages',
+         StaticPagesViewSet.as_view({'get': 'listing'})),
+    path(API_BASE + '/page/<str:url>',
+         StaticPagesViewSet.as_view({'get': 'retrieve'})),
 
     # Documentos
     path(API_BASE + '/document/<str:document_id>',
