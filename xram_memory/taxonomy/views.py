@@ -24,33 +24,37 @@ from django.db.models.functions import Lower
 TIMEOUT = 0 if settings.DEBUG else 60 * 60 * 12
 
 class KeywordViewSet(viewsets.ViewSet):
-    def top_keywords(self, request):
+    def listing(self, request):
+        # Pegue uma lista com as stopwords em pt-br
         pt_stopwords = stopwords.get("pt", [])
-
+        # Pegue e valide o parâmetro com o máximo de itens a retornar
         max_keywords = request.GET.get("max", "250")
         if not max_keywords or not max_keywords.isnumeric():
             raise ParseError()
-
         max_keywords = int(max_keywords, 10)
         if max_keywords < 1:
             raise ValueError()
 
-        keywords_list = (
-            Keyword.objects
-            .values("name", "slug")
-            .annotate(name_lower=Lower("name") )
-            .annotate(news_count=Count('news'))
-            .filter(
-                Q(news_count__gt=0)
-            )
-            .prefetch_related(
-                Prefetch('news_set', queryset=News.objects.filter(published=True))
-            )
-            .exclude(name_lower__in=pt_stopwords)
-            .order_by("-news_count")
-            [:max_keywords]
-        )
-        return Response(keywords_list)
+        queryset = (Keyword.objects
+                    .values("name", "slug")
+                    .annotate(name_lower=Lower("name") )
+                    .annotate(news_count=Count('news'))
+                    .filter(
+                        Q(news_count__gt=0)
+                    )
+                    .prefetch_related(
+                        Prefetch('news_set', queryset=News.objects.filter(published=True))
+                    )
+                    .exclude(name_lower__in=pt_stopwords))
+
+        order_by = self.request.query_params.get('orderBy', None)
+        if order_by is not None:
+            if order_by == 'top':
+                queryset = queryset .order_by("-news_count")
+            else:
+                raise ParseError()
+
+        return Response(queryset[:max_keywords])
 
     def artifacts_for_keyword(self, request, keyword_slug):
         queryset = Keyword.objects.all()
@@ -64,27 +68,40 @@ class SubjectViewSet(viewsets.ViewSet):
     QUERY_INITIAL_REGEX = re.compile(r"^[a-zA-Z!]$")
     QUERY_LIMIT_REGEX = re.compile(r"^\d+$")
 
-    def subjects_by_initial(self, request, initial=None):
+    def listing(self, request):
+        limit = self.request.query_params.get('limit', None)
+        filter_by = self.request.query_params.get('filterBy', None)
+        initial = self.request.query_params.get('initial', None)
+        if (limit is None) or self.QUERY_LIMIT_REGEX.match(limit):
+            queryset = Subject.objects.all()
+            if filter_by is not None:
+                if filter_by == 'featured':
+                    queryset = queryset.filter(featured=True).order_by("?")
+            if initial is not None:
+                queryset = self._subjects_by_initial(initial)
+            if limit is not None:
+                queryset = queryset[:int(limit)]
+            subjects = natsorted(list(queryset), lambda subject: subject.slug.lower())
+            serializer = SubjectSerializer(subjects, many=True)
+            return Response(serializer.data)
+        raise ParseError()
+
+    def _subjects_by_initial(self, initial=None):
         """
         Retorna uma lista com todos os assuntos, dada uma letra inicial.
         """
         if not initial or not self.QUERY_INITIAL_REGEX.match(initial):
             raise ParseError()
         if initial == '!':
-            queryset = (
+            return (
                 Subject.objects
                 .exclude(slug__regex=r'^[a-zA-Z]')
             )
         else:
-            queryset = (
+            return (
                 Subject.objects
                 .filter(slug__istartswith=initial)
             )
-
-
-        subjects = natsorted(list(queryset), lambda subject: subject.slug.lower())
-        serializer = SimpleSubjectSerializer(subjects, many=True)
-        return Response(serializer.data)
 
     def subjects_initials(self, request):
         initials = []
@@ -99,21 +116,6 @@ class SubjectViewSet(viewsets.ViewSet):
                 initials.append(initial)
 
         return Response(initials)
-
-    def featured(self, request):
-        """
-        Retorna uma lista aleatória com assuntos em destaque, de acordo com a quantidade estipulada
-        pelo cliente.
-        """
-        limit = self.request.query_params.get('limit', '5')
-        if self.QUERY_LIMIT_REGEX.match(limit):
-            limit = int(limit)
-            random_featured_subjects = Subject.objects.filter(
-                featured=True).order_by("?")[:limit]
-            subjects = list(random_featured_subjects)
-            serializer = SubjectSerializer(subjects, many=True)
-            return Response(serializer.data)
-        raise ParseError()
 
     def retrieve(self, request, subject_slug=None):
         queryset = Subject.objects.all()
