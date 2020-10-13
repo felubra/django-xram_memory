@@ -1,88 +1,43 @@
-# Django 2.0+ project template
+# Backend do site xRAM-Memory
 
-This is a simple Django 2.0+ project template with my preferred setup. Most Django project templates make way too many assumptions or are just way too complicated. I try to make the least amount of assumptions possible while still trying provide a useful setup. Most of my projects are deployed to Heroku, so this is optimized for that but is not necessary.
+Este projeto concentra o sistema gestor de conteúdo e a API para o site do xRAM-Memory. O projeto utilizou várias bibliotecas em Python, especialmente: Django (Framework base e CMS), Django REST Framework (API), newspaper3k e goose3 (crawlers de notícia), django-filer (Gestão de arquivos) e celery (Gestão de filas para processamento distribuído).
 
-## Features
+As dependências do projeto são geridas com a ferramenta `pipenv`.
 
-- Django 2.0+
-- Uses [Pipenv](https://github.com/kennethreitz/pipenv) - the officially recommended Python packaging tool from Python.org.
-- Development, Staging and Production settings with [django-configurations](https://django-configurations.readthedocs.org).
-- Get value insight and debug information while on Development with [django-debug-toolbar](https://django-debug-toolbar.readthedocs.org).
-- Collection of custom extensions with [django-extensions](http://django-extensions.readthedocs.org).
-- HTTPS and other security related settings on Staging and Production.
-- Procfile for running gunicorn with New Relic's Python agent.
-- PostgreSQL database support with psycopg2.
+## Entidades de dados
 
-## How to install
+Os seguintes modelos (entidades) estão presentes neste projeto:
 
-```bash
-$ django-admin.py startproject \
-  --template=https://github.com/jpadilla/django-project-template/archive/master.zip \
-  --name=Procfile \
-  --extension=py,md,env \
-  project_name
-$ mv example.env .env
-$ pipenv install --dev
-```
+O diagrama abaixo ilustra a relação entre as entidades (clique para abrir a imagem):
 
-## Environment variables
+[![diagrama](./docs/entidades.png)](./docs/entidades.png)
 
-These are common between environments. The `ENVIRONMENT` variable loads the correct settings, possible values are: `DEVELOPMENT`, `STAGING`, `PRODUCTION`.
+## Estrutura do projeto
+
+Um projeto em Django é constituído de vários aplicativos, cada um com uma responsabilidade específica, o que pode ser expresso pela organização das pastas. Esta é a estrutura da pasta `./xram_memory`, que contém o código-fonte do sistema:
 
 ```
-ENVIRONMENT='DEVELOPMENT'
-DJANGO_SECRET_KEY='dont-tell-eve'
-DJANGO_DEBUG='yes'
+.
+├── albums - Aplicativo para gestão de álbuns
+├── artifact - Aplicativo para gestão de Artefatos
+├── lib - Bibliotecas especializadas desenvolvidas para o projeto
+│   ├── file_previews - Gerador de visualizações de arquivo
+│   ├── news_fetcher - Programa principal do sistema, mais sobre ele abaixo
+│   │   └── plugins - As diversas implementações de plugins
+│   │       ├── archives - Arquivadores de Notícias
+│   │       ├── parsers - Extratores de conteúdo de Notícias
+│   │       └── pdf_captures - Geradores de capturas de notícia em PDF
+│   └── stopwords - Um dicionário de stopwords em vários idiomas
+├── logger - Aplicativo responsável por logar operações do sistema
+├── lunr_index - Aplicativo responsável pela geração de índices de pesquisa client-side
+├── page - Aplicativo para a gestão de Páginas Estáticas
+├── quill_widget - Aplicativo que provê um widget para edição em texto rico com a biblioteca Quill.js
+├── search_indexes - Aplicativo responsável pela geração de índices de pesquisa server-side (ElasticSearch)
+├── static - Arquivos estáticos
+├── taxonomy - Aplicativo responsável pela classificação do conteúdo (Taxonomia)
+├── templates - Alterações globais em templates
+├── users - Aplicativo responsável pela gestão de usuários e grupos
+└── utils - Utilitários globais
 ```
 
-These settings(and their default values) are only used on staging and production environments.
-
-```
-DJANGO_SESSION_COOKIE_SECURE='yes'
-DJANGO_SECURE_BROWSER_XSS_FILTER='yes'
-DJANGO_SECURE_CONTENT_TYPE_NOSNIFF='yes'
-DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS='yes'
-DJANGO_SECURE_HSTS_SECONDS=31536000
-DJANGO_SECURE_REDIRECT_EXEMPT=''
-DJANGO_SECURE_SSL_HOST=''
-DJANGO_SECURE_SSL_REDIRECT='yes'
-DJANGO_SECURE_PROXY_SSL_HEADER='HTTP_X_FORWARDED_PROTO,https'
-```
-
-## Deployment
-
-It is possible to deploy to Heroku or to your own server.
-
-### Heroku
-
-```bash
-$ heroku create
-$ heroku addons:add heroku-postgresql:hobby-dev
-$ heroku pg:promote DATABASE_URL
-$ heroku config:set ENVIRONMENT=PRODUCTION
-$ heroku config:set DJANGO_SECRET_KEY=`./manage.py generate_secret_key`
-```
-
-## License
-
-The MIT License (MIT)
-
-Copyright (c) 2012-2017 José Padilla
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Na pasta `./tests` temos os testes do projeto. Atualmente a cobertura do código está em 65%.
