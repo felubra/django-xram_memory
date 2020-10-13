@@ -2,6 +2,666 @@ Changelog
 =========
 
 
+1.4.0 (2020-10-12)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- [lunr] comando básico para a reconstrução do índice. [Felipe Lube de
+  Bragança]
+- [lunr] failback para a data de modificação sem data de publicação.
+  [Felipe Lube de Bragança]
+- Endpoint para obter artefatos associados a um assunto - atualização no
+  endpoint similar para palavras-chave. [Felipe Lube de Bragança]
+- Endpoint para artefatos associados a um termo de taxonomia. [Felipe
+  Lube de Bragança]
+
+  close #135
+- Endpoint para artefatos associados a um termo de taxonomia - close
+  #135. [Felipe Lube de Bragança]
+- #132 Endpoint para as palavras-chave e a contagem de notícias
+  associada. [Felipe Lube de Bragança]
+
+  feat: #132 Endpoint para as palavras-chave e a contagem de notícias associada
+- Endpoint para as palavras chave mais associadas - permita definir um
+  limite através do parâmetro `max` [Felipe Lube de Bragança]
+- Utilize o Memcached como backend do cache com failback. [Felipe Lube
+  de Bragança]
+- Entrypoint para retornar palavras-chave mais usadas e contagem.
+  [Felipe Lube de Bragança]
+- Multi stage build (#131) [Felipe Lube de Bragança]
+
+  * chore: configurações separadas para apps de indexação distintos
+  - IndexingWithLunrSearch: indexação somente com o (Elastic)Lunr
+  - IndexingWithElasticSearch: indexação com o ElasticSearch
+  - IndexingWithAllApps: indexação com os dois apps
+  - Development: configuração para desenvolvimento com os 2 apps ligados
+  - Staging continua usando apenas o app do ElasticSearch
+
+  * feat: atualizações na imagem docker
+  - Build multi-stage com suporte para ambiente de desenvolvimento
+  - Use node:lts-alpine ao invés de node:8
+  - Atualize o SO do python para debian buster
+  - Correção no link de download do wkhtmltox
+  - Redução de ~550MB no tamanho da imagem
+
+  * chore: renomeie os estágios do build do container
+
+  * chore: ignore os arquivos do docker na imagem
+
+  * chore (docker): correção no estágio de desenvolvimento
+
+  * chore: use o endereço de desenvolvimento em homologação por padrão
+  - definição da configuração ALLOWED_HOSTS via env var
+
+  * feat: configuração para rodar em desenvolvimento via docker
+
+  * fix: desabilte o http retry em lunr_index_rebuild por enquanto
+
+  * fix: retorne o cliente em _get_client
+- Feat(dev): atualização do script entrypoint - permita a execução do
+  servidor de desenvolvimento do Django. [Felipe Lube de Bragança]
+- Feat(dev): permita debugar app e testes remotamente. [Felipe Lube de
+  Bragança]
+
+Corrigido
+~~~~~~~~~
+- Corrige a semântica dos endpoints (#140) [Felipe Lube de Bragança]
+
+  * refat: utilize uma constanta para a base da API
+
+  * fix: REST: a filtragem das páginas deve ser vai url params
+
+  * fix: correção nos endpoints de taxonomia
+  - filtragem de tipos e ordenação deve ser feita por query params
+- Use o failback cache em todas as configurações, exceto em staging.
+  [Felipe Lube de Bragança]
+- Afrouxe os requisitos para algumas variáveis para setar o app do lunr.
+  [Felipe Lube de Bragança]
+- Remova pass inútil. [Felipe Lube de Bragança]
+- Não carregue o debugger remoto se somente DEBUG=True. [Felipe Lube de
+  Bragança]
+- Adicione os arquivos em fata do jquery/ui. [Felipe Lube de Bragança]
+- Limite o título ao tamanho máximo do campo. [Felipe Lube de Bragança]
+
+Outros
+~~~~~~
+- Merge pull request #139 from felubra/elastic-lunr-staging. [Felipe
+  Lube de Bragança]
+
+  chore: use a indexação ElasticLunr ao invés do ElasticSearch em homologação
+- Chore: use a indexação lunr ao invés do elasticsearch em homologação.
+  [Felipe Lube de Bragança]
+- Merge pull request #138 from felubra/fix-cache. [Felipe Lube de
+  Bragança]
+
+  fix: use o failback cache em todas as configurações, exceto em staging
+- Chore: logue caso não consiga obter o lock. [Felipe Lube de Bragança]
+- Merge branch 'dev' into issue-132. [Felipe Lube de Bragança]
+- Revert "chore: atualização da imagem do docker" [Felipe Lube de
+  Bragança]
+
+  This reverts commit a5f7a5b65ad9cbe59b15c3de6e847f02c6b28566.
+- Merge branch 'issue-127' into dev. [Felipe Lube de Bragança]
+- Chore: atualização do endereço local. [Felipe Lube de Bragança]
+- Chore: atualização da imagem do docker. [Felipe Lube de Bragança]
+
+
+1.3.0 (2020-07-13)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- Gerenciador de contexto para desabilitar sinais de artifact. [Felipe
+  Lube de Bragança]
+- Refatore os builders como classes. [Felipe Lube de Bragança]
+- Funcionalidade de um processador de sinais plugável. [Felipe Lube de
+  Bragança]
+- Suporte a alteração temporária dos plugins de um registro -
+  refatoração da fixture news_fetcher_plugin_factory, agora um
+  gerenciador de contexto - adaptação dos testes ao uso da nova forma
+  fixture. [Felipe Lube de Bragança]
+- Teste para verificar utilização de plugins de captura - testes não
+  podem ser executados no momento, pois outros testes poluíram o
+  registro de plugins. [Felipe Lube de Bragança]
+- Processador de sinais para o ES que evita a execução em importação de
+  fixtures - decorador disable_for_loaddata - reestruturaçao do modulo
+  xram_memory.utils - utilizaçao do decorador novo em todos os receivers
+  da aplicaçao. [Felipe Lube de Bragança]
+- Desative aplicativos de indexação nos testes em que eles não são
+  necessários. [Felipe Lube de Bragança]
+- Funções, mixins e decoradores para desabilitar sinais dos aplicativos
+  de indexação. [Felipe Lube de Bragança]
+- Processador de sinais desligável em lunr_search - encapsule o
+  funcionamento dos sinais num objeto, de forma a permitir a
+  conexão/desconexão dos sinais em runtime, o que será usado nos testes.
+  [Felipe Lube de Bragança]
+- Retrinja os sinais aos modelos. [Felipe Lube de Bragança]
+- Permita desabilitar os sinais para indexação do lunr. [Felipe Lube de
+  Bragança]
+- Envio de requisições robusto com tentativas. [Felipe Lube de Bragança]
+- Testes. [Felipe Lube de Bragança]
+- Função para transformar uma datetime em string. [Felipe]
+- Suporte à configuração via variáveis-ambiente. [Felipe]
+- Adequação ao novo esquema de requisição; alteração em configuração -
+  simplifique o nome das configurações - configuração para definir quais
+  campos indexar - alteração na requisição enviada ao serviço externo,
+  sendo objeto com   - os itens a indexar   - os campos que serão
+  indexados   - se o documentos devem ser salvos no índice. [Felipe]
+- Feat(wip): suporte ao envio documentos via http. [Felipe]
+- Adicione um campo para o cliente gerar a url do item. [Felipe]
+- #112 adicione suporte a geraçao de um indice lunr. [Felipe Lübe de
+  Bragança]
+
+  * chore: adicione lunr e lunr[languages]
+
+  * feat: #112 construção de app com escutador de sinal
+  - Escutador de sinal para agendar a execução de uma task assíncrona
+  toda vez que os conteúdos do site atualizarem
+
+  * chore: #112 renomeie app
+
+  * feat: #112 defina as configurações, parâmetros para a geração do índice
+
+  * feat: #112 parametrize a task com a configuração do app
+
+  * chore: #112 instale suporte ao memcached
+
+  * chore: #112 defina explicitamente a configuração dos caches
+
+  * feat: sistema de armazenamento que sobrescreve arquivo
+
+  * feat: #112 corpo da função da task para gerar um índice
+
+  * chore: #112 defina a url de conexão ao memcached via variável-ambiente
+
+  * feat: #112 garanta a execução de apenas um task para geração do índice
+  - NOTA: atomicidade só é garantida com o backend memcached
+
+  * fix: ajustes no decorador de logging
+  - obtenção safa de obj
+  - não 'Artefato' como failback para valor do tipo do item alterado
+
+  * feat: #112 logging básico no sinal
+
+Corrigido
+~~~~~~~~~
+- Correção da assinatura de lunr_index_rebuild. [Felipe Lube de
+  Bragança]
+- Limpa o cache de funções que utilizam lru_cache antes dos testes.
+  [Felipe Lube de Bragança]
+- Correção em assinatura de task. [Felipe]
+- Não tente gerar o índice elastic_lunr novamente quando executado
+  sincronamente. [Felipe Lube de Bragança]
+- Correção em schedule_lunr_index_rebuild; documentação. [Felipe Lube de
+  Bragança]
+- NewsFactory desabilite campos que precisam de factory específico.
+  [Felipe Lube de Bragança]
+- Lunr_index_rebuild: sempre verifique o valor das configurações em
+  runtime. [Felipe Lube de Bragança]
+- Verifique se a notícia tem jornal antes de tentar adicioná-lo. [Felipe
+  Lube de Bragança]
+- Queryset correto para documentos. [Felipe]
+- Chame corretamente a task no modo síncrono. [Felipe]
+
+Outros
+~~~~~~
+- Merge pull request #129 from felubra/issue-127. [Felipe Lube de
+  Bragança]
+
+  Issue 127 - Suporte a geração de índices elastic-lunr
+- Chore: acelere os testes em test_localsearch. [Felipe Lube de
+  Bragança]
+- Refat: empacote os sinais de artifact numa classe processadora.
+  [Felipe Lube de Bragança]
+- Refat: utilize xram_memory.utils.classes.SignalProcessor. [Felipe Lube
+  de Bragança]
+- Chore: habilite 2 testes. [Felipe Lube de Bragança]
+- Chore: documentações nos testes e pequenas correções. [Felipe Lube de
+  Bragança]
+- Merge branch 'dev' into issue-127. [Felipe Lube de Bragança]
+- Chore: atualização do Django e outros pacotes. [Felipe]
+- Chore: configuração do pytest. [Felipe Lube de Bragança]
+- Chore: scripts para rodar testes. [Felipe Lube de Bragança]
+- Chore: exclusão de arquivo de cobertura. [Felipe Lube de Bragança]
+- Chore: lembrete de fixme. [Felipe Lube de Bragança]
+- Chore: atualização de pacotes. [Felipe Lube de Bragança]
+- Chore: extraia função utilitária de teste. [Felipe Lube de Bragança]
+- Revert "config: deabilite o app django_elasticsearch_dsl" [Felipe Lube
+  de Bragança]
+
+  This reverts commit 89cc3be99bb7fa40876b8f26654e2f9d696f6e81.
+- Refat: separe o código que cria o índice do código da task de criação.
+  [Felipe]
+- Refat: refatore lunr_index_rebuild - índice único para documentos e
+  notícias - permita a geração de um índice vazio - adicione os campos
+  newspaper, thumbnail, published_date. [Felipe]
+- Config: deabilite o app django_elasticsearch_dsl. [Felipe]
+- Chore: identificação de bug. [Felipe]
+- Refat: exigência condicional de variáveis-ambiente; uso de constantes
+  - use constantes para lidar com o backend gerador do índice - não
+  exija LUNR_INDEX_REMOTE_SECRET e LUNR_INDEX_REMOTE_HOST se o backend
+  for local - redefina o backend padrão para BACKEND_LOCAL. [Felipe]
+
+
+1.2.3 (2020-04-19)
+------------------
+
+Corrigido
+~~~~~~~~~
+- #119 remova cache dos endpoints dos Assuntos; doc. problemas de cache
+  (#123) [Felipe Lübe de Bragança]
+
+
+1.2.2 (2020-04-19)
+------------------
+
+Corrigido
+~~~~~~~~~
+- #111 ordenação correta ao buscar capa do álbum (#122) [Felipe Lübe de
+  Bragança]
+- #120 correção em endpoint dos assuntos (#121) [Felipe Lübe de
+  Bragança]
+
+  - ordenação natural dos assuntos pela slug feita em python
+  - remoção de itens acentuados da inicial '!"
+
+Outros
+~~~~~~
+- Chore(deps): bump django from 2.2.9 to 2.2.10 (#94) [dependabot[bot]]
+
+  Bumps [django](https://github.com/django/django) from 2.2.9 to 2.2.10.
+  - [Release notes](https://github.com/django/django/releases)
+  - [Commits](https://github.com/django/django/compare/2.2.9...2.2.10)
+
+
+1.2.1 (2020-01-17)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- Atualização para o Django 2.2 (#91) [Felipe Lübe de Bragança]
+
+  * feat: atualize o django para 2.2.9 e os outros pacotes
+
+  * chore: use a versão binária de psycopg2
+
+  * chore: ajuste em pacote que não pode ser atualizado
+
+
+1.2.0 (2020-01-13)
+------------------
+
+Corrigido
+~~~~~~~~~
+- Fix (close #87): desabilite o autocrop para visualizações. [Felipe]
+
+Outros
+~~~~~~
+- Chore: atualização de segurança do django 2.1.5 e outros pacotes.
+  [Felipe]
+- Chore (js): atualização de segurança para quill 1.37. [Felipe]
+
+
+1.1.7 (2020-01-03)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- Retorne informações sobre o documento da imagem da notícia. [Felipe
+  Lube de Bragança]
+- Adicione campos necessários à ordenação no frontend - adicione um
+  alias 'published_date' para o campo 'modiefied_at' em Document -
+  adicione um campo 'raw' para o campo title. [Felipe Lube de Bragança]
+
+Corrigido
+~~~~~~~~~
+- Close #82 instalação de pytest-ordering, que estava ausente. [Felipe
+  Lube de Bragança]
+
+Outros
+~~~~~~
+- Chore: git - ignore todos os arquivos de banco de dados. [Felipe Lube
+  de Bragança]
+
+
+1.1.6 (2019-11-19)
+------------------
+
+Corrigido
+~~~~~~~~~
+- Fixe python em 3.7 para compatibilidade com o psycopg2. [Felipe Lube
+  de Bragança]
+
+Outros
+~~~~~~
+- Chore: trave psycopg2 em < 2.8. [Felipe Lube de Bragança]
+
+
+1.1.5 (2019-10-29)
+------------------
+
+Corrigido
+~~~~~~~~~
+- Verifique corretamente se é uma instância de Documento. [Felipe Lube
+  de Bragança]
+- Verifique corretamente se é uma instância de Documento. [Felipe Lube
+  de Bragança]
+- Fixes #71 documentos que não são do usuário não devem ser indexados.
+  [Felipe Lube de Bragança]
+
+Outros
+~~~~~~
+- Chore: atualização de segurança do Pillow. [Felipe Lube de Bragança]
+- Merge branch 'dev' of https://github.com/felubra/django-xram_memory
+  into dev. [Felipe Lube de Bragança]
+- Chore: remoção de arquivos vazios na pasta de testes. [Felipe Lube de
+  Bragança]
+- Chore: atualização para django 2.1.13 e outros pacotes de produção.
+  [Felipe Lube de Bragança]
+- Chore: atualização de dependências dev e travamento de dep. de
+  produção. [Felipe Lube de Bragança]
+- Chore: atualização de segurança para Werkzeug. [Felipe Lube de
+  Bragança]
+- Chore: atualizações de pacotes. [Felipe Lube de Bragança]
+
+
+1.1.4 (2019-08-18)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- Link para a notícia publicada no site. [Felipe Lube de Bragança]
+
+Corrigido
+~~~~~~~~~
+- Correção em get_absolute_url para incluir a barra inicial. [Felipe
+  Lube de Bragança]
+
+
+1.1.3 (2019-08-18)
+------------------
+
+Outros
+~~~~~~
+- Merge branch 'dev' [Felipe Lube de Bragança]
+- Chore: atualização de segurança do Django para 2.1.11. [Felipe Lube de
+  Bragança]
+
+
+1.1.2 (2019-07-30)
+------------------
+
+Corrigido
+~~~~~~~~~
+- Retorne listas vazias ao invés de um erro 404. [Felipe Lube de
+  Bragança]
+
+Outros
+~~~~~~
+- Merge branch 'dev' [Felipe Lube de Bragança]
+- Merge branch 'dev' [Felipe Lube de Bragança]
+
+
+1.1.1 (2019-07-27)
+------------------
+
+Corrigido
+~~~~~~~~~
+- Correção nas views da iniciais: use ! ao invés de # [Felipe Lube de
+  Bragança]
+
+
+1.1.0 (2019-07-27)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- Adicione django-rest-multiple-models. [Felipe Lube de Bragança]
+- Acesso aos assuntos pela(s) inicial(is) [Felipe Lube de Bragança]
+- Use todos os tamanhos de imagem para todos os modelos em thumbnails.
+  [Felipe Lube de Bragança]
+- Inclua tods os thumbnails no serializer da notícia. [Felipe Lube de
+  Bragança]
+- Endpoint para o assunto pela slug. [Felipe Lube de Bragança]
+- Não habilite o cache da view se em debug. [Felipe Lube de Bragança]
+- Sianis para criar e salvar um objeto Álbum quando salvar a pasta de
+  álbum. [Felipe Lube de Bragança]
+- Is_album_folder para determinar se uma pasta é uma pasta de álbum de
+  fotos. [Felipe Lube de Bragança]
+- A chave primária do álbum é o id da pasta. [Felipe Lube de Bragança]
+- Modelo com campos específicos para um Álbum. [Felipe Lube de Bragança]
+- Mais visualizações. [Felipe Lube de Bragança]
+- API: forneça uma imagem de capa grande para um assunto. [Felipe Lube
+  de Bragança]
+- API: forneça uma capa para um álbum. [Felipe Lube de Bragança]
+- Retorne apenas assuntos que têm itens associados. [Felipe Lube de
+  Bragança]
+- Quantidad e de itens associada ao assunto. [Felipe Lube de Bragança]
+- Endpoint para a página de assuntos. [Felipe Lube de Bragança]
+- Adicione uma nova imagem de pré-visualização para documentos. [Felipe
+  Lube de Bragança]
+- Suporte para descrição de um assunto. [Felipe Lube de Bragança]
+- Retorno e melhor suporte aos assuntos - assuntos são extraidos das
+  palavras-chave dos parsers - assuntos são diferenciados das palavras-
+  chave por terem palavras compostas - cobertura de teste para assuntos
+  - reativação dos assuntos na interface administrativa - melhor uso do
+  Goose3NewspaperArticleParser para extrair assuntos. [Felipe Lube de
+  Bragança]
+- Página: permita indicar se link na página inicial. [Felipe Lube de
+  Bragança]
+
+Corrigido
+~~~~~~~~~
+- Verifique se há escolhas antes de tentar escolher. [Felipe Lube de
+  Bragança]
+- Ajustes nos tamanhos das imagens geradas e mais um estilo. [Felipe
+  Lube de Bragança]
+- Correção em is_album_folder. [Felipe Lube de Bragança]
+- Não exija que o usuário cliquem adicionar Album no formulário
+  adminsitrativo. [Felipe Lube de Bragança]
+- Correção na chamada da propriedade has_description. [Felipe Lube de
+  Bragança]
+- Adicione dependência usada por no_empty_html. [Felipe Lube de
+  Bragança]
+- Correção em arquivo utilizado em teste. [Felipe Lube de Bragança]
+- Remova de vez os assuntos da interface administrativa. [Felipe Lube de
+  Bragança]
+
+Outros
+~~~~~~
+- Chore: adicione pip-licenses para gerar info sobre as licenças usadas.
+  [Felipe Lube de Bragança]
+- Refat: simplifique a definição de um assunto em destaque com um campo
+  para tanto. [Felipe Lube de Bragança]
+- Chore: use dockerfile maiusculo. [Felipe Lube de Bragança]
+- Chore: use multi-estágios docker para construir a imagem. [Felipe Lube
+  de Bragança]
+- Refat: unifique as visualizações geradas para notícias e documentos.
+  [Felipe Lube de Bragança]
+- Chore: atualização de segurança para o Django 2.1.10. [Felipe Lube de
+  Bragança]
+- Refat: use uma única propriedade cacheada, fonte dos thumbnails.
+  [Felipe Lube de Bragança]
+- Refat: mova no_empty_html para o módulo xram_memory.utils. [Felipe
+  Lube de Bragança]
+- Refat: organize o código que gera um editor de texto rico. [Felipe
+  Lube de Bragança]
+
+
+1.0.0 (2019-06-17)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- (closes #74) desabilita os assuntos na interface administrativa.
+  [Felipe Lube de Bragança]
+- Adicione a biblioteca libmagic como dependência no Windows. [Felipe
+  Lube de Bragança]
+- Permita imagens e links no texto da chamada da página. [Felipe Lube de
+  Bragança]
+- Suporte para textos de chamada de página customizados. [Felipe Lube de
+  Bragança]
+- Suporte a notícias associadas a um documento. [Felipe Lube de
+  Bragança]
+- Tests: adicione factories para News e Newspaper. [Felipe Lube de
+  Bragança]
+- Adicione o ipython para um experiência com terminal melhor. [Felipe
+  Lube de Bragança]
+- Concentração de diretórios num só; estilo pytest. [Felipe Lübe de
+  Bragança]
+- Newsfetcher: sistema de plugins para capturas, arquivos e informações
+  básicas; correções diversas. [Felipe Lübe de Bragança]
+
+  * Reestruturação dos diretórios: lugar próprio para a biblioteca news_fetcher
+  * Inclusão de vários testes para NewsFetcher e alteração/expansão dos testes existentes
+  * Sistema de plugins em NewsFetcher:
+  - utilize plugins para buscar uma versão arquivada da notícia
+  - utilize plugins para capturar a página da notícia
+    - capturador padrão e um especialista (G1) para páginas em PDF (closes #69 e closes #68)
+  - captura de informações básicas implementada via plugins
+  * Utilize um hashid como nome de arquivo para um logotipo de jornal
+  * NPM_FILE_PATTERNS: padrões de caminhos de acordo com a plataforma
+  * Migração do sistema de testes para o pytest [WIP]
+- Testes para newspaper (100%) [Felipe Lube de Bragança]
+- Expansão da cobertura dos testes de News (100%) [Felipe Lube de
+  Bragança]
+- Refatoração dos testes para o modelo News - 65% de cobertura - remoção
+  dos testes de NewsAdmin por enquanto. [Felipe Lube de Bragança]
+- (docs) documentação dos testes de documento; melhoria de um. [Felipe
+  Lube de Bragança]
+- Testes para documento (100% de cobertura) [Felipe Lube de Bragança]
+- Adicione bibliotecas para auxílio na feitura e cobertura de testes.
+  [Felipe Lube de Bragança]
+- (adm) Ações em massa para Notícias, closes #47. [Felipe Lube de
+  Bragança]
+- Menor uso de memória do worker do celery. [Felipe Lube de Bragança]
+- Closes #62 informaçoes sobre captura em pdf; nao logue wkhtmltopdf no
+  console. [Felipe Lube de Bragança]
+- Adicione uma data de publicação original em Documento. [Felipe Lube de
+  Bragança]
+- Set_document_info: Somente salve o modelo se de fato ao menos uma
+  operação foi executada com sucesso. [Felipe Lube de Bragança]
+- Comando administrativo para determinar mime_type de documentos.
+  [Felipe Lube de Bragança]
+- Utilizes campos com nomes comuns entre os dois índices para facilitar
+  filtragem no cliente. [Felipe Lube de Bragança]
+- Defina o tipo do documento do índice para permitir filtragens no
+  cliente. [Felipe Lube de Bragança]
+- Faça um índice para os documentos no elastic_search. [Felipe Lube de
+  Bragança]
+- Adicione palavras-chave e assuntos aos documentos. [Felipe Lube de
+  Bragança]
+- Comando administrativo para geração de document_id para todos
+  documentos. [Felipe Lube de Bragança]
+- Indexe o favicon do jornal. [Felipe Lube de Bragança]
+- (closes #55): usar hashs ao invés de ids nas urls da API. [Felipe Lube
+  de Bragança]
+- Logue erros por padrao no console. [Felipe Lube de Bragança]
+- Aumente o tamanho dos uploads para 10.5MB. [Felipe Lube de Bragança]
+- Não execute o container como root. [Felipe Lube de Bragança]
+- Instale o corpora do NLTK num local de sistema mas acessível para
+  outros usuários. [Felipe Lube de Bragança]
+- Conexão autenticada ao servidor do ElasticSearch. [Felipe Lube de
+  Bragança]
+- Colete os arquivos estáticos primeiro para dar chance, quem sabe, do
+  db ter iniciado. [Felipe Lube de Bragança]
+- Mova a instalação do node para o topo, de forma a usar melhor o cache.
+  [Felipe Lube de Bragança]
+- Defina a url do servidor do ES via env var. [Felipe Lube de Bragança]
+- Feat (dockerfile): separe os downloads pesados em estágio próprio.
+  [Felipe Lube de Bragança]
+- Nova imagem docker. [Felipe Lube de Bragança]
+- Adicione suporte ao Mysql/MariaDB. [Felipe Lube de Bragança]
+- Libere um endereço local em ALLOWED_HOSTS. [Felipe Lube de Bragança]
+- Atualização da imagem do docker -  instalação de módulos npm - script
+  entrypoint com execução de migrações. [Felipe Lube de Bragança]
+
+Corrigido
+~~~~~~~~~
+- Downgrade em django-current-user para evitar problemas com o django
+  2.1.9. [Felipe Lube de Bragança]
+- Marque testes que irão usar o banco de dados. [Felipe Lube de
+  Bragança]
+- Adicione o timestamp dos recursos nos endpoints da api. [Felipe Lube
+  de Bragança]
+- Apague o arquivo do documento ao se apagar uma captura. [Felipe Lube
+  de Bragança]
+- (closes #67) use um sal para gerar um nome de arquivo. [Felipe Lube de
+  Bragança]
+- Newspaper: string padrão. [Felipe Lube de Bragança]
+- Newspaper: refatoração de funções para a filosofia EAFP. [Felipe Lube
+  de Bragança]
+- Refatoração de has_pdf_capture e has_image. [Felipe Lube de Bragança]
+- Um título provisório qdo não houver título. [Felipe Lube de Bragança]
+- Limpe o cache de thumbnails se um documento for salvo. [Felipe Lube de
+  Bragança]
+- Remoção de constantes de config. não usadas mais. [Felipe Lube de
+  Bragança]
+- Documents: refatoramento pela filosofia EAFP após testes. [Felipe Lube
+  de Bragança]
+- Corrija o modo de leitura de determine_mime_type() [Felipe Lube de
+  Bragança]
+- Remova um construtor customizado do qual não precisamos. [Felipe Lube
+  de Bragança]
+- Chame corretamente a função now. [Felipe Lube de Bragança]
+- Set_document_info() verifique pelo atributo antes de deletá-lo.
+  [Felipe Lube de Bragança]
+- Feche corretamente o arquivo em determine_mime_type() - retorne um
+  resultado para determinar se a operação encontrou um novo mime_type.
+  [Felipe Lube de Bragança]
+- Somente indexe documentos públicos e inseridos manualmente pelo
+  usuário. [Felipe Lube de Bragança]
+- Defina is_user_object (documento) em processos automáticos. [Felipe
+  Lube de Bragança]
+- Ordene itens de taxonomia pelo nome por padrão. [Felipe Lube de
+  Bragança]
+- (closes #46) largura mínima para área de ícones de captura. [Felipe
+  Lube de Bragança]
+- Correção na geração do favicon do logo do jornal; mudança no nome do
+  campo. [Felipe Lube de Bragança]
+- Workaround para o problema do jquery-ui que falta. [Felipe Lube de
+  Bragança]
+- Aumente o timeout do gunicorn para operaçoes longas. [Felipe Lube de
+  Bragança]
+- Logue apenas erros para o console em dev. [Felipe Lube de Bragança]
+- Limite a inserção de conteúdo que ultrapassaria o limite do campo no
+  BD. [Felipe Lube de Bragança]
+- Closes #50 retorne a própria url se não for possível obter um título.
+  [Felipe Lube de Bragança]
+- Fix (docker): adicione o pacote poppler-utils, necessário para pré-
+  visualizações de arquivos pdf. [Felipe Lube de Bragança]
+- Remoção do campo slug em NewspaperSerializer. [Felipe Lube de
+  Bragança]
+- Permita a definição de CELERY_BROKER_URL por variável-ambiente.
+  [Felipe Lube de Bragança]
+
+Outros
+~~~~~~
+- Merge branch 'dev' [Felipe Lube de Bragança]
+- Chore: atualização de pacotes. [Felipe Lube de Bragança]
+- Chore: atualização de pacotes js. [Felipe Lube de Bragança]
+- Chore: ajustes no pipfile - remoção da bilioteca do mysql - use
+  django-currentuser do repositório do pipy não do github - torne a
+  definição do django compatível com django-currentuser. [Felipe Lube de
+  Bragança]
+- Chore: limpeza e reorganização dos testes. [Felipe Lube de Bragança]
+- Merge pull request #61 from felubra/documents_in_index. [Felipe Lübe
+  de Bragança]
+
+  Adicione os documentos enviados pelo usuário ao índice
+- Merge branch 'dev' into documents_in_index. [Felipe Lube de Bragança]
+- Merge branch 'dev' of https://github.com/felubra/django-xram_memory
+  into dev. [Felipe Lube de Bragança]
+- Nunca permita o cache da view para inserção múltipla. [Felipe Lube de
+  Bragança]
+- Merge branch 'dev' of https://github.com/felubra/django-xram_memory
+  into dev. [Felipe Lube de Bragança]
+- Chore: atualize o changelog para versão 0.8.0. [Felipe Lube de
+  Bragança]
+- Chore: atualização no .gitignore. [Felipe Lube de Bragança]
+
+
 0.8.0 (2019-04-21)
 ------------------
 
