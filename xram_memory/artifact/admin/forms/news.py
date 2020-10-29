@@ -1,8 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from django.utils.safestring import mark_safe
 from xram_memory.artifact.models import News
 from xram_memory.lib import NewsFetcher
 from django import forms
+
 
 
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
@@ -15,8 +17,8 @@ class NewsImageCaptureStackedInlineForm(forms.ModelForm):
 
 class NewsURLForm(forms.Form):
     fieldsets = ()
-    urls = forms.fields.CharField(widget=forms.widgets.Textarea, label="Endereços",
-                                  help_text="Insira os endereços das notícias, um por linha")
+    urls = forms.fields.CharField(widget=forms.widgets.Textarea, label=mark_safe("<strong>Endereços</strong>"), required=True,
+                                  help_text="Insira os endereços das notícias, um por linha.")
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['urls'].required = True

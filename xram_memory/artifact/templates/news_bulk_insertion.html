@@ -16,13 +16,35 @@
 
 {% block content %}{{ block.super }}
 <div class="content-main">
-    <form action="" method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for hidden_field in form.hidden_fields %}
+            {{ hidden_field.errors }}
+            {{ hidden_field }}
+        {% endfor %}
+
+
+
         <fieldset class="module aligned">
-            {{ form }}
+            {% for field in form.visible_fields %}
+            <div class="form-row">
+                <div>
+                    {{ field.label_tag }}
+                    {{ field.errors }}
+                    {{ field }}
+                    <div class="help">
+                        {{ field.help_text }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </fieldset>
+
         <div class="submit-row">
-            <input type="submit" value="Inserir notícias">
+            <input type="submit" value="Inserir notícias" class="default" name="save">
         </div>
     </form>
 </div>
