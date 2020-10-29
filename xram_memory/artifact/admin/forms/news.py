@@ -1,6 +1,10 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.utils.safestring import mark_safe
 from xram_memory.artifact.models import News
 from xram_memory.lib import NewsFetcher
 from django import forms
+
 
 
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
@@ -11,6 +15,50 @@ class NewsImageCaptureStackedInlineForm(forms.ModelForm):
     class Meta:
         exclude = ('original_url',)
 
+class NewsURLForm(forms.Form):
+    fieldsets = ()
+    urls = forms.fields.CharField(widget=forms.widgets.Textarea({
+        "rows":30,
+        "cols":100
+    }), label=mark_safe("<strong>Endereços</strong>"), required=True,
+                                  help_text="Insira os endereços das notícias, um por linha.")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['urls'].required = True
+
+    def clean_urls(self, *args, **kwargs):
+        """
+        Valida cada uma das urls informadas.
+        """
+        urls = self.cleaned_data['urls']
+        if not urls:
+            raise ValidationError("É necessário informar uma URL.")
+        # 1) separe por linha, construa uma array com os valores
+        urls = urls.split()
+
+        url_validator = URLValidator()
+
+        def is_valid(value):
+            try:
+                url_validator(value)
+                return True
+            except ValidationError:
+                return False
+
+        # 3) Filtre a array para somente urls válidas
+        urls = [url for url in urls if is_valid(url)]
+        # 4) Se não houver urls válidas, crie um erro de validação
+        if not len(urls):
+            raise ValidationError('Todos endereços informados são inválidos.',
+                                  code='invalid',
+                                  params={'urls': urls},
+                                  )
+        return urls
+
+    class Meta:
+        widgets = {
+          'urls': forms.Textarea(attrs={'rows':20, 'cols':15}),
+        }
 
 class NewsAdminForm(forms.ModelForm):
     """

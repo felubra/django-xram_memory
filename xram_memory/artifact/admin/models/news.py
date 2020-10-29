@@ -1,6 +1,6 @@
 from xram_memory.artifact.tasks import add_news_task, news_add_pdf_capture, news_add_archived_url, add_image_for_news, news_set_basic_info
+from ..forms.news import NewsPDFCaptureStackedInlineForm, NewsAdminForm, NewsImageCaptureStackedInlineForm, NewsURLForm
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
-from ..forms.news import NewsPDFCaptureStackedInlineForm, NewsAdminForm, NewsImageCaptureStackedInlineForm
 from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.admin.sites import site as default_site, AdminSite
@@ -9,10 +9,8 @@ from xram_memory.taxonomy.models import Subject, Keyword
 from django.views.decorators.cache import never_cache
 from django.template.response import TemplateResponse
 from django.template.defaultfilters import slugify
-from django.core.exceptions import ValidationError
 from xram_memory.utils import celery_is_avaliable
 from tags_input import admin as tags_input_admin
-from django.core.validators import URLValidator
 from django.contrib.staticfiles import finders
 from django.db.utils import IntegrityError
 from django.utils.html import format_html
@@ -36,39 +34,7 @@ class NewsImageCaptureInline(admin.TabularInline):
     form = NewsImageCaptureStackedInlineForm
 
 
-class URLForm(forms.Form):
-    fieldsets = ()
-    urls = forms.fields.CharField(widget=forms.widgets.Textarea, label="Endereços",
-                                  help_text="Insira os endereços das notícias, um por linha")
 
-    def clean_urls(self, *args, **kwargs):
-        """
-        Valida cada uma das urls informadas.
-        """
-        urls = self.cleaned_data['urls']
-        if not urls:
-            raise ValidationError("É necessário informar uma URL.")
-        # 1) separe por linha, construa uma array com os valores
-        urls = urls.split()
-
-        url_validator = URLValidator()
-
-        def is_valid(value):
-            try:
-                url_validator(value)
-                return True
-            except ValidationError:
-                return False
-
-        # 3) Filtre a array para somente urls válidas
-        urls = [url for url in urls if is_valid(url)]
-        # 4) Se não houver urls válidas, crie um erro de validação
-        if not len(urls):
-            raise ValidationError('Todos endereços informados são inválidos.',
-                                  code='invalid',
-                                  params={'urls': urls},
-                                  )
-        return urls
 
 
 @admin.register(News)
@@ -195,8 +161,8 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
         """
         if celery_is_avaliable():
             if request.method == 'POST':
-                # crie uma instância do formulário URLForm para validar os dados.
-                form = URLForm(request.POST)
+                # crie uma instância do formulário NewsURLForm para validar os dados.
+                form = NewsURLForm(request.POST)
                 if form.is_valid():
                     # pegue as urls sanitizadas
                     urls, = form.cleaned_data.values()
@@ -221,17 +187,17 @@ class NewsAdmin(TraceableEditorialAdminModel, tags_input_admin.TagsInputAdmin):
                         # Include common variables for rendering the admin template.
                         self.admin_site.each_context(request),
                         form=form,
-                        title='Inserir notícias',
+                        title='Adicionar várias notícias',
                     )
                     return TemplateResponse(request, "news_bulk_insertion.html", context)
             else:
                 # crie um formulário vazio
-                form = URLForm()
+                form = NewsURLForm()
                 context = dict(
                     # Include common variables for rendering the admin template.
                     self.admin_site.each_context(request),
                     form=form,
-                    title='Inserir notícias',
+                    title='Adicionar várias notícias',
                 )
                 return TemplateResponse(request, "news_bulk_insertion.html", context)
         else:
