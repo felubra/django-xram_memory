@@ -1,19 +1,29 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static admin_modify %}
 {% block extrastyle %}{{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='artifact' %}">Artefatos</a>
+    &rsaquo; <a href="{% url 'admin:artifact_news_changelist' %}">Notícias</a>
+    &rsaquo; Adicionar várias notícias
+</div>
 {% endblock %}
 
 {% block content %}{{ block.super }}
 <div class="content-main">
-<form action="" method="post">
-    {% csrf_token %}
-    <fieldset class="module aligned">
-    {{ form }}
-    </fieldset>
-    <fieldset class="module aligned">
-        <input type="submit" value="Submit">
-    </fieldset>
-</form>
+    <form action="" method="post">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+            {{ form }}
+        </fieldset>
+        <div class="submit-row">
+            <input type="submit" value="Inserir notícias">
+        </div>
+    </form>
 </div>
 {% endblock %}
