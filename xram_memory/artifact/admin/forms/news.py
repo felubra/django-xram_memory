@@ -17,7 +17,10 @@ class NewsImageCaptureStackedInlineForm(forms.ModelForm):
 
 class NewsURLForm(forms.Form):
     fieldsets = ()
-    urls = forms.fields.CharField(widget=forms.widgets.Textarea, label=mark_safe("<strong>Endereços</strong>"), required=True,
+    urls = forms.fields.CharField(widget=forms.widgets.Textarea({
+        "rows":30,
+        "cols":100
+    }), label=mark_safe("<strong>Endereços</strong>"), required=True,
                                   help_text="Insira os endereços das notícias, um por linha.")
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -51,6 +54,11 @@ class NewsURLForm(forms.Form):
                                   params={'urls': urls},
                                   )
         return urls
+
+    class Meta:
+        widgets = {
+          'urls': forms.Textarea(attrs={'rows':20, 'cols':15}),
+        }
 
 class NewsAdminForm(forms.ModelForm):
     """
