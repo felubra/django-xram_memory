@@ -15,7 +15,7 @@ class SubjectSerializer(ModelSerializer):
     class Meta:
         model = Subject
         fields = TAXONOMY_ITEM_FIELDS + \
-            ('description', 'cover', 'big_cover', 'items_count',)
+            ('description', 'cover', 'items_count',)
         depth = 1
 
 
