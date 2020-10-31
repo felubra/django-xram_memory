@@ -24,7 +24,7 @@ def test_function_with_invalid_urls():
 # Testes com fetch_archived_url() #
 ##################################%
 
-def test_fetch_archived_url_with_valid_url(news_fetcher_plugin_factory):
+def test_fetch_archived_url_with_valid_url():
     """
     Testa o plugin mockado FunctionalPlugin
     """
@@ -33,7 +33,7 @@ def test_fetch_archived_url_with_valid_url(news_fetcher_plugin_factory):
         assert url == 'OK'
 
 
-def test_fetch_archived_url_with_no_plugins(news_fetcher_plugin_factory):
+def test_fetch_archived_url_with_no_plugins():
     """
     Um erro deve ser levantado quisermos usar a funcionalidade
     sem plugins registrados
@@ -44,7 +44,7 @@ def test_fetch_archived_url_with_no_plugins(news_fetcher_plugin_factory):
             assert 'Nenhum' in f.value.args[0]
 
 
-def test_fetch_archived_url_with_blank_plugin(news_fetcher_plugin_factory):
+def test_fetch_archived_url_with_blank_plugin():
     """
     Testa o plugin mockado BlankPlugin
     """
@@ -53,7 +53,7 @@ def test_fetch_archived_url_with_blank_plugin(news_fetcher_plugin_factory):
         assert url == ''
 
 
-def test_fetch_archived_url_with_blank_plugin_failed_plugin(news_fetcher_plugin_factory):
+def test_fetch_archived_url_with_blank_plugin_failed_plugin():
     """
     Testa a exceção lançada no caso de plugins sem resultado e com falha
     """
@@ -63,7 +63,7 @@ def test_fetch_archived_url_with_blank_plugin_failed_plugin(news_fetcher_plugin_
         assert 'plugins falharam' in f.value.args[0]
 
 
-def test_fetch_archived_url_with_blank_failed_functional_plugin(news_fetcher_plugin_factory):
+def test_fetch_archived_url_with_blank_failed_functional_plugin():
     """
     Testa o comportamento no caso de ao menos um plugin funcional
     """
@@ -77,7 +77,7 @@ def test_fetch_archived_url_with_blank_failed_functional_plugin(news_fetcher_plu
 # Testes com get_pdf_capture() #
 ################################
 
-def test_get_pdf_capture_with_valid_url(news_fetcher_plugin_factory):
+def test_get_pdf_capture_with_valid_url():
     """
     Testa o plugin mockado FunctionalPlugin
     """
@@ -86,7 +86,7 @@ def test_get_pdf_capture_with_valid_url(news_fetcher_plugin_factory):
             assert f == 'OK'
 
 
-def test_get_pdf_capture_with_no_plugins(news_fetcher_plugin_factory):
+def test_get_pdf_capture_with_no_plugins():
     """
     Um erro deve ser levantado quisermos usar a funcionalidade
     sem plugins registrados
@@ -97,7 +97,7 @@ def test_get_pdf_capture_with_no_plugins(news_fetcher_plugin_factory):
                 assert 'Nenhum' in f.value.args[0]
 
 
-def test_get_pdf_capture_with_non_functional_plugin(news_fetcher_plugin_factory):
+def test_get_pdf_capture_with_non_functional_plugin():
     """
     Testa a exceção lançada no caso de plugins com falha
     """
@@ -111,14 +111,14 @@ def test_get_pdf_capture_with_non_functional_plugin(news_fetcher_plugin_factory)
 #################################
 
 
-def test_fetch_basic_info_with_valid_url(news_fetcher_plugin_factory):
+def test_fetch_basic_info_with_valid_url():
     with news_fetcher_plugin_factory(BasicInfoPluginBase, [FunctionalPlugin]):
         NewsFetcher.fetch_basic_info.cache_clear()
         url = NewsFetcher.fetch_basic_info(VALID_NEWS_URL)
         assert url in [NEWS_ITEMS[1], NEWS_ITEMS[0]]
 
 
-def test_fetch_basic_info_with_no_plugins(news_fetcher_plugin_factory):
+def test_fetch_basic_info_with_no_plugins():
     """
     Um erro deve ser levantado quisermos usar a funcionalidade
     sem plugins registrados
@@ -130,7 +130,7 @@ def test_fetch_basic_info_with_no_plugins(news_fetcher_plugin_factory):
             assert 'Nenhum' in f.value.args[0]
 
 
-def test_fetch_basic_info_with_blank_plugin(news_fetcher_plugin_factory):
+def test_fetch_basic_info_with_blank_plugin():
     """
     Um erro deve ser levantado todos os plugins
     retornarem resultado em branco
@@ -142,7 +142,7 @@ def test_fetch_basic_info_with_blank_plugin(news_fetcher_plugin_factory):
             assert 'nenhum plugin' in f.value.args[0]
 
 
-def test_fetch_basic_info_with_blank_plugin_failed_plugin(news_fetcher_plugin_factory):
+def test_fetch_basic_info_with_blank_plugin_failed_plugin():
     """
     Testa a exceção lançada no caso de plugins com falha
     """
@@ -154,7 +154,7 @@ def test_fetch_basic_info_with_blank_plugin_failed_plugin(news_fetcher_plugin_fa
             assert 'plugins falharam' in f.value.args[0]
 
 
-def test_fetch_basic_info_with_blank_failed_functional_plugin(news_fetcher_plugin_factory):
+def test_fetch_basic_info_with_blank_failed_functional_plugin():
     """
     Testa o comportamento no caso de ao menos um plugin funcional
     """
@@ -166,7 +166,7 @@ def test_fetch_basic_info_with_blank_failed_functional_plugin(news_fetcher_plugi
         assert url in [NEWS_ITEMS[1], NEWS_ITEMS[0]]
 
 
-def test_fetch_basic_info_conservative_nature(news_fetcher_plugin_factory):
+def test_fetch_basic_info_conservative_nature():
     """
     Testa o comportamento 'conservador' no tratamento dos campos 'keywords' e
     'subjects', ou seja, o máximo de itens não repetidos deve ser obtido de

@@ -118,28 +118,25 @@ class BlankPlugin(type):
         return BasicInfoPluginBase.BASIC_EMPTY_INFO
 
 
-@pytest.fixture
-def news_fetcher_plugin_factory():
+@contextmanager
+def news_fetcher_plugin_factory(registry, plugins_to_build=[FunctionalPlugin, FunctionalPlugin, FunctionalPlugin]):
     """
-    Fixure gerenciador de contexto que permite definir temporariamente os
+    Gerenciador de contexto que permite definir temporariamente os
     plugins num registro de plugins.
     """
-    @contextmanager
-    def _plugin_factory(registry, plugins_to_build=[FunctionalPlugin, FunctionalPlugin, FunctionalPlugin]):
-        old_plugins = registry.plugins
-        try:
-            plugins = []
-            for plugin_no, plugin_type in enumerate(plugins_to_build):
-                class Plugin(metaclass=plugin_type):
-                    pass
-                Plugin.__name__ = 'Plugin{}'.format(plugin_no)
-                plugins.append(Plugin)
+    old_plugins = registry.plugins
+    try:
+        plugins = []
+        for plugin_no, plugin_type in enumerate(plugins_to_build):
+            class Plugin(metaclass=plugin_type):
+                pass
+            Plugin.__name__ = 'Plugin{}'.format(plugin_no)
+            plugins.append(Plugin)
 
-            registry.plugins = plugins
-            yield plugins
-        finally:
-            registry.plugins = old_plugins
-    return _plugin_factory
+        registry.plugins = plugins
+        yield plugins
+    finally:
+        registry.plugins = old_plugins
 
 
 class NewsFactory(factory.django.DjangoModelFactory):
