@@ -1,19 +1,51 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static admin_modify %}
 {% block extrastyle %}{{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='artifact' %}">Artefatos</a>
+    &rsaquo; <a href="{% url 'admin:artifact_news_changelist' %}">Notícias</a>
+    &rsaquo; Adicionar várias notícias
+</div>
 {% endblock %}
 
 {% block content %}{{ block.super }}
 <div class="content-main">
-<form action="" method="post">
-    {% csrf_token %}
-    <fieldset class="module aligned">
-    {{ form }}
-    </fieldset>
-    <fieldset class="module aligned">
-        <input type="submit" value="Submit">
-    </fieldset>
-</form>
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for hidden_field in form.hidden_fields %}
+            {{ hidden_field.errors }}
+            {{ hidden_field }}
+        {% endfor %}
+
+
+
+        <fieldset class="module aligned">
+            {% for field in form.visible_fields %}
+            <div class="form-row">
+                <div>
+                    {{ field.label_tag }}
+                    {{ field.errors }}
+                    {{ field }}
+                    <div class="help">
+                        {{ field.help_text }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </fieldset>
+
+        <div class="submit-row">
+            <input type="submit" value="Inserir notícias" class="default" name="save">
+        </div>
+    </form>
 </div>
 {% endblock %}
