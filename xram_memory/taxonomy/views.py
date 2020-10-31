@@ -12,7 +12,6 @@ from django.conf import settings
 from xram_memory.artifact.serializers import ArtifactSerializer
 from .models import Subject, Keyword
 from xram_memory.artifact.models import News, Document
-from xram_memory.lib.stopwords import stopwords
 from django.db.models import Prefetch, Q
 import re
 import string
@@ -25,8 +24,6 @@ TIMEOUT = 0 if settings.DEBUG else 60 * 60 * 12
 
 class KeywordViewSet(viewsets.ViewSet):
     def listing(self, request):
-        # Pegue uma lista com as stopwords em pt-br
-        pt_stopwords = stopwords.get("pt", [])
         # Pegue e valide o parâmetro com o máximo de itens a retornar
         max_keywords = request.GET.get("max", "250")
         if not max_keywords or not max_keywords.isnumeric():
@@ -43,9 +40,9 @@ class KeywordViewSet(viewsets.ViewSet):
                         Q(news_count__gt=0)
                     )
                     .prefetch_related(
-                        Prefetch('news_set', queryset=News.objects.filter(published=True))
+                        Prefetch('news', queryset=News.objects.filter(published=True))
                     )
-                    .exclude(name_lower__in=pt_stopwords))
+        )
 
         order_by = self.request.query_params.get('orderBy', None)
         if order_by is not None:
