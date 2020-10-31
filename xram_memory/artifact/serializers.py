@@ -1,9 +1,8 @@
-from rest_framework.serializers import ModelSerializer, CharField, IntegerField, Serializer, Field, SerializerMethodField
+from rest_framework.serializers import ModelSerializer, CharField, Serializer, SerializerMethodField
 from xram_memory.artifact.models import Document, News, Newspaper, NewsPDFCapture, NewsImageCapture
 from xram_memory.taxonomy.serializers import KeywordSerializer, SubjectSerializer
 from hashid_field.rest import HashidSerializerCharField, Hashid
-from boltons.cacheutils import cachedproperty
-from filer.models import Folder, File
+from filer.models import Folder
 from django.conf import settings
 
 

@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.utils.safestring import mark_safe
-from xram_memory.artifact.models import News
 from xram_memory.lib import NewsFetcher
 from django import forms
 

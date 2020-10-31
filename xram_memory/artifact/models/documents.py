@@ -1,17 +1,11 @@
 import magic
-from pathlib import Path
 from django.db import models
 from filer.models import File
-from .artifact import Artifact
 from django.conf import settings
 from hashid_field import HashidField
-from django.utils.text import slugify
-from xram_memory.utils import FileValidator
 from filer import settings as filer_settings
 from boltons.cacheutils import cachedproperty
-from django.core.files.base import ContentFile
 from easy_thumbnails.files import get_thumbnailer
-from easy_thumbnails.fields import ThumbnailerField
 from xram_memory.taxonomy.models import Keyword, Subject
 
 

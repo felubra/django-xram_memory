@@ -1,6 +1,5 @@
 from django.db.models.signals import post_save, m2m_changed, pre_delete, post_delete
-from django_elasticsearch_dsl.signals import RealTimeSignalProcessor
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 from xram_memory.artifact.models import Document
 from django.core.files import File as DjangoFile
 from filer import settings as filer_settings

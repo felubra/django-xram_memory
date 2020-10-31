@@ -1,4 +1,3 @@
-from xram_memory.artifact.models import Newspaper
 from xram_memory.lib import NewsFetcher
 from django import forms
 

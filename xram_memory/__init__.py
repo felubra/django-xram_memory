@@ -1,12 +1,10 @@
 from __future__ import absolute_import, unicode_literals
-from django.core.checks import register, Warning, Critical
+from django.core.checks import register, Critical
 from kombu.exceptions import OperationalError
 from urllib3.exceptions import HTTPError
 from elasticsearch import Elasticsearch
 from django.conf import settings
 from kombu import Connection
-import socket
-import os
 import tempfile
 
 

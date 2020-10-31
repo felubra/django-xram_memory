@@ -1,33 +1,21 @@
 from xram_memory.artifact.models import Artifact, Document, Newspaper
-from xram_memory.artifact import tasks as background_tasks
 from django.db import models, transaction, IntegrityError
 from xram_memory.taxonomy.models import Keyword, Subject
 from xram_memory.logger.decorators import log_process
-from filer.utils.generate_filename import randomized
-from django.template.defaultfilters import slugify
 from easy_thumbnails.files import get_thumbnailer
 from django.core.files import File as DjangoFile
 from django.core.validators import URLValidator
-from django.core.files.base import ContentFile
 from boltons.cacheutils import cachedproperty
 from django.utils.encoding import iri_to_uri
 from filer.fields.file import FilerFileField
-from django.db.transaction import on_commit
-from filer.models import File as FilerFile
 from django.urls import get_script_prefix
 from xram_memory.lib import NewsFetcher
 from django.db.models import Prefetch
 from django.utils.timezone import now
-from filer.models import File, Folder
+from filer.models import Folder
 from django.conf import settings
-from django.db.models import Q
 from pathlib import Path
-from celery import group
 import datetime
-import tempfile
-import urllib
-import os
-
 
 class News(Artifact):
     """

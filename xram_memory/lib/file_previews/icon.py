@@ -4,8 +4,6 @@ from cairosvg import svg2png
 from tempfile import mktemp
 
 from django.utils.six import BytesIO
-from tempfile import gettempdir
-from pdf2image import convert_from_path, convert_from_bytes
 from xram_memory.utils import get_file_icon
 
 try:

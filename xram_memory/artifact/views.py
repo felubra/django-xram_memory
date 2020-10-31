@@ -1,10 +1,10 @@
-from xram_memory.artifact.serializers import DocumentSerializer, NewsSerializer, PhotoAlbumFolderSerializer, SimplePhotoAlbumFolderSerializer
+from xram_memory.artifact.serializers import (DocumentSerializer, NewsSerializer, PhotoAlbumFolderSerializer,
+                                              SimplePhotoAlbumFolderSerializer)
 from xram_memory.artifact.models import Document, News
 from django.shortcuts import get_object_or_404
 from boltons.cacheutils import cachedproperty
 from rest_framework.response import Response
-from django.shortcuts import get_list_or_404
-from filer.models import Folder, File
+from filer.models import Folder
 from hashid_field.rest import Hashid
 from rest_framework import viewsets
 from django.db.models import Count

@@ -1,5 +1,5 @@
 from xram_memory.lib.news_fetcher.plugins.base import PDFCapturePluginBase
-from django.utils.timezone import make_aware, now
+from django.utils.timezone import now
 from contextlib import contextmanager
 from bs4 import BeautifulSoup
 import requests

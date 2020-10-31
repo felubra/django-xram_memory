@@ -1,21 +1,15 @@
-from .serializers import SubjectSerializer, SimpleSubjectSerializer, KeywordSerializer
-from django.shortcuts import get_list_or_404, get_object_or_404
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
+from .serializers import SubjectSerializer, SimpleSubjectSerializer
+from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
-from django.db.models import Subquery
-from django.db.models import Count, Q
-from django.shortcuts import render
 from rest_framework import viewsets
 from django.conf import settings
 from xram_memory.artifact.serializers import ArtifactSerializer
 from .models import Subject, Keyword
 from xram_memory.artifact.models import News, Document
-from django.db.models import Prefetch, Q
+from django.db.models import Count, Prefetch, Q
 import re
 import string
-from natsort import natsorted
 from django.db.models.functions import Lower
 
 # Create your views here.

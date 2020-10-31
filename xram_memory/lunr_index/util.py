@@ -1,6 +1,5 @@
-from configurations.values import Value, ValidationMixin, SecretValue
+from configurations.values import Value, ValidationMixin
 from django.core.exceptions import ValidationError
-from django.conf import settings
 
 class LunrBackendValue(ValidationMixin, Value):
     BACKEND_LOCAL = 'local'

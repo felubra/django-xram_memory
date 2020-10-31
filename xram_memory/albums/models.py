@@ -1,5 +1,4 @@
 from django.db import models
-from xram_memory.taxonomy.models import Subject, Keyword
 from filer.models.foldermodels import Folder
 from filer.fields.file import FilerFileField
 from django.conf import settings

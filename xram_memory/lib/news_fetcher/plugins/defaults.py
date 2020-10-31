@@ -1,11 +1,8 @@
-from django.utils.timezone import make_aware, now
+from django.utils.timezone import now
 from contextlib import contextmanager
-from bs4 import BeautifulSoup
-import requests
 import tempfile
 import pdfkit
 import os
-import re
 
 
 class DefaultPDFCapture():

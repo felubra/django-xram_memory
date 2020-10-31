@@ -1,11 +1,8 @@
-from celery import group
-from loguru import logger
 from django.apps import apps
 from django.db import transaction
 from celery import shared_task, group
 from django.db.utils import IntegrityError, OperationalError
 from django.core.exceptions import ValidationError
-from django.db.transaction import TransactionManagementError
 
 
 PROCESSING_TASK_TIMEOUT = 300

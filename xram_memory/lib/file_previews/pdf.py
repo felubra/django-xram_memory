@@ -1,12 +1,8 @@
 import os
-import mimetypes
-from cairosvg import svg2png
-from tempfile import mktemp
 
 from django.utils.six import BytesIO
 from tempfile import gettempdir
-from pdf2image import convert_from_path, convert_from_bytes
-from django.contrib.staticfiles import finders
+from pdf2image import convert_from_path
 
 try:
     from PIL import Image

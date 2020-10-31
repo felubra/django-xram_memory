@@ -2,12 +2,10 @@ from xram_memory.artifact.models import Document, News, Newspaper
 import xram_memory.artifact.tasks as background_tasks
 from xram_memory.utils import celery_is_avaliable
 from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.db import transaction
 from urllib.parse import urlsplit
 from retrying import retry
 from celery import group
-import random
 from xram_memory.utils.decorators import disable_for_loaddata
 from xram_memory.utils.classes import SignalProcessor
 

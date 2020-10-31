@@ -1,5 +1,3 @@
-from easy_thumbnails.widgets import ImageClearableFileInput
-from easy_thumbnails.fields import ThumbnailerField
 from tags_input import admin as tags_input_admin
 from xram_memory.artifact.models import Document
 from filer.admin.fileadmin import FileAdmin

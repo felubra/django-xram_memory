@@ -1,8 +1,6 @@
 from xram_memory.artifact.models import Document, NewsImageCapture, NewsPDFCapture
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from easy_thumbnails.files import get_thumbnailer
-from contextlib import contextmanager
-from django.apps import apps
 
 
 def delete_thumbnails_for_model(model, field=None):

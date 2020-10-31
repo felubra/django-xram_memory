@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import Album, is_album_folder
 from filer.models.foldermodels import Folder
 from filer.admin.folderadmin import FolderAdmin
-from django.conf import settings
 from django import forms
 from xram_memory.artifact.models import Document
 

@@ -1,12 +1,8 @@
-import inspect
-
 from loguru import logger
-from functools import wraps
 from timeit import default_timer
 from functools import wraps
 
-from django_currentuser.middleware import (
-    get_current_user, get_current_authenticated_user)
+from django_currentuser.middleware import get_current_user
 
 from django.db.models import Model
 

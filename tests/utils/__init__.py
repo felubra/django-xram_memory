@@ -7,7 +7,6 @@ from unittest.mock import patch
 from loguru import logger
 from xram_memory.lib import NewsFetcher
 from django.apps import apps
-from functools import wraps
 
 logger.remove()
 

@@ -1,4 +1,3 @@
-from django.utils.timezone import make_aware
 from newspaper import Article
 from xram_memory.lib.news_fetcher.plugins.base import BasicInfoPluginBase
 from goose3 import Goose, Image

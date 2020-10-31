@@ -1,8 +1,6 @@
 from xram_memory.lib.file_previews import icon_preview, pdf_preview
 from PIL.ImageFile import ImageFile
 from dataclasses import dataclass
-from django.test import TestCase
-import pathlib
 import os
 
 

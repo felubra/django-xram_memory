@@ -1,28 +1,19 @@
-from xram_memory.artifact.tasks import add_news_task, news_add_pdf_capture, news_add_archived_url, add_image_for_news, news_set_basic_info
+from xram_memory.artifact.tasks import add_news_task, news_add_pdf_capture, news_add_archived_url, news_set_basic_info
 from ..forms.news import NewsPDFCaptureStackedInlineForm, NewsAdminForm, NewsImageCaptureStackedInlineForm, NewsURLForm
-from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
+from django.http import HttpResponseRedirect
 from xram_memory.artifact.models import News, NewsPDFCapture, NewsImageCapture
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.admin.sites import site as default_site, AdminSite
 from xram_memory.base_models import TraceableEditorialAdminModel
-from xram_memory.taxonomy.models import Subject, Keyword
 from django.views.decorators.cache import never_cache
 from django.template.response import TemplateResponse
-from django.template.defaultfilters import slugify
 from xram_memory.utils import celery_is_avaliable
 from tags_input import admin as tags_input_admin
-from django.contrib.staticfiles import finders
 from django.db.utils import IntegrityError
 from django.utils.html import format_html
-from django.shortcuts import render
 from django.contrib import messages
 from django.contrib import admin
 from django.urls import reverse
 from django.urls import path
 from loguru import logger
-from django import forms
-from django import forms
-
 
 class NewsPDFCaptureInline(admin.TabularInline):
     model = NewsPDFCapture

@@ -1,4 +1,4 @@
-from django.utils.timezone import make_aware, now, is_naive
+from django.utils.timezone import make_aware
 import xram_memory.lib.news_fetcher.plugin as plugin
 from django.utils.dateparse import parse_datetime
 from xram_memory.lib.stopwords import stopwords

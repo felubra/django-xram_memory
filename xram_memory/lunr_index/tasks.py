@@ -3,7 +3,6 @@ from xram_memory.utils import release_memcache_lock
 from django.conf import settings
 from celery import shared_task
 from loguru import logger
-import requests
 
 from xram_memory.lunr_index.lib.index_builders import (
     LunrIndexBuilder,

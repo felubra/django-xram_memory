@@ -4,7 +4,6 @@ from ..base_models import TraceableModel
 from xram_memory.utils import no_empty_html
 from xram_memory.utils import unique_slugify
 from boltons.cacheutils import cachedproperty
-from django.core.exceptions import ValidationError
 
 
 class TaxonomyItem(TraceableModel):

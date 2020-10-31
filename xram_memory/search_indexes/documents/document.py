@@ -1,10 +1,7 @@
 from xram_memory.artifact.models import Document, NewsImageCapture, NewsPDFCapture
 from django_elasticsearch_dsl import DocType, Index, fields
-from elasticsearch_dsl.serializer import AttrJSONSerializer
-from xram_memory.taxonomy.models import Keyword, Subject
 from xram_memory.taxonomy.models import Keyword, Subject
 from django.conf import settings
-from hashid_field import Hashid
 
 INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
 INDEX.settings(

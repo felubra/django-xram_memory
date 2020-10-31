@@ -4,7 +4,6 @@ from xram_memory.lib.news_fetcher.plugins.base import BasicInfoPluginBase
 from xram_memory.lib.news_fetcher.plugins import pdf_captures
 from xram_memory.lib.news_fetcher.plugins.parsers import (
     Goose3NewspaperArticleParser, NewspaperArticleParser)
-from xram_memory.lib.news_fetcher.plugins import archives
 import pdfkit
 import pytest
 

@@ -1,13 +1,10 @@
-from tests.fixtures import NewsFactory
 from tests.utils import basic_news
-import requests_mock
 import tempfile
 import pytest
-import json
 import os
 from lunr.index import Index
 from .utils import without_elastic_search, without_artifact_auto_processing
-from unittest import mock
+
 
 @without_artifact_auto_processing()
 @without_elastic_search()
@@ -32,6 +29,7 @@ def test_localsearch_remote_elastic_lunr(settings, mocker):
             settings.LUNR_INDEX_REMOTE_HOST,
             headers={'Authorization': f'Bearer {settings.LUNR_INDEX_REMOTE_SECRET}'}
         )
+
 
 @without_artifact_auto_processing()
 @without_elastic_search()

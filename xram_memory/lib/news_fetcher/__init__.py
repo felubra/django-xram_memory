@@ -1,13 +1,9 @@
-import os
 import copy
-import tempfile
-import requests
 from .plugins import *
 from bs4 import BeautifulSoup
 from functools import lru_cache
 import newspaper as newspaper3k
 from contextlib import contextmanager
-from django.utils.functional import partition
 from django.core.validators import URLValidator
 from .plugins.base import ArchivePluginBase, PDFCapturePluginBase, BasicInfoPluginBase
 

@@ -1,12 +1,7 @@
-from django.test import TestCase, Client, TransactionTestCase
-from django.contrib.admin.options import ModelAdmin
 from xram_memory.artifact.models import Newspaper
-from django.contrib.admin.sites import AdminSite
 from django.db.models.signals import post_save
-from xram_memory.lib import NewsFetcher
 from contextlib import contextmanager
 from dataclasses import dataclass
-from django.urls import reverse
 from loguru import logger
 from unittest import mock
 import requests_mock
