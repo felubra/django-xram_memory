@@ -4,6 +4,11 @@ Este projeto concentra o sistema gestor de conteúdo e a API para o site do xRAM
 
 As dependências do projeto são geridas com a ferramenta `pipenv`.
 
+## Instalação
+
+1) Instale os pacotes: `python3-pdfkit`, `poppler-utils` e `wkhtmltopdf`
+2) Rode o script `./scripts/download_corpora.py --user`
+
 ## Entidades de dados
 
 Os seguintes modelos (entidades) estão presentes neste projeto:
