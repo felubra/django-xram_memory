@@ -76,33 +76,43 @@ def toggle_indexing_apps_signals(disable=True):
 @contextmanager
 def without_indexing_apps():
     toggle_indexing_apps_signals()
-    yield
-    toggle_indexing_apps_signals(False)
+    try:
+        yield
+    finally:
+        toggle_indexing_apps_signals(False)
 
 @contextmanager
 def without_local_search():
     toggle_local_search_signals()
-    yield
-    toggle_local_search_signals(False)
+    try:
+        yield
+    finally:
+        toggle_local_search_signals(False)
 
 @contextmanager
 def without_elastic_search():
     toggle_elastic_search_signals()
-    yield
-    toggle_elastic_search_signals(False)
+    try:
+        yield
+    finally:
+        toggle_elastic_search_signals(False)
 
 
 @contextmanager
 def without_elastic_search():
     toggle_elastic_search_signals()
-    yield
-    toggle_elastic_search_signals(False)
+    try:
+        yield
+    finally:
+        toggle_elastic_search_signals(False)
 
 @contextmanager
 def without_artifact_auto_processing(models=["documents", "news", "newspaper"]):
     toggle_artifact_signals(True, models)
-    yield
-    toggle_artifact_signals(False, models)
+    try:
+        yield
+    finally:
+        toggle_artifact_signals(False, models)
 
 class DisabledIndexingAppsMixin(object):
     @classmethod
