@@ -55,11 +55,11 @@
         },
         "cairosvg": {
             "hashes": [
-                "sha256:4e668f96653326780036ebb0a9ff2bb59a8443d7bcfc51a14aab77b57a8e67ad",
-                "sha256:9cb1df7e9bc60f75fb87f67940a8fb805aad544337a67a40b67c05cfe33711a2"
+                "sha256:bfa0deea7fa0b9b2f29e41b747a915c249dbca731a4667c2917e47ff96e773e0",
+                "sha256:f1ff02625520493eafb5695d987f69544555524bb0f95695b9ddd3f9dc7d29d5"
             ],
             "index": "pypi",
-            "version": "==2.4.2"
+            "version": "==2.5.1"
         },
         "celery": {
             "hashes": [
