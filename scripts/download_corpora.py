@@ -19,16 +19,16 @@ REQUIRED_CORPORA = [
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Downloads and installs nltk corpora.')
-    parser.add_argument('--location', '-l',
-        default="system",
-        choices=["user", "system"],
-        dest='location'
+    parser.add_argument('--user', '-u',
+        action='store_true',
+        default=False,
+        dest='user_mode'
     )
-    location = getattr(parser.parse_args(), 'location')
+    user_mode = getattr(parser.parse_args(), 'user_mode')
 
     for each in REQUIRED_CORPORA:
         print(('Downloading "{0}"'.format(each)))
-        if location == 'system':
+        if not user_mode:
             nltk.download(each, download_dir='/usr/share/nltk_data')
         else:
             nltk.download(each)
