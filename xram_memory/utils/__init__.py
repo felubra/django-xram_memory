@@ -193,17 +193,18 @@ def task_on_commit(task, sync_context=False, sync_failback=True):
 
 
 @lru_cache(maxsize=16)
-def get_file_icon(icon_name):
+def get_file_icon(icon_name='blank'):
     """ retorne o caminho completo de um ícone do pacote file-icon-vectors"""
-    try:
+    icon_names_to_try = [icon_name, 'blank']
+    for icon_name_to_try in icon_names_to_try:
         icon_file = finders.find(
-            Path('file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name)))
-        if icon_file is None:
-            raise ValueError
-        return icon_file
-    except ValueError:
-        return finders.find(
-            Path('file-icon-vectors/dist/icons/vivid/blank.svg'))
+            Path('file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name_to_try)))
+        if icon_file is not None:
+            return icon_file
+    else:
+        raise FileNotFoundError(f"Nenhum arquivo de ícone encontrado enquanto buscava o ícone `{icon_name}`, "
+            "nem mesmo o failback `blank`.\n"
+            "Verifique se a dependência npm `file-icon-vectors` foi instalada corretamente.")
 
 
 class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesStorage):
