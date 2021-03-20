@@ -6,9 +6,12 @@ As dependências do projeto são geridas com a ferramenta `pipenv`.
 
 ## Instalação
 
+0) Instale o [Python 3.7.2+](https://www.python.org/downloads/) e o [Pipenv](https://pypi.org/project/pipenv/)
 1) Instale os pacotes: `python3-pdfkit`, `poppler-utils` e `wkhtmltopdf`
-2) Rode o script `./scripts/download_corpora.py --user`
-
+3) Instale as dependências do projeto: `pipenv install --dev` e `npm install`
+4) Entre no shell do pipenv: `pipenv shell`
+5) Rode o script `./scripts/download_corpora.py --user`
+6) Execute `./manage.py collectstatic`
 ## Entidades de dados
 
 Os seguintes modelos (entidades) estão presentes neste projeto:
