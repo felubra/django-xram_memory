@@ -28,7 +28,7 @@ As dependências do projeto são geridas com a ferramenta `pipenv`.
 servido por este projeto, de forma que o frontend possa requisitar este arquivo. Na pasta do projeto
 `micro-lunr_index_builder` execute:
 ```shell
-
+ln -s arquivo_json_na_pasta_de_micro_index_builder /pasta/de/django-xram_memory/media/lunr_index/index.json
 ```
 
 
