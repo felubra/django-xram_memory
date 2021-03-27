@@ -6,6 +6,7 @@ from elasticsearch import Elasticsearch
 from django.conf import settings
 from kombu import Connection
 import tempfile
+import os
 
 
 # This will make sure the app is always imported when
@@ -41,6 +42,25 @@ def celery_broker_check(app_configs, **kwargs):
                 id='xram_memory.CeleryBrokerConnectionError',
             )
         )
+    return errors
+
+@register()
+def elastic_lunr_index_folder(app_configs, **kwargs):
+    errors = []
+    try:
+        lunr_index_file_path = getattr(settings, 'LUNR_INDEX_FILE_PATH', None)
+        if lunr_index_file_path:
+            lunr_index_file_folder = os.path.dirname(lunr_index_file_path)
+            if not os.path.exists(lunr_index_file_folder):
+                raise FileNotFoundError(f"Falha ao verificar a pasta do arquivo de índice (elastic) lunr em: {lunr_index_file_folder}")
+    except FileNotFoundError as e:
+        errors.append(
+            Critical(
+                str(e),
+                hint="Verifique se a pasta existe e se o aplicativo tem acesso a ela.",
+            )
+        )
+
     return errors
 
 
