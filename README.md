@@ -9,9 +9,44 @@ As dependências do projeto são geridas com a ferramenta `pipenv`.
 0) Instale o [Python 3.7.2+](https://www.python.org/downloads/) e o [Pipenv](https://pypi.org/project/pipenv/)
 1) Instale os pacotes: `python3-pdfkit`, `poppler-utils` e `wkhtmltopdf`
 3) Instale as dependências do projeto: `pipenv install --dev` e `npm install`
-4) Entre no shell do pipenv: `pipenv shell`
-5) Rode o script `./scripts/download_corpora.py --user`
-6) Execute `./manage.py collectstatic`
+4) Defina as variáveis ambiente em `.env` a partir de `example.env`
+5) Entre no shell do pipenv: `pipenv shell`
+6) Instale os corpos do nltk: `./scripts/download_corpora.py --user`
+7) Colecione os estáticos: `./manage.py collectstatic`
+8) Execute as migrações: `./manage.py migrate`
+9) Crie um super-usuário: `./manage.py createsuperuser`
+
+
+## Execução local
+### Aplicação
+0) Execute os passos de instalação
+1) Entre num shell `pipenv`
+3) Suba um container memcached: `docker run --name my-memcache -d -p 127.0.0.1:11211:11211 memcached memcached -m 64`
+3) Suba a aplicação localmente: `./manage.py runserver_plus`
+4) Vá até `http://localhost:8000/admin/`
+5) Rode o projeto `micro-lunr_index_builder` e faça um symlink entre o arquivo de índice gerado por ele e o arquivo
+servido por este projeto, de forma que o frontend possa requisitar este arquivo. Na pasta do projeto
+`micro-lunr_index_builder` execute:
+```shell
+
+```
+
+
+### Celery
+0) Suba um container do redis escutando na porta padrão localmente:
+```shell
+docker run --name some-redis -d -p 127.0.0.1:6379:6379 redis
+```
+1) Suba quantas instâncias do celery julgar necessário. Num shell `pipenv`, execute:
+```shell
+celery worker -A xram_memory -n 1
+```
+3) (Opcional) Monitore os workers com o *Flower*. Num shell `pipenv`, execute:
+```shell
+flower -A xram_memory
+```
+
+
 ## Entidades de dados
 
 Os seguintes modelos (entidades) estão presentes neste projeto:
