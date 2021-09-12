@@ -1,7 +1,8 @@
 from .page.views import StaticPagesViewSet
-from xram_memory.artifact.views import DocumentViewSet, NewsViewSet, AlbumViewSet
+from xram_memory.artifact.views import DocumentViewSet, NewsViewSet, AlbumViewSet, StaticSiteNewsView
 from xram_memory.taxonomy.views import SubjectViewSet, KeywordViewSet
 from django.conf.urls.static import static
+from rest_framework.authtoken import views
 from django.urls import include, path
 from django.contrib import admin
 from django.conf import settings
@@ -29,8 +30,10 @@ urlpatterns = [
          DocumentViewSet.as_view({'get': 'retrieve'})),
 
     # Notícias
-    path(API_BASE + '/news/<str:slug>',
+     path(API_BASE + '/news/<str:slug>',
          NewsViewSet.as_view({'get': 'retrieve'})),
+     path(API_BASE + '/news',
+         StaticSiteNewsView.as_view()),
 
     # Álbuns
     path(API_BASE + '/albums',
@@ -52,6 +55,9 @@ urlpatterns = [
          KeywordViewSet.as_view({'get': 'listing'})),
     path(API_BASE + '/keyword/<str:keyword_slug>/items',
          KeywordViewSet.as_view({'get': 'artifacts_for_keyword'})),
+
+     # Autenticação - obtenha um token com base no usuário e senha
+     path(API_BASE + '/auth_token', views.obtain_auth_token),
 ] + urlpatterns
 
 # URLs canônicas para documentos do Filer
