@@ -47,6 +47,7 @@ class Common(Configuration):
         'xram_memory.apps.FilerConfig',
         'mptt',
         'rest_framework',
+        'rest_framework.authtoken',
         'corsheaders',
         'tags_input',
         'xram_memory.albums',
@@ -235,6 +236,9 @@ class Common(Configuration):
         'DEFAULT_THROTTLE_CLASSES': (
             'rest_framework.throttling.AnonRateThrottle',
         ),
+        'DEFAULT_AUTHENTICATION_CLASSES': [
+            'rest_framework.authentication.TokenAuthentication',
+        ],
         'DEFAULT_THROTTLE_RATES': {
             'anon': '60/minute',
         }
