@@ -24,11 +24,9 @@ As dependências do projeto são geridas com a ferramenta `pipenv`.
 3) Suba um container memcached: `docker run --name my-memcache -d -p 127.0.0.1:11211:11211 memcached memcached -m 64`
 3) Suba a aplicação localmente: `./manage.py runserver_plus`
 4) Vá até `http://localhost:8000/admin/`
-5) Rode o projeto `micro-lunr_index_builder` e faça um symlink entre o arquivo de índice gerado por ele e o arquivo
-servido por este projeto, de forma que o frontend possa requisitar este arquivo. Na pasta do projeto
-`micro-lunr_index_builder` execute:
+5) Rode o projeto `micro-lunr_index_builder`:
 ```shell
-ln -s arquivo_json_na_pasta_de_micro_index_builder /pasta/de/django-xram_memory/media/lunr_index/index.json
+docker run -d --name xram_memory__lunr_index_builder -v <caminho_para_o_arquivo_de_indice>:/usr/src/app/index.json:rw -e AUTH_TOKEN=abacate00 -p 3001:3000 xram_memory:lunr_index_builder
 ```
 
 
