@@ -2,6 +2,179 @@ Changelog
 =========
 
 
+1.5.0
+------------
+
+Adicionado
+~~~~~~~~~~
+- News listing endpoint (#160) [Felipe Lube de Bragança]
+
+  * feat: install django rest framewor's token authentication
+
+  * feat: new endpoint to get all the news info for static generation
+
+  * feat: auth token endpoint
+
+  * fix: update readme
+
+Corrigido
+~~~~~~~~~
+- Rename file. [Felipe]
+
+Outros
+~~~~~~
+- Chore(deps): bump pillow from 8.2.0 to 8.3.2 (#158) [dependabot[bot]]
+
+  Bumps [pillow](https://github.com/python-pillow/Pillow) from 8.2.0 to 8.3.2.
+  - [Release notes](https://github.com/python-pillow/Pillow/releases)
+  - [Changelog](https://github.com/python-pillow/Pillow/blob/master/CHANGES.rst)
+  - [Commits](https://github.com/python-pillow/Pillow/compare/8.2.0...8.3.2)
+
+  ---
+  updated-dependencies:
+  - dependency-name: pillow
+    dependency-type: direct:production
+  ...
+- Chore(deps): bump sqlparse from 0.4.1 to 0.4.2 (#159)
+  [dependabot[bot]]
+
+  Bumps [sqlparse](https://github.com/andialbrecht/sqlparse) from 0.4.1 to 0.4.2.
+  - [Release notes](https://github.com/andialbrecht/sqlparse/releases)
+  - [Changelog](https://github.com/andialbrecht/sqlparse/blob/master/CHANGELOG)
+  - [Commits](https://github.com/andialbrecht/sqlparse/compare/0.4.1...0.4.2)
+
+  ---
+  updated-dependencies:
+  - dependency-name: sqlparse
+    dependency-type: indirect
+  ...
+- Chore(deps): bump pillow from 8.1.2 to 8.2.0 (#155) [dependabot[bot]]
+
+  Bumps [pillow](https://github.com/python-pillow/Pillow) from 8.1.2 to 8.2.0.
+  - [Release notes](https://github.com/python-pillow/Pillow/releases)
+  - [Changelog](https://github.com/python-pillow/Pillow/blob/master/CHANGES.rst)
+  - [Commits](https://github.com/python-pillow/Pillow/compare/8.1.2...8.2.0)
+
+  ---
+  updated-dependencies:
+  - dependency-name: pillow
+    dependency-type: direct:production
+  ...
+- Chore(deps): bump django from 2.2.20 to 2.2.24 (#157)
+  [dependabot[bot]]
+
+  Bumps [django](https://github.com/django/django) from 2.2.20 to 2.2.24.
+  - [Release notes](https://github.com/django/django/releases)
+  - [Commits](https://github.com/django/django/compare/2.2.20...2.2.24)
+
+  ---
+  updated-dependencies:
+  - dependency-name: django
+    dependency-type: direct:production
+  ...
+- Chore(deps): bump django from 2.2.19 to 2.2.20 (#151)
+  [dependabot[bot]]
+
+  Bumps [django](https://github.com/django/django) from 2.2.19 to 2.2.20.
+  - [Release notes](https://github.com/django/django/releases)
+  - [Commits](https://github.com/django/django/compare/2.2.19...2.2.20)
+- Chore(deps): [security] bump django-debug-toolbar from 1.10.1 to
+  1.11.1 (#152) [dependabot-preview[bot]]
+
+  Bumps [django-debug-toolbar](https://github.com/jazzband/django-debug-toolbar) from 1.10.1 to 1.11.1. **This update includes a security fix.**
+  - [Release notes](https://github.com/jazzband/django-debug-toolbar/releases)
+  - [Changelog](https://github.com/jazzband/django-debug-toolbar/blob/1.11.1/docs/changes.rst)
+  - [Commits](https://github.com/jazzband/django-debug-toolbar/compare/1.10.1...1.11.1)
+
+
+1.4.1 (2021-03-28)
+------------------
+
+Adicionado
+~~~~~~~~~~
+- Abort app start if there is access error in lunr index folder. [Felipe
+  Lube de Bragança]
+- Allow download corpora to user folder. [Felipe Lube de Bragança]
+- Otimizações no endpoint dos assuntos - Utilize um serializer mais
+  simples e rápido para a maior dos casos - Obtenha objetos relacionados
+  e guarde-os em cache - Somente pegue assuntos que tenham algum item
+  relacionado - Remova campo não utilizado em SubjectSerializer. [Felipe
+  Lube de Bragança]
+
+Corrigido
+~~~~~~~~~
+- Revert django-elasticsearch-dsl update. [Felipe Lube de Bragança]
+- Fix (Pipfile): use compatible release indicator. [Felipe Lube de
+  Bragança]
+- Fix(docs): add missing command to README.md. [Felipe Lube de Bragança]
+- Get_file_icon: raise exception if no icon file is found. [Felipe Lube
+  de Bragança]
+
+Outros
+~~~~~~
+- Chore: update Pillow. [Felipe Lube de Bragança]
+- Chore: update packages to avoid security issues. [Felipe Lube de
+  Bragança]
+- Chore: update cairosvg. [Felipe Lube de Bragança]
+- Chore: update to DJango 2.2.19. [Felipe Lube de Bragança]
+- Chore(docs): update readme with run instructions. [Felipe Lube de
+  Bragança]
+- Refactor: use try blocks in signal stopping decorators. [Felipe Lube
+  de Bragança]
+- Chore: readme: update install instructions. [Felipe Lube de Bragança]
+- Chore(docs): update readme. [Felipe Lube de Bragança]
+- Refactor: download_corpora: use boolean argument --user. [Felipe Lube
+  de Bragança]
+- Chore(deps): [security] bump djangorestframework from 3.11.1 to 3.11.2
+  (#149) [dependabot-preview[bot]]
+
+  Bumps [djangorestframework](https://github.com/encode/django-rest-framework) from 3.11.1 to 3.11.2. **This update includes a security fix.**
+  - [Release notes](https://github.com/encode/django-rest-framework/releases)
+  - [Commits](https://github.com/encode/django-rest-framework/compare/3.11.1...3.11.2)
+- Chore(deps): [security] bump lxml from 4.5.2 to 4.6.2 (#146)
+  [dependabot-preview[bot]]
+
+  Bumps [lxml](https://github.com/lxml/lxml) from 4.5.2 to 4.6.2. **This update includes a security fix.**
+  - [Release notes](https://github.com/lxml/lxml/releases)
+  - [Changelog](https://github.com/lxml/lxml/blob/master/CHANGES.txt)
+  - [Commits](https://github.com/lxml/lxml/compare/lxml-4.5.2...lxml-4.6.2)
+- Refactor: um gerenciador de contexto não precisa ser uma fixture.
+  [Felipe Lube de Bragança]
+- Chore: limpeza nas importações e remoção de arquivos inúteis. [Felipe
+  Lube de Bragança]
+- Refactor: Não filtre a saída do endpoint das palavras-chave. [Felipe
+  Lube de Bragança]
+
+  BREAKING CHANGE
+
+  A responsabilidade pela filtragem das palavras-chave irrelevantes é de quem as insere no banco de dados
+- Merge branch 'dev' of github.com:felubra/django-xram_memory into dev.
+  [Felipe Lube de Bragança]
+- Reestilização do formulário p/ adicionar várias notícias (#142)
+  [Felipe Lube de Bragança]
+
+  * chore: atualização no arquivo .env de exemplo
+
+  * feat: breadcrumbs
+
+  * refat: move o formulário para o módulo dos formulários
+
+  * feat: estilização do formulário p/ adicionar várias notícias
+  -  Breadcrumbs
+  - Textarea deve ficar alinhada abaixo do label
+  - Campo endereços deve ser (estilizado como) obrigatório
+  - Botão submit deve ser renomeado para 'Inserir notícias'
+  - Label de ajuda, logo abaixo do textarea deve ficar alinhado com
+  o textarea
+  - Barra de botões no final
+
+  * feat: aumente o tamanho da textarea
+- Chore: atualização no arquivo .env de exemplo. [Felipe Lube de
+  Bragança]
+- Chore: atualização de README.md. [Felipe Lube de Bragança]
+- Chore: atualização de changelog. [Felipe Lube de Bragança]
+
+
 1.4.0 (2020-10-12)
 ------------------
 
