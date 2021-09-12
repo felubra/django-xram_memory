@@ -1,15 +1,18 @@
 from xram_memory.artifact.serializers import (DocumentSerializer, NewsSerializer, PhotoAlbumFolderSerializer,
-                                              SimplePhotoAlbumFolderSerializer)
+                                              SimplePhotoAlbumFolderSerializer, SimpleNewsSerializer)
 from xram_memory.artifact.models import Document, News
 from django.shortcuts import get_object_or_404
 from boltons.cacheutils import cachedproperty
 from rest_framework.response import Response
 from filer.models import Folder
 from hashid_field.rest import Hashid
+from rest_framework.views import APIView
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count
 from django.conf import settings
 from django.http import Http404
+from rest_framework.authentication import TokenAuthentication
 
 
 class DocumentViewSet(viewsets.ViewSet):
@@ -35,6 +38,16 @@ class NewsViewSet(viewsets.ViewSet):
         serializer = NewsSerializer(news)
         return Response(serializer.data)
 
+
+class StaticSiteNewsView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = News.objects.filter(published=True)
+        news = list(queryset)
+        serializer = SimpleNewsSerializer(news, many=True)
+        return Response(serializer.data)
 
 class AlbumViewSet(viewsets.ViewSet):
     # TODO: filtrar, pelo mimetype, os arquivos das pastas para apenas retornar imagens

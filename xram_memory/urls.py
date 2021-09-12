@@ -1,5 +1,5 @@
 from .page.views import StaticPagesViewSet
-from xram_memory.artifact.views import DocumentViewSet, NewsViewSet, AlbumViewSet
+from xram_memory.artifact.views import DocumentViewSet, NewsViewSet, AlbumViewSet, StaticSiteNewsView
 from xram_memory.taxonomy.views import SubjectViewSet, KeywordViewSet
 from django.conf.urls.static import static
 from django.urls import include, path
@@ -29,8 +29,10 @@ urlpatterns = [
          DocumentViewSet.as_view({'get': 'retrieve'})),
 
     # Notícias
-    path(API_BASE + '/news/<str:slug>',
+     path(API_BASE + '/news/<str:slug>',
          NewsViewSet.as_view({'get': 'retrieve'})),
+     path(API_BASE + '/news',
+         StaticSiteNewsView.as_view()),
 
     # Álbuns
     path(API_BASE + '/albums',
