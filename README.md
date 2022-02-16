@@ -9,7 +9,7 @@ As dependências do projeto são geridas com a ferramenta `pipenv`.
 0) Instale o [Python 3.7.2+](https://www.python.org/downloads/) e o [Pipenv](https://pypi.org/project/pipenv/)
 1) Instale os pacotes: `python3-pdfkit`, `poppler-utils` e `wkhtmltopdf`
 3) Instale as dependências do projeto: `pipenv install --dev` e `npm install`
-4) Defina as variáveis ambiente em `.env` a partir de `.env.example`
+4) Defina as variáveis ambiente em `.env` a partir de `.env.example`, em especial, defina pelo menos as variáveis `DJANGO_SECRET_KEY` e `DJANGO_HASHID_FIELD_SALT`
 5) Entre no shell do pipenv: `pipenv shell`
 6) Instale os corpos do nltk: `./scripts/download_corpora.py --user`
 7) Colecione os estáticos: `./manage.py collectstatic`
