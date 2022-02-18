@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e;
+mkdir -p ./media/lunr_index
 python manage.py collectstatic --noinput # Colecione arquivos estáticos
 python manage.py migrate # Aplique as migrações de banco de dados
 
