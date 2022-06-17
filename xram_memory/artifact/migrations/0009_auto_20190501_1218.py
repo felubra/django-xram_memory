@@ -6,19 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('taxonomy', '0002_auto_20190321_2252'),
-        ('artifact', '0008_document_document_id'),
+        ("taxonomy", "0002_auto_20190321_2252"),
+        ("artifact", "0008_document_document_id"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='document',
-            name='keywords',
-            field=models.ManyToManyField(blank=True, related_name='document', to='taxonomy.Keyword', verbose_name='Palavras-chave'),
+            model_name="document",
+            name="keywords",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="document",
+                to="taxonomy.Keyword",
+                verbose_name="Palavras-chave",
+            ),
         ),
         migrations.AddField(
-            model_name='document',
-            name='subjects',
-            field=models.ManyToManyField(blank=True, related_name='document', to='taxonomy.Subject', verbose_name='Assuntos'),
+            model_name="document",
+            name="subjects",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="document",
+                to="taxonomy.Subject",
+                verbose_name="Assuntos",
+            ),
         ),
     ]

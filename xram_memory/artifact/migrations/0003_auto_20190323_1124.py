@@ -7,13 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('artifact', '0002_auto_20190321_2252'),
+        ("artifact", "0002_auto_20190321_2252"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='news',
-            name='url',
-            field=models.URLField(help_text='Endereço original da notícia', max_length=255, unique=True, validators=[django.core.validators.URLValidator], verbose_name='Endereço original'),
+            model_name="news",
+            name="url",
+            field=models.URLField(
+                help_text="Endereço original da notícia",
+                max_length=255,
+                unique=True,
+                validators=[django.core.validators.URLValidator],
+                verbose_name="Endereço original",
+            ),
         ),
     ]

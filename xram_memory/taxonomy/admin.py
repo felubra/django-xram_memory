@@ -7,20 +7,18 @@ from xram_memory.quill_widget import QuillWidget, make_editor_opt, TEASER_EDITOR
 
 class TaxonomyItemAdmin(TraceableAdminModel):
     list_display = (
-        'id',
-        'name',
+        "id",
+        "name",
     )
-    TAXONOMY_ITEM_FIELDSETS = (('Informações básicas', {
-        'fields': ('name', )
-    }),)
-    list_filter = ('created_by', 'modified_by', 'created_at', 'modified_at')
-    search_fields = ('name',)
-    date_hierarchy = 'created_at'
+    TAXONOMY_ITEM_FIELDSETS = (("Informações básicas", {"fields": ("name",)}),)
+    list_filter = ("created_by", "modified_by", "created_at", "modified_at")
+    search_fields = ("name",)
+    date_hierarchy = "created_at"
     list_select_related = (
-        'created_by',
-        'modified_by',
+        "created_by",
+        "modified_by",
     )
-    ordering = ('name',)
+    ordering = ("name",)
 
     def get_fieldsets(self, request, obj):
         super().get_fieldsets(request, obj)
@@ -35,7 +33,7 @@ class KeywordAdmin(TaxonomyItemAdmin):
 class SubjectAdminForm(forms.ModelForm):
     class Meta:
         widgets = {
-            'description': QuillWidget(attrs=make_editor_opt('')),
+            "description": QuillWidget(attrs=make_editor_opt("")),
         }
 
 
@@ -45,8 +43,7 @@ class SubjectAdmin(TaxonomyItemAdmin):
 
     def get_fieldsets(self, request, obj):
         super().get_fieldsets(request, obj)
-        return self.TAXONOMY_ITEM_FIELDSETS + (('Informações adicionais', {
-            'fields': ('description', )
-        }), ('Opções de publicação', {
-            'fields': ('featured', )
-        }),)
+        return self.TAXONOMY_ITEM_FIELDSETS + (
+            ("Informações adicionais", {"fields": ("description",)}),
+            ("Opções de publicação", {"fields": ("featured",)}),
+        )

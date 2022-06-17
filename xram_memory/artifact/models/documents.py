@@ -13,37 +13,38 @@ class Document(File):
     """
     Um documento, inserido pelo usuário ou criado pelo sistema
     """
+
     mime_type = models.fields.CharField(
         verbose_name="Tipo",
         help_text="Tipo do arquivo",
         max_length=255,
         blank=True,
-        editable=False)
+        editable=False,
+    )
     is_user_object = models.BooleanField(
         verbose_name="Objeto criado pelo usuário?",
         help_text="Indica se o arquivo foi inserido diretamente por um usuário",
         editable=False,
-        default=True)
+        default=True,
+    )
     document_id = HashidField(
         verbose_name="Código do documento",
         help_text="Código através do qual os visitantes do site podem acessar esse documento.",
-        null=True)
+        null=True,
+    )
     keywords = models.ManyToManyField(
-        Keyword,
-        verbose_name="Palavras-chave",
-        related_name="%(class)s",
-        blank=True)
+        Keyword, verbose_name="Palavras-chave", related_name="%(class)s", blank=True
+    )
     subjects = models.ManyToManyField(
-        Subject,
-        verbose_name="Assuntos",
-        related_name="%(class)s",
-        blank=True)
+        Subject, verbose_name="Assuntos", related_name="%(class)s", blank=True
+    )
 
     published_date = models.DateTimeField(
-        verbose_name='Data de publicação',
-        help_text='Data da publicação original deste documento',
+        verbose_name="Data de publicação",
+        help_text="Data da publicação original deste documento",
         blank=True,
-        null=True)
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Documento"
@@ -70,12 +71,11 @@ class Document(File):
         """
         try:
             old_mime_type = self.mime_type
-            with self.file.file.open('rb') as f:
-                self.mime_type = magic.from_buffer(
-                    f.read(1024), mime=True)
+            with self.file.file.open("rb") as f:
+                self.mime_type = magic.from_buffer(f.read(1024), mime=True)
             return old_mime_type != self.mime_type
         except:
-            self.mime_type = ''
+            self.mime_type = ""
             return False
 
     def set_document_id(self):
@@ -92,7 +92,7 @@ class Document(File):
         try:
             return self.document_id.hashid
         except:
-            return ''
+            return ""
 
     @property
     def file_indexing(self):
@@ -102,7 +102,7 @@ class Document(File):
         try:
             return self.file.url
         except:
-            return ''
+            return ""
 
     @cachedproperty
     def thumbnail(self):
@@ -110,28 +110,27 @@ class Document(File):
         Retorna a url para uma miniatura de visualização deste documento.
         """
         try:
-            return get_thumbnailer(self.file)['document_thumbnail'].url
+            return get_thumbnailer(self.file)["document_thumbnail"].url
         except:
-            return ''
+            return ""
 
     @cachedproperty
     def search_thumbnail(self):
         try:
-            return get_thumbnailer(self.file)['thumbnail'].url
+            return get_thumbnailer(self.file)["thumbnail"].url
         except:
-            return ''
+            return ""
 
     @cachedproperty
     def thumbnails(self):
         """
         Retorna uma lista de thumbnails geradas
         """
-        thumbnails_aliases = settings.THUMBNAIL_ALIASES[''].keys()
+        thumbnails_aliases = settings.THUMBNAIL_ALIASES[""].keys()
         generated_thumbnails = {}
         try:
             for alias in thumbnails_aliases:
-                generated_thumbnails[alias] = get_thumbnailer(self.file)[
-                    alias].url
+                generated_thumbnails[alias] = get_thumbnailer(self.file)[alias].url
         except:
             return {}
         else:
@@ -141,12 +140,17 @@ class Document(File):
     def icons(self):
         try:
             thumbnails = dict(
-                (size, self.file.get_thumbnail(
-                    {'size': (int(size), int(size)), 'crop': 'scale'}).url)
-                for size in filer_settings.FILER_ADMIN_ICON_SIZES)
+                (
+                    size,
+                    self.file.get_thumbnail(
+                        {"size": (int(size), int(size)), "crop": "scale"}
+                    ).url,
+                )
+                for size in filer_settings.FILER_ADMIN_ICON_SIZES
+            )
             return thumbnails
         except:
-            return 'file'
+            return "file"
 
     @cachedproperty
     def icon(self):
@@ -163,7 +167,13 @@ class Document(File):
             self.name = self.label
         super().save(*args, **kwargs)
         # limpe o cache das flags/campos, pois o arquivo pode ter mudado
-        for attr_name in ['thumbnail', 'search_thumbnail', 'icon', 'thumbnails', 'related_news']:
+        for attr_name in [
+            "thumbnail",
+            "search_thumbnail",
+            "icon",
+            "thumbnails",
+            "related_news",
+        ]:
             try:
                 delattr(self, attr_name)
             except AttributeError:
@@ -180,11 +190,14 @@ class Document(File):
         # de notícia for(em) salva(s)
         news_items = []
         try:
-            for field_name in ['pdf_capture', 'image_capture']:
+            for field_name in ["pdf_capture", "image_capture"]:
                 try:
-                    for capture in (getattr(self, field_name, None)
-                                    .select_related('news')
-                                    .only("news__title", "news__slug").all()):
+                    for capture in (
+                        getattr(self, field_name, None)
+                        .select_related("news")
+                        .only("news__title", "news__slug")
+                        .all()
+                    ):
                         news_items.append(capture.news)
                 except:
                     continue

@@ -15,6 +15,7 @@ class NewsFetcher:
     """
     Classe que concentra métodos para a busca de informações sobre notícias na web.
     """
+
     @staticmethod
     def fetch_archived_url(url):
         plugins = ArchivePluginBase.get_plugins()
@@ -23,7 +24,8 @@ class NewsFetcher:
             url_validator(url)
             if not len(plugins):
                 raise RuntimeError(
-                    "Nenhum plugin para busca de versões arquivadas registrado.")
+                    "Nenhum plugin para busca de versões arquivadas registrado."
+                )
             for Plugin in plugins:
                 try:
                     archived_url = Plugin.fetch(url)
@@ -38,10 +40,11 @@ class NewsFetcher:
             # vamos relançar as exceções dos que falharam.
             if len(failures):
                 raise RuntimeError(
-                    "Falha na captura de uma versão arquivada - alguns plugins falharam") from Exception(failures)
+                    "Falha na captura de uma versão arquivada - alguns plugins falharam"
+                ) from Exception(failures)
             # Todos os plugins rodaram com sucesso, mas nenhum obteve um resultado, retorne uma
             # string vazia.
-            return ''
+            return ""
 
     @staticmethod
     def get_pdf_capture(url):
@@ -51,7 +54,8 @@ class NewsFetcher:
             url_validator(url)
             if not len(plugins):
                 raise RuntimeError(
-                    "Nenhum plugin para captura de páginas em pdf registrado.")
+                    "Nenhum plugin para captura de páginas em pdf registrado."
+                )
             for Plugin in plugins:
                 try:
                     if Plugin.matches(url):
@@ -65,7 +69,8 @@ class NewsFetcher:
             # vamos relançar as exceções dos que falharam.
             if len(failures):
                 raise RuntimeError(
-                    "Falha na captura de uma versão arquivada - alguns plugins falharam") from Exception(failures)
+                    "Falha na captura de uma versão arquivada - alguns plugins falharam"
+                ) from Exception(failures)
             # Não existe a possibilidade de passarmos por todos os plugins sem erro, pois deve existir
             # ao menos um plugin que funcione sobre todas as urls e, portanto, tenha falhado.
 
@@ -77,10 +82,13 @@ class NewsFetcher:
         o arquivo criado. Fecha e apaga o arquivo ao final.
         """
         url_validator(image_url)
-        fd, file_path, = tempfile.mkstemp()
+        (
+            fd,
+            file_path,
+        ) = tempfile.mkstemp()
         response = requests.get(image_url, allow_redirects=True)
         response.raise_for_status()
-        with open(fd, 'rb+') as f:
+        with open(fd, "rb+") as f:
             f.write(response.content)
             yield f
         os.remove(file_path)
@@ -95,7 +103,8 @@ class NewsFetcher:
             url_validator(url)
             if not len(plugins):
                 raise RuntimeError(
-                    "Nenhum plugin para busca de informações básicas registrado.")
+                    "Nenhum plugin para busca de informações básicas registrado."
+                )
             with requests.get(url, allow_redirects=True) as r:
                 r.raise_for_status()
                 html = r.content
@@ -109,14 +118,21 @@ class NewsFetcher:
                         melhor.
                         """
                         for key in BasicInfoPluginBase.BASIC_EMPTY_INFO.keys():
-                            if key in ('keywords', 'subjects'):
+                            if key in ("keywords", "subjects"):
                                 for item in result[key]:
                                     if item not in basic_info[key]:
-                                        basic_info[key].append(
-                                            item)
+                                        basic_info[key].append(item)
                                 continue
-                            if result[key] not in ('', [], None,):
-                                if basic_info[key] in ('', [], None,):
+                            if result[key] not in (
+                                "",
+                                [],
+                                None,
+                            ):
+                                if basic_info[key] in (
+                                    "",
+                                    [],
+                                    None,
+                                ):
                                     basic_info[key] = result[key]
                     except Exception as e:
                         failures.append(e)
@@ -129,13 +145,15 @@ class NewsFetcher:
             # vamos relançar as exceções dos que falharam.
             if len(failures):
                 raise RuntimeError(
-                    "Falha na obtenção de informações sobre a notícia - alguns plugins falharam") from Exception(failures)
+                    "Falha na obtenção de informações sobre a notícia - alguns plugins falharam"
+                ) from Exception(failures)
             else:
                 # No raro caso de todos plugins não terem falhado, mas mesmo assim não tiverem obtido
                 # informações, lance uma exceção, pois é esperado dessa função o retorno de um dicionário
                 # com as informações da notícia.
                 raise RuntimeError(
-                    "Falha na obtenção de informações sobre a notícia - nenhum plugin obteve informações básicas sobre a notícia.")
+                    "Falha na obtenção de informações sobre a notícia - nenhum plugin obteve informações básicas sobre a notícia."
+                )
 
     @staticmethod
     @lru_cache(maxsize=2)

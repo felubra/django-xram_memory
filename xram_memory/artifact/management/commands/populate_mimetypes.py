@@ -4,7 +4,7 @@ from xram_memory.artifact.models import Document
 
 # TODO: opção para determinar apenas dos documentos que não tem mime_type
 class Command(BaseCommand):
-    help = 'Determina o mimetype para todos os documentos no banco de dados'
+    help = "Determina o mimetype para todos os documentos no banco de dados"
 
     def handle(self, *args, **options):
         generated_count = 0

@@ -1,5 +1,10 @@
-from xram_memory.artifact.serializers import (DocumentSerializer, NewsSerializer, PhotoAlbumFolderSerializer,
-                                              SimplePhotoAlbumFolderSerializer, SimpleNewsSerializer)
+from xram_memory.artifact.serializers import (
+    DocumentSerializer,
+    NewsSerializer,
+    PhotoAlbumFolderSerializer,
+    SimplePhotoAlbumFolderSerializer,
+    SimpleNewsSerializer,
+)
 from xram_memory.artifact.models import Document, News
 from django.shortcuts import get_object_or_404
 from boltons.cacheutils import cachedproperty
@@ -49,21 +54,24 @@ class StaticSiteNewsView(APIView):
         serializer = SimpleNewsSerializer(news, many=True)
         return Response(serializer.data)
 
+
 class AlbumViewSet(viewsets.ViewSet):
     # TODO: filtrar, pelo mimetype, os arquivos das pastas para apenas retornar imagens
     # TODO: prever caso em que teremos que limpar este cache
     @cachedproperty
     def _main_photoalbums_folder(self):
-        return Folder.objects.get(
-            name=settings.FOLDER_PHOTO_ALBUMS['name'])
+        return Folder.objects.get(name=settings.FOLDER_PHOTO_ALBUMS["name"])
 
     def listing(self, request):
         """
         Lista os álbuns, ou seja, uma pasta que é subpasta da pasta 'Álbuns de fotos'
         """
         photo_albums_folder = self._main_photoalbums_folder
-        queryset = Folder.objects.annotate(num_files=Count("all_files")).filter(
-            parent=photo_albums_folder, num_files__gt=0).order_by("-modified_at")
+        queryset = (
+            Folder.objects.annotate(num_files=Count("all_files"))
+            .filter(parent=photo_albums_folder, num_files__gt=0)
+            .order_by("-modified_at")
+        )
         albums = list(queryset)
         serializer = SimplePhotoAlbumFolderSerializer(albums, many=True)
         return Response(serializer.data)
@@ -82,15 +90,17 @@ class AlbumViewSet(viewsets.ViewSet):
                 pass
             else:
                 # Não permita a tentativa de acesso pelo id numérico e interno (id)
-                if (pk == int_album_id):
+                if pk == int_album_id:
                     raise ValueError(
-                        "Usuário tentou acessar o álbum por número interno")
+                        "Usuário tentou acessar o álbum por número interno"
+                    )
         except ValueError:
             raise Http404()
 
         photo_albums_folder = self._main_photoalbums_folder
         queryset = Folder.objects.annotate(num_files=Count("all_files")).filter(
-            parent=photo_albums_folder, num_files__gt=0, pk=pk)
+            parent=photo_albums_folder, num_files__gt=0, pk=pk
+        )
         album = get_object_or_404(queryset)
         serializer = PhotoAlbumFolderSerializer(album)
         return Response(serializer.data)

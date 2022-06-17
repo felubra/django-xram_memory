@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('taxonomy', '0002_auto_20190321_2252'),
+        ("taxonomy", "0002_auto_20190321_2252"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subject',
-            name='description',
-            field=models.TextField(blank=True, help_text='Uma descrição detalhada para este Assunto', verbose_name='Descrição'),
+            model_name="subject",
+            name="description",
+            field=models.TextField(
+                blank=True,
+                help_text="Uma descrição detalhada para este Assunto",
+                verbose_name="Descrição",
+            ),
         ),
     ]

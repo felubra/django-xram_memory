@@ -14,41 +14,35 @@ class StaticPage(TraceableEditorialModel):
     """
     Um modelo para uma página estática.
     """
-    title = models.CharField(
-        verbose_name="Título",
-        help_text="Título",
-        max_length=255)
+
+    title = models.CharField(verbose_name="Título", help_text="Título", max_length=255)
     teaser = models.TextField(
         verbose_name="Resumo ou chamada",
         help_text="Resumo ou chamada",
         null=True,
         blank=True,
-        validators=[no_empty_html])
+        validators=[no_empty_html],
+    )
     teaser_text = models.CharField(
         verbose_name="Texto do link de chamada",
         help_text="Texto que será exibido como link para esta página na página inicial",
         null=True,
         max_length=255,
-        blank=True)
-    url = models.CharField(
-        verbose_name="Endereço",
-        max_length=100,
-        db_index=True)
-    body = models.TextField(
-        verbose_name="Corpo da página",
-        validators=[no_empty_html])
-    image = ThumbnailerImageField(
-        verbose_name="Imagem",
-        null=True,
-        blank=True)
+        blank=True,
+    )
+    url = models.CharField(verbose_name="Endereço", max_length=100, db_index=True)
+    body = models.TextField(verbose_name="Corpo da página", validators=[no_empty_html])
+    image = ThumbnailerImageField(verbose_name="Imagem", null=True, blank=True)
     show_in_menu = models.BooleanField(
         verbose_name="Mostrar no menu",
-        help_text='Mostrar um link para esta página no menu principal do site',
-        default=False)
+        help_text="Mostrar um link para esta página no menu principal do site",
+        default=False,
+    )
     show_in_home = models.BooleanField(
         verbose_name="Mostrar na página inicial",
-        help_text='Mostrar um link para esta página na página inicial, acima da barra de pesquisa',
-        default=False)
+        help_text="Mostrar um link para esta página na página inicial, acima da barra de pesquisa",
+        default=False,
+    )
 
     def __str__(self):
         return self.title

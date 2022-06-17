@@ -9,6 +9,7 @@ from celery import group
 from xram_memory.utils.decorators import disable_for_loaddata
 from xram_memory.utils.classes import SignalProcessor
 
+
 class TaskOrientedSignalProcessor(SignalProcessor):
     def _determine_additional_tasks_to_run(self, fields_and_tasks_info, instance):
         """
@@ -25,8 +26,8 @@ class TaskOrientedSignalProcessor(SignalProcessor):
         """
         Emula o comportamento de tentar novamente do celery para uma tarefas que será executada sincronicamente.
         """
-        expect_to_throw = tuple(getattr(task, 'throws', ()))
-        autoretry_for = tuple(getattr(task, 'autoretry_for', ()))
+        expect_to_throw = tuple(getattr(task, "throws", ()))
+        autoretry_for = tuple(getattr(task, "autoretry_for", ()))
         stop_max_attempt_number = 3
         wait_exponential_multiplier = 1000
         wait_exponential_max = 30 * 1000
@@ -34,9 +35,12 @@ class TaskOrientedSignalProcessor(SignalProcessor):
         def need_to_retry_for(exception):
             return isinstance(exception, autoretry_for)
 
-        @retry(stop_max_attempt_number=stop_max_attempt_number,
-            retry_on_exception=need_to_retry_for, wait_exponential_multiplier=wait_exponential_multiplier,
-            wait_exponential_max=wait_exponential_max)
+        @retry(
+            stop_max_attempt_number=stop_max_attempt_number,
+            retry_on_exception=need_to_retry_for,
+            wait_exponential_multiplier=wait_exponential_multiplier,
+            wait_exponential_max=wait_exponential_max,
+        )
         def retry_task(the_task, arguments):
             try:
                 the_task(*arguments)
@@ -47,6 +51,7 @@ class TaskOrientedSignalProcessor(SignalProcessor):
                     raise
 
         retry_task(task, args)
+
 
 class DocumentSignalProcessor(SignalProcessor):
     def __init__(self):
@@ -59,9 +64,9 @@ class DocumentSignalProcessor(SignalProcessor):
         """
         Defina o mimetype do arquivo para documentos e seu document_id.
         """
-        instance = kwargs['instance']
+        instance = kwargs["instance"]
 
-        if hasattr(instance, '_save_in_signal'):
+        if hasattr(instance, "_save_in_signal"):
             return
 
         if isinstance(instance, (Document)):
@@ -75,7 +80,7 @@ class DocumentSignalProcessor(SignalProcessor):
                     instance._save_in_signal = True
                     instance.save()
             finally:
-                if hasattr(instance, '_save_in_signal'):
+                if hasattr(instance, "_save_in_signal"):
                     del instance._save_in_signal
 
 
@@ -93,7 +98,8 @@ class NewsSignalProcessor(TaskOrientedSignalProcessor):
         news_instance._save_in_signal = True
         try:
             base_url = "{uri.scheme}://{uri.netloc}".format(
-                uri=urlsplit(news_instance.url))
+                uri=urlsplit(news_instance.url)
+            )
             news_instance.newspaper = Newspaper.objects.get(url=base_url)
             news_instance.save()
         except Newspaper.DoesNotExist:
@@ -104,7 +110,7 @@ class NewsSignalProcessor(TaskOrientedSignalProcessor):
                     title=base_url,
                     url=base_url,
                     created_by=news_instance.created_by,
-                    modified_by=news_instance.modified_by
+                    modified_by=news_instance.modified_by,
                 )
             except:
                 pass
@@ -114,15 +120,14 @@ class NewsSignalProcessor(TaskOrientedSignalProcessor):
         finally:
             del news_instance._save_in_signal
 
-
     @disable_for_loaddata
     def handler(self, sender, **kwargs):
         """
         De acorodo com as opções selecionadas pelo usuário, executa ou agenda tarefas para obter informações adicionais
         sobre determinada Notícia.
         """
-        instance = kwargs['instance']
-        if hasattr(instance, '_save_in_signal'):
+        instance = kwargs["instance"]
+        if hasattr(instance, "_save_in_signal"):
             return
         if isinstance(instance, News):
             # Se esta notícia não tem jornal, associe ela a um
@@ -131,27 +136,40 @@ class NewsSignalProcessor(TaskOrientedSignalProcessor):
 
             execute_async = celery_is_avaliable()
             fields_and_tasks_info = {
-                '_set_basic_info': (background_tasks.news_set_basic_info, (instance.pk, not execute_async)),
-                '_fetch_archived_url': (background_tasks.news_add_archived_url, (instance.pk,)),
-                '_add_pdf_capture': (background_tasks.news_add_pdf_capture, (instance.pk,)),
+                "_set_basic_info": (
+                    background_tasks.news_set_basic_info,
+                    (instance.pk, not execute_async),
+                ),
+                "_fetch_archived_url": (
+                    background_tasks.news_add_archived_url,
+                    (instance.pk,),
+                ),
+                "_add_pdf_capture": (
+                    background_tasks.news_add_pdf_capture,
+                    (instance.pk,),
+                ),
             }
             tasks = self._determine_additional_tasks_to_run(
-                fields_and_tasks_info, instance)
+                fields_and_tasks_info, instance
+            )
             if len(tasks):
                 if execute_async:
-                    transaction.on_commit(lambda instance=instance, tasks=tasks: group(
-                        [task.s(*args) for task, args in tasks]).apply_async()
+                    transaction.on_commit(
+                        lambda instance=instance, tasks=tasks: group(
+                            [task.s(*args) for task, args in tasks]
+                        ).apply_async()
                     )
                 else:
                     for task, args in tasks:
                         transaction.on_commit(
-                            lambda task=task, args=args: self._try_task(task, args))
+                            lambda task=task, args=args: self._try_task(task, args)
+                        )
 
 
 class NewspaperSignalProcessor(TaskOrientedSignalProcessor):
     def __init__(self):
-        self.signals=[post_save]
-        self.models=[Newspaper]
+        self.signals = [post_save]
+        self.models = [Newspaper]
         super().__init__()
 
     @disable_for_loaddata
@@ -159,28 +177,41 @@ class NewspaperSignalProcessor(TaskOrientedSignalProcessor):
         """
         Agenda ou executa tarefa para obter informações básicas sobre um Jornal.
         """
-        instance = kwargs['instance']
-        if hasattr(instance, '_save_in_signal'):
+        instance = kwargs["instance"]
+        if hasattr(instance, "_save_in_signal"):
             return
         if isinstance(instance, Newspaper):
             execute_async = celery_is_avaliable()
             fields_and_tasks_info = {
-                '_set_basic_info': (background_tasks.newspaper_set_basic_info, (instance.pk,)),
-                '_fetch_logo': (background_tasks.newspaper_set_logo_from_favicon, (instance.pk,)),
+                "_set_basic_info": (
+                    background_tasks.newspaper_set_basic_info,
+                    (instance.pk,),
+                ),
+                "_fetch_logo": (
+                    background_tasks.newspaper_set_logo_from_favicon,
+                    (instance.pk,),
+                ),
             }
             tasks = self._determine_additional_tasks_to_run(
-                fields_and_tasks_info, instance)
+                fields_and_tasks_info, instance
+            )
 
             # esse sinal não veio de um formulário administrativo
-            if not tasks and not hasattr(
-                    instance, '_set_basic_info') and not instance.has_basic_info:
-                tasks.append(fields_and_tasks_info['_set_basic_info'])
+            if (
+                not tasks
+                and not hasattr(instance, "_set_basic_info")
+                and not instance.has_basic_info
+            ):
+                tasks.append(fields_and_tasks_info["_set_basic_info"])
 
             if execute_async:
-                transaction.on_commit(lambda instance=instance, tasks=tasks: group(
-                    [task.s(*args) for task, args in tasks]).apply_async()
+                transaction.on_commit(
+                    lambda instance=instance, tasks=tasks: group(
+                        [task.s(*args) for task, args in tasks]
+                    ).apply_async()
                 )
             else:
                 for task, args in tasks:
                     transaction.on_commit(
-                        lambda task=task, args=args: self._try_task(task, args))
+                        lambda task=task, args=args: self._try_task(task, args)
+                    )

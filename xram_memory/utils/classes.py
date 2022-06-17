@@ -1,7 +1,8 @@
-'''
+"""
 Define classes utilizadas em todo o projeto
-'''
+"""
 from abc import ABC, abstractmethod
+
 
 class SignalProcessorBase(ABC):
     signals = []
@@ -28,11 +29,13 @@ class SignalProcessorBase(ABC):
         """
         pass
 
+
 class SignalProcessor(SignalProcessorBase):
-    '''
+    """
     Um processador de sinais que os associa a modelos definidos e pode
     ser ligado/desligado em runtime
-    '''
+    """
+
     def __init__(self):
         super().__init__()
         self.setup()

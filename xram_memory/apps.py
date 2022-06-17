@@ -3,7 +3,7 @@ from filer.apps import FilerConfig as OriginalFilerConfig
 
 
 class DefaultAdminConfig(AdminConfig):
-    default_site = 'xram_memory.admin.DefaultAdminSite'
+    default_site = "xram_memory.admin.DefaultAdminSite"
 
 
 class FilerConfig(OriginalFilerConfig):

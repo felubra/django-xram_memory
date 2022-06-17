@@ -26,6 +26,7 @@ class G1PDFCapture(PDFCapturePluginBase):
     página. A função get_pdf_capture faz isso, mas também faz a captura normal se não encontrar os
     elementos sobre os quais fazer a substituição.
     """
+
     @staticmethod
     def matches(url):
         return bool(re.match(r"^https?:\/\/g1\.globo\.com\/.*$", url))
@@ -40,7 +41,7 @@ class G1PDFCapture(PDFCapturePluginBase):
         """
         with requests.get(url, allow_redirects=True) as r:
             r.raise_for_status()
-            html = r.content.decode('utf-8')
+            html = r.content.decode("utf-8")
             soup = BeautifulSoup(html, features="lxml")
             wrappers = soup.find_all("div", ["progressive-img"])
             for wrapper in wrappers:
@@ -50,18 +51,26 @@ class G1PDFCapture(PDFCapturePluginBase):
                     image["style"] = "filter: none;"
             html = str(soup)
 
-            fd, file_path, = tempfile.mkstemp()
+            (
+                fd,
+                file_path,
+            ) = tempfile.mkstemp()
             try:
-                pdfkit.from_string(html, file_path, options={
-                    'print-media-type': None,
-                    'disable-javascript': None,
-                    'footer-center': now(),
-                    'footer-font-size': 8,
-                    'header-center': url,
-                    'load-error-handling': 'ignore',
-                    'header-font-size': 6,
-                    'image-quality': 85})
-                with open(fd, 'rb') as f:
+                pdfkit.from_string(
+                    html,
+                    file_path,
+                    options={
+                        "print-media-type": None,
+                        "disable-javascript": None,
+                        "footer-center": now(),
+                        "footer-font-size": 8,
+                        "header-center": url,
+                        "load-error-handling": "ignore",
+                        "header-font-size": 6,
+                        "image-quality": 85,
+                    },
+                )
+                with open(fd, "rb") as f:
                     yield f
             finally:
                 os.remove(file_path)

@@ -8,7 +8,6 @@ python = "~=3.7.2"
 
 [dev-packages]
 Werkzeug = "~=0.15.3"
-autopep8 = "~=1.4.3"
 pdir2 = "*"
 rope = "*"
 requests-mock = "*"
@@ -29,6 +28,7 @@ pylint = "*"
 pylint-django = "*"
 pytest-ordering = "*"
 ptvsd = "*"
+black = "*"
 
 [packages]
 dj-database-url = "~=0.5.0"

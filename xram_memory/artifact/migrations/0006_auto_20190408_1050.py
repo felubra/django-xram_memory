@@ -27,11 +27,10 @@ def reverse_create_default_folders(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('filer', '0010_auto_20180414_2058'),
-        ('artifact', '0005_auto_20190323_1158')
+        ("filer", "0010_auto_20180414_2058"),
+        ("artifact", "0005_auto_20190323_1158"),
     ]
 
     operations = [
-        migrations.RunPython(create_default_folders,
-                             reverse_create_default_folders)
+        migrations.RunPython(create_default_folders, reverse_create_default_folders)
     ]

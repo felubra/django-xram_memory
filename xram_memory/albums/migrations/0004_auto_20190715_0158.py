@@ -7,17 +7,23 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('albums', '0003_auto_20190715_0117'),
+        ("albums", "0003_auto_20190715_0117"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='album',
-            name='id',
+            model_name="album",
+            name="id",
         ),
         migrations.AlterField(
-            model_name='album',
-            name='folder',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='album', serialize=False, to='filer.Folder'),
+            model_name="album",
+            name="folder",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                primary_key=True,
+                related_name="album",
+                serialize=False,
+                to="filer.Folder",
+            ),
         ),
     ]

@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('page', '0003_staticpage_teaser_text'),
+        ("page", "0003_staticpage_teaser_text"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='staticpage',
-            name='show_in_home',
-            field=models.BooleanField(default=False, help_text='Mostrar um link para esta página na página inicial, acima da barra de pesquisa', verbose_name='Mostrar na página inicial'),
+            model_name="staticpage",
+            name="show_in_home",
+            field=models.BooleanField(
+                default=False,
+                help_text="Mostrar um link para esta página na página inicial, acima da barra de pesquisa",
+                verbose_name="Mostrar na página inicial",
+            ),
         ),
     ]

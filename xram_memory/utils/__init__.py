@@ -22,8 +22,9 @@ from whitenoise.storage import CompressedManifestStaticFilesStorage
 from django.core.files.storage import FileSystemStorage, DefaultStorage
 
 
-def unique_slugify(instance, value, slug_field_name='slug', queryset=None,
-                   slug_separator='-'):
+def unique_slugify(
+    instance, value, slug_field_name="slug", queryset=None, slug_separator="-"
+):
     """
     Calculates and stores a unique slug of ``value`` for an instance.
 
@@ -59,17 +60,17 @@ def unique_slugify(instance, value, slug_field_name='slug', queryset=None,
     next = 2
     while not slug or queryset.filter(**{slug_field_name: slug}):
         slug = original_slug
-        end = '%s%s' % (slug_separator, next)
+        end = "%s%s" % (slug_separator, next)
         if slug_len and len(slug) + len(end) > slug_len:
-            slug = slug[:slug_len-len(end)]
+            slug = slug[: slug_len - len(end)]
             slug = _slug_strip(slug, slug_separator)
-        slug = '%s%s' % (slug, end)
+        slug = "%s%s" % (slug, end)
         next += 1
 
     setattr(instance, slug_field.attname, slug)
 
 
-def _slug_strip(value, separator='-'):
+def _slug_strip(value, separator="-"):
     """
     Cleans up a slug by removing slug separator characters that occur at the
     beginning or end of a slug.
@@ -77,31 +78,35 @@ def _slug_strip(value, separator='-'):
     If an alternate separator is used, it will also replace any instances of
     the default '-' separator with the new separator.
     """
-    separator = separator or ''
-    if separator == '-' or not separator:
-        re_sep = '-'
+    separator = separator or ""
+    if separator == "-" or not separator:
+        re_sep = "-"
     else:
-        re_sep = '(?:-|%s)' % re.escape(separator)
+        re_sep = "(?:-|%s)" % re.escape(separator)
     # Remove multiple instances and if an alternate separator is provided,
     # replace the default '-' separator.
     if separator != re_sep:
-        value = re.sub('%s+' % re_sep, separator, value)
+        value = re.sub("%s+" % re_sep, separator, value)
     # Remove separator from the beginning and end of the slug.
     if separator:
-        if separator != '-':
+        if separator != "-":
             re_sep = re.escape(separator)
-        value = re.sub(r'^%s+|%s+$' % (re_sep, re_sep), '', value)
+        value = re.sub(r"^%s+|%s+$" % (re_sep, re_sep), "", value)
     return value
 
 
 @deconstructible
 class FileValidator(object):
     error_messages = {
-        'max_size': ("Certifique-se de que o arquivo enviado não seja maior do que %(max_size)s."
-                     " O tamanho do seu arquivo é %(size)s."),
-        'min_size': ("Certifique-se de que o arquivo enviado tenha pelo menos %(min_size)s. "
-                     "O tamanho do seu arquivo é %(size)s."),
-        'content_type': "Este tipo de arquivo (%(content_type)s) não é suportado.",
+        "max_size": (
+            "Certifique-se de que o arquivo enviado não seja maior do que %(max_size)s."
+            " O tamanho do seu arquivo é %(size)s."
+        ),
+        "min_size": (
+            "Certifique-se de que o arquivo enviado tenha pelo menos %(min_size)s. "
+            "O tamanho do seu arquivo é %(size)s."
+        ),
+        "content_type": "Este tipo de arquivo (%(content_type)s) não é suportado.",
     }
 
     def __init__(self, max_size=None, min_size=None, content_types=()):
@@ -112,19 +117,17 @@ class FileValidator(object):
     def __call__(self, data):
         if self.max_size is not None and data.size > self.max_size:
             params = {
-                'max_size': filesizeformat(self.max_size),
-                'size': filesizeformat(data.size),
+                "max_size": filesizeformat(self.max_size),
+                "size": filesizeformat(data.size),
             }
-            raise ValidationError(self.error_messages['max_size'],
-                                  'max_size', params)
+            raise ValidationError(self.error_messages["max_size"], "max_size", params)
 
         if self.min_size is not None and data.size < self.min_size:
             params = {
-                'min_size': filesizeformat(self.min_size),
-                'size': filesizeformat(data.size)
+                "min_size": filesizeformat(self.min_size),
+                "size": filesizeformat(data.size),
             }
-            raise ValidationError(self.error_messages['min_size'],
-                                  'min_size', params)
+            raise ValidationError(self.error_messages["min_size"], "min_size", params)
 
         if self.content_types:
             # Leia os primeiros 1024 bytes dos dados para determinar seu tipo com a libmagic
@@ -132,9 +135,10 @@ class FileValidator(object):
             data.file._mime_type = content_type
             data.seek(0)
             if content_type not in self.content_types:
-                params = {'content_type': content_type}
-                raise ValidationError(self.error_messages['content_type'],
-                                      'content_type', params)
+                params = {"content_type": content_type}
+                raise ValidationError(
+                    self.error_messages["content_type"], "content_type", params
+                )
 
     def __eq__(self, other):
         return isinstance(other, FileValidator)
@@ -149,6 +153,7 @@ def celery_is_avaliable():
         conn = Connection(settings.CELERY_BROKER_URL)
         conn.ensure_connection(max_retries=3)
         from celery.task.control import inspect
+
         insp = inspect()
         d = insp.stats()
         if not d:
@@ -165,6 +170,7 @@ def task_on_commit(task, sync_context=False, sync_failback=True):
     A função decorada deve retornar um valor que será usado como argumento para a tarefa.
     Se função decorada invocar `SignalException` ou não retornar parâmetro algum, ela não será executada.
     """
+
     def decorate(func):
         @wraps(func)
         def decorated(*args, **kwargs):
@@ -180,31 +186,49 @@ def task_on_commit(task, sync_context=False, sync_failback=True):
             execute_async = celery_is_avaliable()
 
             if execute_async:
-                transaction.on_commit(lambda task_args=task_args:
-                                      task.delay(*task_args))
+                transaction.on_commit(
+                    lambda task_args=task_args: task.delay(*task_args)
+                )
             elif sync_failback and not execute_async:
-                transaction.on_commit(lambda task_args=task_args, sync_context=sync_context:
-                                      task(*task_args, sync=True) if sync_context else task(*task_args))
+                transaction.on_commit(
+                    lambda task_args=task_args, sync_context=sync_context: task(
+                        *task_args, sync=True
+                    )
+                    if sync_context
+                    else task(*task_args)
+                )
             else:
                 raise RuntimeError(
-                    "Falha ao executar {}: servidor de filas não está disponível.".format(func.__name__))
+                    "Falha ao executar {}: servidor de filas não está disponível.".format(
+                        func.__name__
+                    )
+                )
+
         return decorated
+
     return decorate
 
 
 @lru_cache(maxsize=16)
-def get_file_icon(icon_name='blank'):
-    """ retorne o caminho completo de um ícone do pacote file-icon-vectors"""
-    icon_names_to_try = [icon_name, 'blank']
+def get_file_icon(icon_name="blank"):
+    """retorne o caminho completo de um ícone do pacote file-icon-vectors"""
+    icon_names_to_try = [icon_name, "blank"]
     for icon_name_to_try in icon_names_to_try:
         icon_file = finders.find(
-            Path('file-icon-vectors/dist/icons/vivid/{icon}.svg'.format(icon=icon_name_to_try)))
+            Path(
+                "file-icon-vectors/dist/icons/vivid/{icon}.svg".format(
+                    icon=icon_name_to_try
+                )
+            )
+        )
         if icon_file is not None:
             return icon_file
     else:
-        raise FileNotFoundError(f"Nenhum arquivo de ícone encontrado enquanto buscava o ícone `{icon_name}`, "
+        raise FileNotFoundError(
+            f"Nenhum arquivo de ícone encontrado enquanto buscava o ícone `{icon_name}`, "
             "nem mesmo o failback `blank`.\n"
-            "Verifique se a dependência npm `file-icon-vectors` foi instalada corretamente.")
+            "Verifique se a dependência npm `file-icon-vectors` foi instalada corretamente."
+        )
 
 
 class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesStorage):
@@ -212,30 +236,37 @@ class PatchedCompressedManifestStaticFilesStorage(CompressedManifestStaticFilesS
     Override the replacement patterns to match URL-encoded quotations.
     Patch: https://code.djangoproject.com/ticket/21080#comment:12
     """
+
     manifest_strict = False
     patterns = (
-        ("*.css", (
-            r"""(url\((?:['"]|%22|%27){0,1}\s*(.*?)(?:['"]|%22|%27){0,1}\))""",
-            (r"""(@import\s*["']\s*(.*?)["'])""", """@import url("%s")"""),
-        )),
+        (
+            "*.css",
+            (
+                r"""(url\((?:['"]|%22|%27){0,1}\s*(.*?)(?:['"]|%22|%27){0,1}\))""",
+                (r"""(@import\s*["']\s*(.*?)["'])""", """@import url("%s")"""),
+            ),
+        ),
     )
 
 
 class OverwriteStorageMixin(FileSystemStorage):
-    '''
+    """
     Muda o comportamento padrão do Django e o faz sobrescrever arquivos de
     mesmo nome que foram carregados pelo usuário ao invés de renomeá-los.
     Fonte: https://gist.github.com/fabiomontefuscolo/1584462
-    '''
+    """
+
     def get_available_name(self, name, max_length=None):
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))
         return name
 
+
 class OverwriteDefaultStorage(OverwriteStorageMixin, FileSystemStorage):
     """
     Classe que salva arquivo por cima do outro.
     """
+
 
 def no_empty_html(value):
     """
@@ -243,7 +274,8 @@ def no_empty_html(value):
     """
     soup = BeautifulSoup(value, features="lxml")
     if not soup.get_text().strip():
-        raise ValidationError(_('This field is required.'))
+        raise ValidationError(_("This field is required."))
+
 
 def release_memcache_lock(lock_id, timeout_at, status):
     logger.debug("release_memcache_lock: início da invocação")
@@ -256,6 +288,7 @@ def release_memcache_lock(lock_id, timeout_at, status):
         # also don't release the lock if we didn't acquire it
         cache.delete(lock_id)
         logger.debug("release_fn: lock limpo")
+
 
 @contextmanager
 def memcache_lock(lock_id, oid, timeout, sync=True):
@@ -274,11 +307,16 @@ def memcache_lock(lock_id, oid, timeout, sync=True):
     # cache.add falha e retorna False se a entrada no cache já existir
     lock_acquired = cache.add(lock_id, oid, timeout)
     try:
-        yield lock_acquired, (lock_id, timeout_at, lock_acquired,)
+        yield lock_acquired, (
+            lock_id,
+            timeout_at,
+            lock_acquired,
+        )
     finally:
         if sync:
             # Se a operação for síncrona, libere o lock agora, pois a operação já foi realizada
             release_memcache_lock(lock_id, timeout_at, lock_acquired)
+
 
 def datetime_to_string(obj: datetime.datetime):
     if isinstance(obj, datetime.datetime):

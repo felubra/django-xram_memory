@@ -21,8 +21,8 @@ class NewspaperAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # defina os valores para os campos acima de acordo com o estado do modelo
-        self.initial['set_basic_info'] = not self.instance.has_basic_info
-        self.initial['fetch_logo'] = not self.instance.has_logo
+        self.initial["set_basic_info"] = not self.instance.has_basic_info
+        self.initial["fetch_logo"] = not self.instance.has_logo
 
     def clean(self):
         """
@@ -31,21 +31,23 @@ class NewspaperAdminForm(forms.ModelForm):
         cleaned_data = super().clean()
         # operações adicionais sobre o modelo
 
-        set_basic_info = cleaned_data.get(
-            'set_basic_info', False)
-        fetch_logo = cleaned_data.get(
-            'fetch_logo', False)
+        set_basic_info = cleaned_data.get("set_basic_info", False)
+        fetch_logo = cleaned_data.get("fetch_logo", False)
 
-        url = cleaned_data.get('url', None)
-        title = cleaned_data.get('title', None)
+        url = cleaned_data.get("url", None)
+        title = cleaned_data.get("title", None)
 
         if not set_basic_info:
             if not title:
                 self.add_error(
-                    'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
+                    "title",
+                    "Se você optou por inserir os dados manualmente, é necessário informar ao menos um título",
+                )
             if not url and self.instance.pk is None:
                 self.add_error(
-                    'slug', 'Se você optou por inserir os dados manualmente, é necessário informar um endereço')
+                    "slug",
+                    "Se você optou por inserir os dados manualmente, é necessário informar um endereço",
+                )
 
         # define em campos privados do modelo quais operações adicionais o método save() deve
         # realizar
@@ -59,9 +61,13 @@ class NewspaperAdminForm(forms.ModelForm):
                     raise ValueError()
             except ValueError:
                 self.add_error(
-                    'title', "Não foi possível determinar um título automaticamente, preencha ele manualmente.")
+                    "title",
+                    "Não foi possível determinar um título automaticamente, preencha ele manualmente.",
+                )
             except:
-                self.add_error(None,
-                               "Não foi possível determinar automaticamente informações sobre este site no momento, por-favor insira os dados dele manualmente.")
+                self.add_error(
+                    None,
+                    "Não foi possível determinar automaticamente informações sobre este site no momento, por-favor insira os dados dele manualmente.",
+                )
 
         return cleaned_data

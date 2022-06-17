@@ -11,9 +11,12 @@ from .models import StaticPage
 class StaticPageAdminForm(forms.ModelForm):
     class Meta:
         widgets = {
-            'body': QuillWidget(attrs=make_editor_opt('Conteúdo da página...')),
-            'teaser': QuillWidget(attrs=make_editor_opt('Resumo ou chamada para esta página...',
-                                                        TEASER_EDITOR_OPTIONS)),
+            "body": QuillWidget(attrs=make_editor_opt("Conteúdo da página...")),
+            "teaser": QuillWidget(
+                attrs=make_editor_opt(
+                    "Resumo ou chamada para esta página...", TEASER_EDITOR_OPTIONS
+                )
+            ),
         }
 
 
@@ -21,41 +24,61 @@ class StaticPageAdminForm(forms.ModelForm):
 class StaticPageAdmin(TraceableEditorialAdminModel):
     form = StaticPageAdminForm
     list_display = (
-        'id',
-        'title',
-        'created_by',
-        'modified_by',
-        'created_at',
-        'modified_at',
-        'show_in_menu',
-        'show_in_home',
+        "id",
+        "title",
+        "created_by",
+        "modified_by",
+        "created_at",
+        "modified_at",
+        "show_in_menu",
+        "show_in_home",
     )
     list_filter = (
-        'created_by',
-        'modified_by',
-        'created_at',
-        'modified_at',
-        'show_in_menu',
+        "created_by",
+        "modified_by",
+        "created_at",
+        "modified_at",
+        "show_in_menu",
     )
-    prepopulated_fields = {'url': ('title', ), }
+    prepopulated_fields = {
+        "url": ("title",),
+    }
 
     INSERT_FIELDSETS = (
-        ('Informações básicas', {
-            'fields': ('title', 'teaser', 'body',)
-        }),
-
-        ('Informações adicionais', {
-            'fields': ('url', 'teaser_text', 'image', 'show_in_menu', 'show_in_home',),
-        }),
+        (
+            "Informações básicas",
+            {
+                "fields": (
+                    "title",
+                    "teaser",
+                    "body",
+                )
+            },
+        ),
+        (
+            "Informações adicionais",
+            {
+                "fields": (
+                    "url",
+                    "teaser_text",
+                    "image",
+                    "show_in_menu",
+                    "show_in_home",
+                ),
+            },
+        ),
     )
-    list_display_links = ('title', 'id',)
-    date_hierarchy = 'created_at'
+    list_display_links = (
+        "title",
+        "id",
+    )
+    date_hierarchy = "created_at"
     formfield_overrides = {
-        ThumbnailerImageField: {'widget': ImageClearableFileInput},
+        ThumbnailerImageField: {"widget": ImageClearableFileInput},
     }
     list_select_related = (
-        'created_by',
-        'modified_by',
+        "created_by",
+        "modified_by",
     )
 
     def get_fieldsets(self, request, obj):

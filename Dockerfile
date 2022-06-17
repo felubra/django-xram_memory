@@ -62,7 +62,6 @@ RUN set -ex; \
   apt-get autoclean -yq && apt-get autoremove -yq ; \
   rm -rf /var/lib/apt/lists/;
 
-ENTRYPOINT []
 
 USER 1000
 

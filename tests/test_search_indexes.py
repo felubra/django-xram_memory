@@ -7,13 +7,14 @@ import pytest
 import os
 from .utils import without_local_search
 
+
 @contextmanager
 def open_as_django_file(filename):
     """
     Lê um arquivo em `pathname` e retorna um gerenciador de contexto com este arquivo
     encapsulado em uma classe `File` do Django
     """
-    with open(filename, 'rb') as fd:
+    with open(filename, "rb") as fd:
         django_file = DjangoFile(fd, name=filename)
         yield django_file
 
@@ -25,8 +26,7 @@ def test_non_user_document_indexed():
     """
     Testa se um documento marcado como não sendo do usuário não está sendo indexado.
     """
-    pdf_file_path = Path(os.path.dirname(
-        __file__), './fixtures/pdf.pdf')
+    pdf_file_path = Path(os.path.dirname(__file__), "./fixtures/pdf.pdf")
     with open_as_django_file(pdf_file_path) as django_file:
         document = Document(is_user_object=False, file=django_file)
 

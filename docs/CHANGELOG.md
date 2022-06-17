@@ -1,12 +1,10 @@
-Changelog
-=========
+# Changelog
 
-
-1.5.0
-------------
+## 1.5.0
 
 Adicionado
-~~~~~~~~~~
+
+```
 - News listing endpoint (#160) [Felipe Lube de Bragança]
 
   * feat: install django rest framewor's token authentication
@@ -91,7 +89,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Abort app start if there is access error in lunr index folder. [Felipe
   Lube de Bragança]
 - Allow download corpora to user folder. [Felipe Lube de Bragança]
@@ -102,7 +101,8 @@ Adicionado
   Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Revert django-elasticsearch-dsl update. [Felipe Lube de Bragança]
 - Fix (Pipfile): use compatible release indicator. [Felipe Lube de
   Bragança]
@@ -179,7 +179,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - [lunr] comando básico para a reconstrução do índice. [Felipe Lube de
   Bragança]
 - [lunr] failback para a data de modificação sem data de publicação.
@@ -190,12 +191,14 @@ Adicionado
   Lube de Bragança]
 
   close #135
+
 - Endpoint para artefatos associados a um termo de taxonomia - close
   #135. [Felipe Lube de Bragança]
 - #132 Endpoint para as palavras-chave e a contagem de notícias
   associada. [Felipe Lube de Bragança]
 
   feat: #132 Endpoint para as palavras-chave e a contagem de notícias associada
+
 - Endpoint para as palavras chave mais associadas - permita definir um
   limite através do parâmetro `max` [Felipe Lube de Bragança]
 - Utilize o Memcached como backend do cache com failback. [Felipe Lube
@@ -204,41 +207,46 @@ Adicionado
   [Felipe Lube de Bragança]
 - Multi stage build (#131) [Felipe Lube de Bragança]
 
-  * chore: configurações separadas para apps de indexação distintos
-  - IndexingWithLunrSearch: indexação somente com o (Elastic)Lunr
-  - IndexingWithElasticSearch: indexação com o ElasticSearch
-  - IndexingWithAllApps: indexação com os dois apps
-  - Development: configuração para desenvolvimento com os 2 apps ligados
-  - Staging continua usando apenas o app do ElasticSearch
+  - chore: configurações separadas para apps de indexação distintos
 
-  * feat: atualizações na imagem docker
-  - Build multi-stage com suporte para ambiente de desenvolvimento
-  - Use node:lts-alpine ao invés de node:8
-  - Atualize o SO do python para debian buster
-  - Correção no link de download do wkhtmltox
-  - Redução de ~550MB no tamanho da imagem
+  * IndexingWithLunrSearch: indexação somente com o (Elastic)Lunr
+  * IndexingWithElasticSearch: indexação com o ElasticSearch
+  * IndexingWithAllApps: indexação com os dois apps
+  * Development: configuração para desenvolvimento com os 2 apps ligados
+  * Staging continua usando apenas o app do ElasticSearch
 
-  * chore: renomeie os estágios do build do container
+  - feat: atualizações na imagem docker
 
-  * chore: ignore os arquivos do docker na imagem
+  * Build multi-stage com suporte para ambiente de desenvolvimento
+  * Use node:lts-alpine ao invés de node:8
+  * Atualize o SO do python para debian buster
+  * Correção no link de download do wkhtmltox
+  * Redução de ~550MB no tamanho da imagem
 
-  * chore (docker): correção no estágio de desenvolvimento
+  - chore: renomeie os estágios do build do container
 
-  * chore: use o endereço de desenvolvimento em homologação por padrão
-  - definição da configuração ALLOWED_HOSTS via env var
+  - chore: ignore os arquivos do docker na imagem
 
-  * feat: configuração para rodar em desenvolvimento via docker
+  - chore (docker): correção no estágio de desenvolvimento
 
-  * fix: desabilte o http retry em lunr_index_rebuild por enquanto
+  - chore: use o endereço de desenvolvimento em homologação por padrão
 
-  * fix: retorne o cliente em _get_client
+  * definição da configuração ALLOWED_HOSTS via env var
+
+  - feat: configuração para rodar em desenvolvimento via docker
+
+  - fix: desabilte o http retry em lunr_index_rebuild por enquanto
+
+  - fix: retorne o cliente em \_get_client
+
 - Feat(dev): atualização do script entrypoint - permita a execução do
   servidor de desenvolvimento do Django. [Felipe Lube de Bragança]
 - Feat(dev): permita debugar app e testes remotamente. [Felipe Lube de
   Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Corrige a semântica dos endpoints (#140) [Felipe Lube de Bragança]
 
   * refat: utilize uma constanta para a base da API
@@ -284,7 +292,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Gerenciador de contexto para desabilitar sinais de artifact. [Felipe
   Lube de Bragança]
 - Refatore os builders como classes. [Felipe Lube de Bragança]
@@ -319,46 +328,50 @@ Adicionado
 - Adequação ao novo esquema de requisição; alteração em configuração -
   simplifique o nome das configurações - configuração para definir quais
   campos indexar - alteração na requisição enviada ao serviço externo,
-  sendo objeto com   - os itens a indexar   - os campos que serão
-  indexados   - se o documentos devem ser salvos no índice. [Felipe]
+  sendo objeto com - os itens a indexar - os campos que serão
+  indexados - se o documentos devem ser salvos no índice. [Felipe]
 - Feat(wip): suporte ao envio documentos via http. [Felipe]
 - Adicione um campo para o cliente gerar a url do item. [Felipe]
 - #112 adicione suporte a geraçao de um indice lunr. [Felipe Lübe de
   Bragança]
 
-  * chore: adicione lunr e lunr[languages]
+  - chore: adicione lunr e lunr[languages]
 
-  * feat: #112 construção de app com escutador de sinal
-  - Escutador de sinal para agendar a execução de uma task assíncrona
-  toda vez que os conteúdos do site atualizarem
+  - feat: #112 construção de app com escutador de sinal
 
-  * chore: #112 renomeie app
+  * Escutador de sinal para agendar a execução de uma task assíncrona
+    toda vez que os conteúdos do site atualizarem
 
-  * feat: #112 defina as configurações, parâmetros para a geração do índice
+  - chore: #112 renomeie app
 
-  * feat: #112 parametrize a task com a configuração do app
+  - feat: #112 defina as configurações, parâmetros para a geração do índice
 
-  * chore: #112 instale suporte ao memcached
+  - feat: #112 parametrize a task com a configuração do app
 
-  * chore: #112 defina explicitamente a configuração dos caches
+  - chore: #112 instale suporte ao memcached
 
-  * feat: sistema de armazenamento que sobrescreve arquivo
+  - chore: #112 defina explicitamente a configuração dos caches
 
-  * feat: #112 corpo da função da task para gerar um índice
+  - feat: sistema de armazenamento que sobrescreve arquivo
 
-  * chore: #112 defina a url de conexão ao memcached via variável-ambiente
+  - feat: #112 corpo da função da task para gerar um índice
 
-  * feat: #112 garanta a execução de apenas um task para geração do índice
-  - NOTA: atomicidade só é garantida com o backend memcached
+  - chore: #112 defina a url de conexão ao memcached via variável-ambiente
 
-  * fix: ajustes no decorador de logging
-  - obtenção safa de obj
-  - não 'Artefato' como failback para valor do tipo do item alterado
+  - feat: #112 garanta a execução de apenas um task para geração do índice
 
-  * feat: #112 logging básico no sinal
+  * NOTA: atomicidade só é garantida com o backend memcached
+
+  - fix: ajustes no decorador de logging
+
+  * obtenção safa de obj
+  * não 'Artefato' como failback para valor do tipo do item alterado
+
+  - feat: #112 logging básico no sinal
 
 Corrigido
-~~~~~~~~~
+
+```
 - Correção da assinatura de lunr_index_rebuild. [Felipe Lube de
   Bragança]
 - Limpa o cache de funções que utilizam lru_cache antes dos testes.
@@ -421,16 +434,18 @@ Outros
 ------------------
 
 Corrigido
-~~~~~~~~~
+```
+
 - #119 remova cache dos endpoints dos Assuntos; doc. problemas de cache
   (#123) [Felipe Lübe de Bragança]
 
+  1.2.2 (2020-04-19)
 
-1.2.2 (2020-04-19)
-------------------
+---
 
 Corrigido
-~~~~~~~~~
+
+```
 - #111 ordenação correta ao buscar capa do álbum (#122) [Felipe Lübe de
   Bragança]
 - #120 correção em endpoint dos assuntos (#121) [Felipe Lübe de
@@ -452,21 +467,23 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Atualização para o Django 2.2 (#91) [Felipe Lübe de Bragança]
 
-  * feat: atualize o django para 2.2.9 e os outros pacotes
+  - feat: atualize o django para 2.2.9 e os outros pacotes
 
-  * chore: use a versão binária de psycopg2
+  - chore: use a versão binária de psycopg2
 
-  * chore: ajuste em pacote que não pode ser atualizado
+  - chore: ajuste em pacote que não pode ser atualizado
 
+  1.2.0 (2020-01-13)
 
-1.2.0 (2020-01-13)
-------------------
+---
 
 Corrigido
-~~~~~~~~~
+
+```
 - Fix (close #87): desabilite o autocrop para visualizações. [Felipe]
 
 Outros
@@ -480,7 +497,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Retorne informações sobre o documento da imagem da notícia. [Felipe
   Lube de Bragança]
 - Adicione campos necessários à ordenação no frontend - adicione um
@@ -488,7 +506,8 @@ Adicionado
   adicione um campo 'raw' para o campo title. [Felipe Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Close #82 instalação de pytest-ordering, que estava ausente. [Felipe
   Lube de Bragança]
 
@@ -502,12 +521,14 @@ Outros
 ------------------
 
 Corrigido
-~~~~~~~~~
+```
+
 - Fixe python em 3.7 para compatibilidade com o psycopg2. [Felipe Lube
   de Bragança]
 
 Outros
-~~~~~~
+
+```
 - Chore: trave psycopg2 em < 2.8. [Felipe Lube de Bragança]
 
 
@@ -515,7 +536,8 @@ Outros
 ------------------
 
 Corrigido
-~~~~~~~~~
+```
+
 - Verifique corretamente se é uma instância de Documento. [Felipe Lube
   de Bragança]
 - Verifique corretamente se é uma instância de Documento. [Felipe Lube
@@ -524,7 +546,8 @@ Corrigido
   [Felipe Lube de Bragança]
 
 Outros
-~~~~~~
+
+```
 - Chore: atualização de segurança do Pillow. [Felipe Lube de Bragança]
 - Merge branch 'dev' of https://github.com/felubra/django-xram_memory
   into dev. [Felipe Lube de Bragança]
@@ -543,11 +566,13 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Link para a notícia publicada no site. [Felipe Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Correção em get_absolute_url para incluir a barra inicial. [Felipe
   Lube de Bragança]
 
@@ -566,12 +591,14 @@ Outros
 ------------------
 
 Corrigido
-~~~~~~~~~
+```
+
 - Retorne listas vazias ao invés de um erro 404. [Felipe Lube de
   Bragança]
 
 Outros
-~~~~~~
+
+```
 - Merge branch 'dev' [Felipe Lube de Bragança]
 - Merge branch 'dev' [Felipe Lube de Bragança]
 
@@ -580,16 +607,18 @@ Outros
 ------------------
 
 Corrigido
-~~~~~~~~~
+```
+
 - Correção nas views da iniciais: use ! ao invés de # [Felipe Lube de
   Bragança]
 
+  1.1.0 (2019-07-27)
 
-1.1.0 (2019-07-27)
-------------------
+---
 
 Adicionado
-~~~~~~~~~~
+
+```
 - Adicione django-rest-multiple-models. [Felipe Lube de Bragança]
 - Acesso aos assuntos pela(s) inicial(is) [Felipe Lube de Bragança]
 - Use todos os tamanhos de imagem para todos os modelos em thumbnails.
@@ -666,7 +695,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - (closes #74) desabilita os assuntos na interface administrativa.
   [Felipe Lube de Bragança]
 - Adicione a biblioteca libmagic como dependência no Windows. [Felipe
@@ -686,16 +716,19 @@ Adicionado
 - Newsfetcher: sistema de plugins para capturas, arquivos e informações
   básicas; correções diversas. [Felipe Lübe de Bragança]
 
-  * Reestruturação dos diretórios: lugar próprio para a biblioteca news_fetcher
-  * Inclusão de vários testes para NewsFetcher e alteração/expansão dos testes existentes
-  * Sistema de plugins em NewsFetcher:
-  - utilize plugins para buscar uma versão arquivada da notícia
-  - utilize plugins para capturar a página da notícia
+  - Reestruturação dos diretórios: lugar próprio para a biblioteca news_fetcher
+  - Inclusão de vários testes para NewsFetcher e alteração/expansão dos testes existentes
+  - Sistema de plugins em NewsFetcher:
+
+  * utilize plugins para buscar uma versão arquivada da notícia
+  * utilize plugins para capturar a página da notícia
     - capturador padrão e um especialista (G1) para páginas em PDF (closes #69 e closes #68)
-  - captura de informações básicas implementada via plugins
-  * Utilize um hashid como nome de arquivo para um logotipo de jornal
-  * NPM_FILE_PATTERNS: padrões de caminhos de acordo com a plataforma
-  * Migração do sistema de testes para o pytest [WIP]
+  * captura de informações básicas implementada via plugins
+
+  - Utilize um hashid como nome de arquivo para um logotipo de jornal
+  - NPM_FILE_PATTERNS: padrões de caminhos de acordo com a plataforma
+  - Migração do sistema de testes para o pytest [WIP]
+
 - Testes para newspaper (100%) [Felipe Lube de Bragança]
 - Expansão da cobertura dos testes de News (100%) [Felipe Lube de
   Bragança]
@@ -747,11 +780,12 @@ Adicionado
 - Nova imagem docker. [Felipe Lube de Bragança]
 - Adicione suporte ao Mysql/MariaDB. [Felipe Lube de Bragança]
 - Libere um endereço local em ALLOWED_HOSTS. [Felipe Lube de Bragança]
-- Atualização da imagem do docker -  instalação de módulos npm - script
+- Atualização da imagem do docker - instalação de módulos npm - script
   entrypoint com execução de migrações. [Felipe Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Downgrade em django-current-user para evitar problemas com o django
   2.1.9. [Felipe Lube de Bragança]
 - Marque testes que irão usar o banco de dados. [Felipe Lube de
@@ -839,7 +873,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Testes básicos para newspaper. [Felipe Lube de Bragança]
 - Formulários e ações adm para adm de Jornais - Formulário
   administrativo para o Jornal com possibilidade de adicionar info e
@@ -886,14 +921,15 @@ Adicionado
 - Mostre o logo na interface administrativa. [Felipe Lube de Bragança]
 - Ícones de status das capturas usando a fonte material-icons. [Felipe
   Lube de Bragança]
-- Feat: decore a função io intensiva  get_file_icon() com @lru_cache.
+- Feat: decore a função io intensiva get_file_icon() com @lru_cache.
   [Felipe Lube de Bragança]
 - Indicação das capturas de um item na Lista de notícias. [Felipe Lube
   de Bragança]
-- Botão para inserir múltiplas notícias  lado-a-lado com outro botão.
+- Botão para inserir múltiplas notícias lado-a-lado com outro botão.
   [Felipe Lube de Bragança]
 
   - Movida a view para inserção múltima para NewsAdmin
+
 - Flutue a linha de açẽos do formulário de edição/adição. [Felipe Lube
   de Bragança]
 - Utilize os campos do filer nos modelos de captura. [Felipe Lube de
@@ -905,7 +941,8 @@ Adicionado
 - Integração inicial com o django-tags-input. [Felipe Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Correção em has_basic_info, deve haver ao menos um título. [Felipe
   Lube de Bragança]
 - Invoque o BeautifulSoup com um parser definido. [Felipe Lube de
@@ -965,7 +1002,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Remova o widget customizado em DocumentAdmin. [Felipe Lube de
   Bragança]
 - Icon_preview: retorne ícone de arquivo em branco como failback.
@@ -991,8 +1029,10 @@ Adicionado
   [Felipe Lube de Bragança]
 
   BREAKING CHANGE:
+
   - remoção do modelo Documento (Document)
   - capturas tem associação com os arquivos (moelos do Filer)
+
 - Ao criar uma captura, reaproveite o documento se ele já existir.
   [Felipe Lube de Bragança]
 - Template padrão do filer para exibir documentos na int. admin. [Felipe
@@ -1002,17 +1042,20 @@ Adicionado
   Bragança]
 
   BREAKING CHANGE:
+
   - Caminhos para arquivo serão os canônicos definidos pelo Filer
   - Campo image_capture (News) usa um novo tamanho de imagem (670x204)
   - O tipo do arquivo do documento será computado não mais por um sinal
   - Atualização dos serializers com a mudança de alguns campos
   - Simplif. de add_pdf_capture e add_fetched_image, com modelo herdado
+
 - Refatoração de funções com uso de gerenciadores de contexto. [Felipe
   Lube de Bragança]
 
   - funções add_fetched_image e add_pdf_capture
   - fechamento e exclusão do arquivos temporários
   - documentação
+
 - Integração básica com o filer para as capturas. [Felipe Lube de
   Bragança]
 - Configuração incial para uso do django-filer. [Felipe Lube de
@@ -1020,7 +1063,8 @@ Adicionado
 - Adicione django-filer e dependências. [Felipe Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Correção na versão dos pacotes tornado e redis, que não estão fixos.
   [Felipe Lube de Bragança]
 - Fix (chore): correção na instalação do easy_thumbnails. [Felipe Lube
@@ -1059,7 +1103,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Feat (doc): ampliação da documentação. [Felipe Lube de Bragança]
 - Lógica dos sinais mais simples com execução síncrona como failback -
   apenas um sinal para cada entidade (news e newspaper) - refatoração do
@@ -1075,7 +1120,8 @@ Adicionado
   Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Passe o tipo de execução para a tarefa news_set_basic_info. [Felipe
   Lube de Bragança]
 - Fix (doc): fale sobre SignalException em @task_on_commit. [Felipe Lube
@@ -1094,11 +1140,13 @@ Outros
 ------------------
 
 Corrigido
-~~~~~~~~~
+```
+
 - Atualização de segurança do django (2.1.7) [Felipe Lube de Bragança]
 
 Outros
-~~~~~~
+
+```
 - Chore: atualização do changelog. [Felipe Lube de Bragança]
 
 
@@ -1106,7 +1154,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - (page) nomes em português para o app e modelos. [Felipe Lube de
   Bragança]
 - Campo teaser (page) com formatação rica. [Felipe Lube de Bragança]
@@ -1178,7 +1227,8 @@ Adicionado
   Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Remoção de cores duplicadas na toolbar do editor. [Felipe Lube de
   Bragança]
 - Defina as cores do editor numa variável para melhor legibilidade.
@@ -1239,10 +1289,11 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Versão 0.4.0. [Felipe Lube de Bragança]
-- + gitchangelog para fazer o changelog automaticamente. [Felipe Lube de
-  Bragança]
+- - gitchangelog para fazer o changelog automaticamente. [Felipe Lube de
+    Bragança]
 - Englobe certas operações numa transação. [Felipe Lube de Bragança]
 - Associe, de uma vez só, várias palavras-chave a uma notícia. [Felipe
   Lube de Bragança]
@@ -1365,12 +1416,14 @@ Adicionado
   - abra o dicionário de um projeto instalado pelo bower
   - em caso de erro, retorne um dicionário vazio
   - adicione o projeto 'stopwords-iso'
+
 - Gerenciamento de dependências com bower. [Felipe Lube de Bragança]
 - Melhor geração de visualizações pdf. [Felipe Lube de Bragança]
 
   - gere a visualizações num diretório temporário
   - use apenas o arquivo da primeira página como fonte para a miniatura
   - apague arquivos temporários gerados
+
 - Faça o downgrade do django para permitir debug. [Felipe Lube de
   Bragança]
 - Pré-visualização de arquivos de documentos. [Felipe Lube de Bragança]
@@ -1387,7 +1440,8 @@ Adicionado
 - Dockerfile inicial. [Felipe Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Correta execução de operações que poderão falhar. [Felipe Lube de
   Bragança]
 - Correta utilização do lambda. [Felipe Lube de Bragança]
@@ -1489,20 +1543,24 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Fieldsets para Documento. [Felipe Lube de Bragança]
 - Merge com 'documents_simplify' [Felipe Lube de Bragança]
 
   As modificações de 'documents_simplify' tocam na interface
   administrativa
+
 - Tradução das mensagens em FileValidator, documentação. [Felipe Lube de
   Bragança]
 - Obsoleta PDFDocument e ImageDocument. [Felipe Lube de Bragança]
 
   BREAKING CHANGE:
+
   - Somente uma classe para lidar com arquivos-documento: Document
-  - O  destino do arquivo do Documento é determinado pelo seu mimetype
+  - O destino do arquivo do Documento é determinado pelo seu mimetype
   - Refeitura das migrações
+
 - Adicione validador para arquivos. [Felipe Lube de Bragança]
 - Tom de cor vermelho para interface administrativa. [Felipe Lube de
   Bragança]
@@ -1510,7 +1568,8 @@ Adicionado
 - Altere a linguagem do django para pt-br. [Felipe Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Corrija a execução do job para buscar pdfs. [Felipe Lube de Bragança]
 - Acerto na cor do breadcrumb. [Felipe Lube de Bragança]
 - Remoção do vermelho excessivo; novas regras. [Felipe Lube de Bragança]
@@ -1545,7 +1604,8 @@ Outros
 ------------------
 
 Adicionado
-~~~~~~~~~~
+```
+
 - Feat(doc): Documentação de NewsFetcher. [Felipe Lube de Bragança]
 - Feat(doc): documentação dos recebedores de sinal. [Felipe Lube de
   Bragança]
@@ -1569,6 +1629,7 @@ Adicionado
   Bragança]
 
   BREAKING CHANGE:
+
   - Novos modelos ImageDocument e NewsImageCapture
   - Remoção do campo image em News
   - alteração de has_basic_info
@@ -1576,6 +1637,7 @@ Adicionado
   - Novos itens de administração DocumentAdmin e ImageDocumentAdmin
   - Remoção do campo imagem de NewsAdmin
   - Refeitura de todas migrações
+
 - Subclasses de Document guardarão o arquivo. [Felipe Lube de Bragança]
 - Permita acesso direto aos arquivos enviados. [Felipe Lube de Bragança]
 - Definição de MEDIA_ROOT e novas constantes. [Felipe Lube de Bragança]
@@ -1584,10 +1646,11 @@ Adicionado
 
   BREAKING CHANGE:
   News/ArchivedNews:
+
   - campos `title`, `teaser`, `keywords` e `slug` herdados de Artifact
   - remoção do campo `status` e constantes associadas
   - status de publicação herdados da classe TraceableEditorialModel
-  - campo `url` é  obrigatório
+  - campo `url` é obrigatório
   - remoção das flags de processamento
   - remoção do campo `images`
   - substituição do campo `text` por `body`
@@ -1596,12 +1659,14 @@ Adicionado
   - `has_basic_info` simplificado
   - remoção de `needs_reprocessing`, `has_web_archive_url` e `has_error`
   - remoção de is_new, is_queued, is_processed, is_published, has_web_archive_url,
-  needs_reprocessing, has_error, force_pdf_capture, force_archive_org_processing, force_basic_processing
+    needs_reprocessing, has_error, force_pdf_capture, force_archive_org_processing, force_basic_processing
 
   Logger:
+
   - Substituição da arquitetura de sinais pela invocação direta do log, através de um decorador
 
   Taxonomy:
+
   - Criação de TaxonomyItem, classe padrão para itens de taxonomia
   - Criação de Subject e Keyword
 
@@ -1609,6 +1674,7 @@ Adicionado
   Artifact, Document, PDFDocument, NewsPDFCapture e News
 
   Configuração do django para usar os modelos novos
+
 - TraceableEditorialModel modelo para um fluxo editorial básico. [Felipe
   Lube de Bragança]
 - Remoção de constantes, alteração em NEWS_FETCHER_SAVED_DIR_PDF.
@@ -1625,7 +1691,8 @@ Adicionado
 - Início de um decorador para logging básico. [Felipe Lube de Bragança]
 
 Corrigido
-~~~~~~~~~
+
+```
 - Correção em docstring dos testes e reativação de suíte esquecida.
   [Felipe Lube de Bragança]
 - Teaser em branco para artifact; migrações dos commits anteriores.
@@ -1915,3 +1982,4 @@ Outros
 - Commit inicial. [Felipe Lube de Bragança]
 
 
+```
