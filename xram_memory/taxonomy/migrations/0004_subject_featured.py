@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('taxonomy', '0003_subject_description'),
+        ("taxonomy", "0003_subject_description"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subject',
-            name='featured',
-            field=models.BooleanField(default=False, help_text='Marque se quiser dar destaque a este assunto na página de assuntos.', verbose_name='Em destaque na página de assuntos'),
+            model_name="subject",
+            name="featured",
+            field=models.BooleanField(
+                default=False,
+                help_text="Marque se quiser dar destaque a este assunto na página de assuntos.",
+                verbose_name="Em destaque na página de assuntos",
+            ),
         ),
     ]

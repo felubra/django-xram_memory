@@ -1,3 +1,4 @@
+from requests import HTTPError
 from xram_memory.lunr_index.util import LunrBackendValue
 from xram_memory.utils import release_memcache_lock
 from django.conf import settings
@@ -6,8 +7,9 @@ from loguru import logger
 
 from xram_memory.lunr_index.lib.index_builders import (
     LunrIndexBuilder,
-    RemoteElasticLunrIndexBuilder
+    RemoteElasticLunrIndexBuilder,
 )
+
 
 @shared_task(soft_time_limit=settings.LUNR_INDEX_REBUILD_TIMEOUT)
 def lunr_index_rebuild(lock_info=None, sync=False):
@@ -20,7 +22,7 @@ def lunr_index_rebuild(lock_info=None, sync=False):
                 settings.LUNR_INDEX_REMOTE_SECRET,
                 settings.LUNR_INDEX_SEARCH_FIELDS,
                 settings.LUNR_INDEX_SAVE_DOCUMENT,
-                retry=False
+                retry=False,
             )
         elif settings.LUNR_INDEX_BACKEND == LunrBackendValue.BACKEND_LOCAL:
             LunrIndexBuilder.build(settings.LUNR_INDEX_FILE_PATH)

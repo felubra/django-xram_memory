@@ -6,24 +6,27 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('artifact', '0005_auto_20190323_1158'),
+        ("artifact", "0005_auto_20190323_1158"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='newspaper',
-            options={'verbose_name': 'Site de notícias', 'verbose_name_plural': 'Sites de notícias'},
+            name="newspaper",
+            options={
+                "verbose_name": "Site de notícias",
+                "verbose_name_plural": "Sites de notícias",
+            },
         ),
         migrations.RemoveField(
-            model_name='newspaper',
-            name='featured',
+            model_name="newspaper",
+            name="featured",
         ),
         migrations.RemoveField(
-            model_name='newspaper',
-            name='published',
+            model_name="newspaper",
+            name="published",
         ),
         migrations.RemoveField(
-            model_name='newspaper',
-            name='slug',
+            model_name="newspaper",
+            name="slug",
         ),
     ]

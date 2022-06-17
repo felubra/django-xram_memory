@@ -3,10 +3,9 @@ def registry(plugin_type, default_plugin=None):
     Função fábrica para geração de registros para tipos de plugins.
     Ele gera uma metaclasse que é usada para guardar os tipos de plugins implementados.
     """
-    PLUGIN_TYPES = ['Archive', 'PDFCapture', 'BasicInfo']
+    PLUGIN_TYPES = ["Archive", "PDFCapture", "BasicInfo"]
     if plugin_type not in PLUGIN_TYPES:
-        raise ValueError(
-            "Tipo de plugin não suportado: {}".format(plugin_type))
+        raise ValueError("Tipo de plugin não suportado: {}".format(plugin_type))
 
     class PluginRegistry(type):
         """
@@ -14,8 +13,9 @@ def registry(plugin_type, default_plugin=None):
         O objeto da classe guarda uma lista com os plugins registrados - o registro acontece na
         inicialização da própria classe do plugin.
         """
+
         def __init__(cls, name, bases, attrs):
-            if not hasattr(cls, 'plugins'):
+            if not hasattr(cls, "plugins"):
                 # Esta é uma classe de registro de plugins, crie uma lista vazia.
                 if default_plugin:
                     # Se este registro usa um plugin padrão, registre-o.
@@ -38,6 +38,6 @@ def registry(plugin_type, default_plugin=None):
             Como efeito colateral, esta função também estará disponível nos plugins.
             """
             return self.plugins
-    PluginRegistry.__name__ = '{}{}'.format(
-        plugin_type, PluginRegistry.__name__)
+
+    PluginRegistry.__name__ = "{}{}".format(plugin_type, PluginRegistry.__name__)
     return PluginRegistry

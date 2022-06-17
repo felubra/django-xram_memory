@@ -9,13 +9,12 @@ from rest_framework.exceptions import ParseError
 # TODO: Fazer o rate limit desses endpoints: https://www.django-rest-framework.org/api-guide/throttling/
 class StaticPagesViewSet(viewsets.ViewSet):
     def listing(self, request):
-        queryset = StaticPage.objects.filter(
-            published=True).order_by('-modified_at')
-        filter_by = self.request.query_params.get('filterBy', None)
+        queryset = StaticPage.objects.filter(published=True).order_by("-modified_at")
+        filter_by = self.request.query_params.get("filterBy", None)
         if filter_by is not None:
-            if filter_by == 'featured':
+            if filter_by == "featured":
                 queryset = queryset.filter(featured=True)
-            elif filter_by == 'in_menu':
+            elif filter_by == "in_menu":
                 queryset = queryset.filter(show_in_menu=True)
             else:
                 raise ParseError("Filtro inválido")

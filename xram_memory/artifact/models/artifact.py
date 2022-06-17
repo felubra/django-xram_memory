@@ -8,47 +8,43 @@ class Artifact(TraceableEditorialModel):
     """
     Classe abstrata para todos os objetos-artefato do acervo
     """
+
     title = models.CharField(
-        verbose_name="Título",
-        help_text="Título",
-        max_length=255,
-        blank=True)
+        verbose_name="Título", help_text="Título", max_length=255, blank=True
+    )
     teaser = models.TextField(
         verbose_name="Resumo ou chamada",
         help_text="Resumo ou chamada",
         null=True,
-        blank=True)
+        blank=True,
+    )
     slug = models.SlugField(
         verbose_name="Endereço",
         help_text="Parte do endereço pelo qual este artefato poderá ser acessado",
-        blank=True)
+        blank=True,
+    )
     keywords = models.ManyToManyField(
-        Keyword,
-        verbose_name="Palavras-chave",
-        related_name="%(class)s",
-        blank=True)
+        Keyword, verbose_name="Palavras-chave", related_name="%(class)s", blank=True
+    )
     subjects = models.ManyToManyField(
-        Subject,
-        verbose_name="Assuntos",
-        related_name="%(class)s",
-        blank=True)
+        Subject, verbose_name="Assuntos", related_name="%(class)s", blank=True
+    )
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        if self.title not in (None, ''):
+        if self.title not in (None, ""):
             return self.title
         else:
-            return '(sem título)'
+            return "(sem título)"
 
     def save(self, *args, **kwargs):
         # gera uma slug única, considerando as slugs de outros artefatos
 
         unique_slugify(self, self.title)
         if not self.title:
-            raise ValueError(
-                "Não é possível criar um artefato sem título.")
+            raise ValueError("Não é possível criar um artefato sem título.")
         # limite o título ao tamanho máximo do campo
         self.title = self.title[:255]
         super().save(*args, **kwargs)

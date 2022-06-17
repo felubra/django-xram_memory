@@ -8,13 +8,17 @@ import filer.fields.file
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('artifact', '0003_auto_20190323_1124'),
+        ("artifact", "0003_auto_20190323_1124"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='newspdfcapture',
-            name='pdf_document',
-            field=filer.fields.file.FilerFileField(on_delete=django.db.models.deletion.CASCADE, to='filer.File', verbose_name='Documento PDF'),
+            model_name="newspdfcapture",
+            name="pdf_document",
+            field=filer.fields.file.FilerFileField(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="filer.File",
+                verbose_name="Documento PDF",
+            ),
         ),
     ]

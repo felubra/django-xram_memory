@@ -1,7 +1,10 @@
 from rest_framework.serializers import ModelSerializer
 from xram_memory.taxonomy.models import Keyword, Subject
 
-TAXONOMY_ITEM_FIELDS = fields = ('slug', 'name',)
+TAXONOMY_ITEM_FIELDS = fields = (
+    "slug",
+    "name",
+)
 
 
 class KeywordSerializer(ModelSerializer):
@@ -14,14 +17,16 @@ class KeywordSerializer(ModelSerializer):
 class SubjectSerializer(ModelSerializer):
     class Meta:
         model = Subject
-        fields = TAXONOMY_ITEM_FIELDS + \
-            ('description', 'cover', 'items_count',)
+        fields = TAXONOMY_ITEM_FIELDS + (
+            "description",
+            "cover",
+            "items_count",
+        )
         depth = 1
 
 
 class SimpleSubjectSerializer(SubjectSerializer):
     class Meta:
         model = Subject
-        fields = TAXONOMY_ITEM_FIELDS + \
-            ('items_count',)
+        fields = TAXONOMY_ITEM_FIELDS + ("items_count",)
         depth = 1

@@ -3,7 +3,7 @@ from xram_memory.artifact.models import Document
 
 
 class Command(BaseCommand):
-    help = 'Gera document_id para todos os documentos sem no banco de dados'
+    help = "Gera document_id para todos os documentos sem no banco de dados"
 
     def handle(self, *args, **options):
         generated_count = 0

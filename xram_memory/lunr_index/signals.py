@@ -10,12 +10,11 @@ from .tasks import lunr_index_rebuild
 from loguru import logger
 
 
-
-
 class LunrIndexSignalProcessor(SignalProcessor):
-    """ Observa os modelos registrados através de seus sinais e agenda o trabalho de indexação.
+    """Observa os modelos registrados através de seus sinais e agenda o trabalho de indexação.
     Pode ser desligado via runtime.
     """
+
     def __init__(self, rebuild_interval, rebuild_timeout):
         self.rebuild_interval = rebuild_interval
         self.rebuild_timeout = rebuild_timeout
@@ -31,27 +30,23 @@ class LunrIndexSignalProcessor(SignalProcessor):
         """
         sync = not celery_is_avaliable()
         with memcache_lock(
-                'LUNR_INDEX_REBUILD', 'SIGNAL_SENDER',
-                self.rebuild_interval + self.rebuild_timeout, sync
-            ) as (acquired, lock_info,):
+            "LUNR_INDEX_REBUILD",
+            "SIGNAL_SENDER",
+            self.rebuild_interval + self.rebuild_timeout,
+            sync,
+        ) as (
+            acquired,
+            lock_info,
+        ):
             if acquired:
                 logger.debug("schedule_lunr_index_rebuild: lock adquirido")
                 if not sync:
                     lunr_index_rebuild.apply_async(
-                        eta=datetime.utcnow() + timedelta(seconds=self.rebuild_interval),
-                        args=[lock_info, sync]
+                        eta=datetime.utcnow()
+                        + timedelta(seconds=self.rebuild_interval),
+                        args=[lock_info, sync],
                     )
                 else:
                     lunr_index_rebuild.apply(args=[lock_info, sync])
             else:
                 logger.debug("schedule_lunr_index_rebuild: lock NÃO adquirido")
-
-
-
-
-
-
-
-
-
-

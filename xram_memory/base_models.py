@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db import models
 
 from .users.models import User
+
 # Modelos abstratos, usados como pai para alguns modelos de outros apps
 
 
@@ -9,11 +10,12 @@ class TraceableModel(models.Model):
     """
     Um modelo abstrato com informações de criação
     """
+
     created_by = models.ForeignKey(
         verbose_name="Criado por",
         to=User,
         on_delete=models.PROTECT,
-        related_name='%(class)s_creator',
+        related_name="%(class)s_creator",
         null=True,
         editable=False,
     )
@@ -21,7 +23,7 @@ class TraceableModel(models.Model):
         verbose_name="Modificado por",
         to=User,
         on_delete=models.PROTECT,
-        related_name='%(class)s_last_modifier',
+        related_name="%(class)s_last_modifier",
         null=True,
         editable=False,
     )
@@ -42,6 +44,7 @@ class TraceableEditorialModel(TraceableModel):
     """
     Modelo que implementa um fluxo editorial básico
     """
+
     published = models.BooleanField(
         verbose_name="Publicado?",
         default=True,
@@ -59,8 +62,8 @@ class TraceableAdminModel(admin.ModelAdmin):
     """
     Modelo abstrato de administração para o preenchimento de campos de usuário.
     """
-    readonly_fields = ('created_by', 'modified_by',
-                       'created_at', 'modified_at')
+
+    readonly_fields = ("created_by", "modified_by", "created_at", "modified_at")
 
     def save_model(self, request, obj, form, change):
         """
@@ -78,11 +81,18 @@ class TraceableAdminModel(admin.ModelAdmin):
 
 
 class TraceableEditorialAdminModel(TraceableAdminModel):
-    COMMON_FIELDSETS = ('Informações editoriais', {
-        'fields': (('published', 'featured'),
-                   'created_by',
-                   'modified_by',
-                   'created_at',
-                   'modified_at',)
-    }),
+    COMMON_FIELDSETS = (
+        (
+            "Informações editoriais",
+            {
+                "fields": (
+                    ("published", "featured"),
+                    "created_by",
+                    "modified_by",
+                    "created_at",
+                    "modified_at",
+                )
+            },
+        ),
+    )
     pass

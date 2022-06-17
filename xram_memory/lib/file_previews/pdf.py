@@ -19,7 +19,8 @@ def pdf_preview(source, exif_orientation=True, **options):
 
     # Converta a primeira página do arquivo pdf e salve-a como arquivo temporário
     images = convert_from_path(
-        source.path, first_page=0, last_page=1, output_folder=gettempdir())
+        source.path, first_page=0, last_page=1, output_folder=gettempdir()
+    )
 
     # Não estou certo se images vai ter sempre apenas um arquivo gerado, então vamos verificar todos
     for index, image in enumerate(images):

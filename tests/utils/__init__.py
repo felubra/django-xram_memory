@@ -10,12 +10,14 @@ from django.apps import apps
 
 logger.remove()
 
+
 @contextmanager
 def basic_news():
     with factory.django.mute_signals(post_save, m2m_changed, pre_delete, post_delete):
         news = fixtures.NewsFactory()
         news.save()
     yield news
+
 
 @contextmanager
 def basic_news_with_newspaper():
@@ -24,16 +26,21 @@ def basic_news_with_newspaper():
         newspaper.save()
         news = News(
             url="https://brasil.elpais.com/brasil/2015/12/29/economia/1451418696_403408.html",
-            newspaper=newspaper
+            newspaper=newspaper,
         )
-        with patch.object(NewsFetcher, 'fetch_basic_info', return_value=fixtures.NEWS_INFO_MOCK):
+        with patch.object(
+            NewsFetcher, "fetch_basic_info", return_value=fixtures.NEWS_INFO_MOCK
+        ):
             news.set_basic_info()
         news.save()
     yield news
 
+
 def toggle_elastic_search_signals(disable=True):
     try:
-        signal_processor = apps.get_app_config('django_elasticsearch_dsl').signal_processor
+        signal_processor = apps.get_app_config(
+            "django_elasticsearch_dsl"
+        ).signal_processor
     except:
         return
     else:
@@ -42,9 +49,10 @@ def toggle_elastic_search_signals(disable=True):
         else:
             signal_processor.setup()
 
+
 def toggle_local_search_signals(disable=True):
     try:
-        signal_processor = apps.get_app_config('lunr_index').signal_processor
+        signal_processor = apps.get_app_config("lunr_index").signal_processor
     except Exception as e:
         return
     else:
@@ -58,7 +66,7 @@ def toggle_artifact_signals(disable=True, models=[]):
     if not models:
         return
     try:
-        signal_processors = apps.get_app_config('artifact').signal_processors
+        signal_processors = apps.get_app_config("artifact").signal_processors
     except Exception as e:
         return
     else:
@@ -69,9 +77,11 @@ def toggle_artifact_signals(disable=True, models=[]):
             else:
                 signal_processor.setup()
 
+
 def toggle_indexing_apps_signals(disable=True):
     toggle_elastic_search_signals(disable)
     toggle_local_search_signals(disable)
+
 
 @contextmanager
 def without_indexing_apps():
@@ -81,6 +91,7 @@ def without_indexing_apps():
     finally:
         toggle_indexing_apps_signals(False)
 
+
 @contextmanager
 def without_local_search():
     toggle_local_search_signals()
@@ -89,6 +100,7 @@ def without_local_search():
     finally:
         toggle_local_search_signals(False)
 
+
 @contextmanager
 def without_elastic_search():
     toggle_elastic_search_signals()
@@ -105,6 +117,7 @@ def without_elastic_search():
         yield
     finally:
         toggle_elastic_search_signals(False)
+
 
 @contextmanager
 def without_artifact_auto_processing(models=["documents", "news", "newspaper"]):
@@ -113,6 +126,7 @@ def without_artifact_auto_processing(models=["documents", "news", "newspaper"]):
         yield
     finally:
         toggle_artifact_signals(False, models)
+
 
 class DisabledIndexingAppsMixin(object):
     @classmethod
@@ -124,4 +138,3 @@ class DisabledIndexingAppsMixin(object):
     def tearDownClass(cls):
         toggle_indexing_apps_signals(False)
         super().tearDownClass()
-

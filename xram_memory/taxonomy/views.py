@@ -16,6 +16,7 @@ from django.db.models.functions import Lower
 
 TIMEOUT = 0 if settings.DEBUG else 60 * 60 * 12
 
+
 class KeywordViewSet(viewsets.ViewSet):
     def listing(self, request):
         # Pegue e valide o parâmetro com o máximo de itens a retornar
@@ -26,22 +27,20 @@ class KeywordViewSet(viewsets.ViewSet):
         if max_keywords < 1:
             raise ValueError()
 
-        queryset = (Keyword.objects
-                    .values("name", "slug")
-                    .annotate(name_lower=Lower("name") )
-                    .annotate(news_count=Count('news'))
-                    .filter(
-                        Q(news_count__gt=0)
-                    )
-                    .prefetch_related(
-                        Prefetch('news', queryset=News.objects.filter(published=True))
-                    )
+        queryset = (
+            Keyword.objects.values("name", "slug")
+            .annotate(name_lower=Lower("name"))
+            .annotate(news_count=Count("news"))
+            .filter(Q(news_count__gt=0))
+            .prefetch_related(
+                Prefetch("news", queryset=News.objects.filter(published=True))
+            )
         )
 
-        order_by = self.request.query_params.get('orderBy', None)
+        order_by = self.request.query_params.get("orderBy", None)
         if order_by is not None:
-            if order_by == 'top':
-                queryset = queryset .order_by("-news_count")
+            if order_by == "top":
+                queryset = queryset.order_by("-news_count")
             else:
                 raise ParseError()
 
@@ -60,32 +59,32 @@ class SubjectViewSet(viewsets.ViewSet):
     QUERY_LIMIT_REGEX = re.compile(r"^\d+$")
 
     def listing(self, request):
-        limit = self.request.query_params.get('limit', None)
-        filter_by = self.request.query_params.get('filterBy', None)
-        initial = self.request.query_params.get('initial', None)
+        limit = self.request.query_params.get("limit", None)
+        filter_by = self.request.query_params.get("filterBy", None)
+        initial = self.request.query_params.get("initial", None)
         if (limit is None) or self.QUERY_LIMIT_REGEX.match(limit):
             ChosenSerializer = SimpleSubjectSerializer
-            queryset = (Subject.objects
-                .all()
-                .annotate(news_count=Count('news'))
-                .annotate(document_count=Count('document'))
+            queryset = (
+                Subject.objects.all()
+                .annotate(news_count=Count("news"))
+                .annotate(document_count=Count("document"))
                 .prefetch_related(
-                    Prefetch('news', queryset=News.objects.filter(published=True)),
-                    Prefetch('document', queryset=Document.objects.filter(is_public=True))
+                    Prefetch("news", queryset=News.objects.filter(published=True)),
+                    Prefetch(
+                        "document", queryset=Document.objects.filter(is_public=True)
+                    ),
                 )
-                .filter(
-                    Q(news_count__gt=0)
-                    |
-                    Q(document_count__gt=0)
-                )
+                .filter(Q(news_count__gt=0) | Q(document_count__gt=0))
             )
             if filter_by is not None:
-                if filter_by == 'featured':
-                    queryset = (queryset
-                                    .filter(featured=True).order_by("?")
-                                    .prefetch_related('news',
-                                        Prefetch('news__image_capture__image_document'),
-                                    )
+                if filter_by == "featured":
+                    queryset = (
+                        queryset.filter(featured=True)
+                        .order_by("?")
+                        .prefetch_related(
+                            "news",
+                            Prefetch("news__image_capture__image_document"),
+                        )
                     )
                     # Utilize o outro serializador, que trás as imagens e é mais demorado
                     # para o caso dos assuntos em destaque
@@ -93,7 +92,7 @@ class SubjectViewSet(viewsets.ViewSet):
             if initial is not None:
                 queryset = self._subjects_by_initial(initial)
             if limit is not None:
-                queryset = queryset[:int(limit)]
+                queryset = queryset[: int(limit)]
             serializer = ChosenSerializer(queryset, many=True)
             return Response(serializer.data)
         raise ParseError()
@@ -104,24 +103,18 @@ class SubjectViewSet(viewsets.ViewSet):
         """
         if not initial or not self.QUERY_INITIAL_REGEX.match(initial):
             raise ParseError()
-        if initial == '!':
-            return (
-                Subject.objects
-                .exclude(slug__regex=r'^[a-zA-Z]')
-            )
+        if initial == "!":
+            return Subject.objects.exclude(slug__regex=r"^[a-zA-Z]")
         else:
-            return (
-                Subject.objects
-                .filter(slug__istartswith=initial)
-            )
+            return Subject.objects.filter(slug__istartswith=initial)
 
     def subjects_initials(self, request):
         initials = []
-        INITIALS_FILTER = '!' + string.ascii_uppercase
+        INITIALS_FILTER = "!" + string.ascii_uppercase
 
         for initial in INITIALS_FILTER:
-            if initial == '!':
-                results = Subject.objects.exclude(slug__regex=r'^[a-zA-Z]')
+            if initial == "!":
+                results = Subject.objects.exclude(slug__regex=r"^[a-zA-Z]")
             else:
                 results = Subject.objects.filter(slug__istartswith=initial)
             if results.count() > 0:

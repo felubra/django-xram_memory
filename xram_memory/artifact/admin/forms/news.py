@@ -5,31 +5,33 @@ from xram_memory.lib import NewsFetcher
 from django import forms
 
 
-
 class NewsPDFCaptureStackedInlineForm(forms.ModelForm):
     pass
 
 
 class NewsImageCaptureStackedInlineForm(forms.ModelForm):
     class Meta:
-        exclude = ('original_url',)
+        exclude = ("original_url",)
+
 
 class NewsURLForm(forms.Form):
     fieldsets = ()
-    urls = forms.fields.CharField(widget=forms.widgets.Textarea({
-        "rows":30,
-        "cols":100
-    }), label=mark_safe("<strong>Endereços</strong>"), required=True,
-                                  help_text="Insira os endereços das notícias, um por linha.")
+    urls = forms.fields.CharField(
+        widget=forms.widgets.Textarea({"rows": 30, "cols": 100}),
+        label=mark_safe("<strong>Endereços</strong>"),
+        required=True,
+        help_text="Insira os endereços das notícias, um por linha.",
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['urls'].required = True
+        self.fields["urls"].required = True
 
     def clean_urls(self, *args, **kwargs):
         """
         Valida cada uma das urls informadas.
         """
-        urls = self.cleaned_data['urls']
+        urls = self.cleaned_data["urls"]
         if not urls:
             raise ValidationError("É necessário informar uma URL.")
         # 1) separe por linha, construa uma array com os valores
@@ -48,21 +50,24 @@ class NewsURLForm(forms.Form):
         urls = [url for url in urls if is_valid(url)]
         # 4) Se não houver urls válidas, crie um erro de validação
         if not len(urls):
-            raise ValidationError('Todos endereços informados são inválidos.',
-                                  code='invalid',
-                                  params={'urls': urls},
-                                  )
+            raise ValidationError(
+                "Todos endereços informados são inválidos.",
+                code="invalid",
+                params={"urls": urls},
+            )
         return urls
 
     class Meta:
         widgets = {
-          'urls': forms.Textarea(attrs={'rows':20, 'cols':15}),
+            "urls": forms.Textarea(attrs={"rows": 20, "cols": 15}),
         }
+
 
 class NewsAdminForm(forms.ModelForm):
     """
     Um formulário para editar/adicionar uma notícia
     """
+
     # TODO: fazer com que os campos abaixo não sejam logados em revisões de conteúdo?
     # TODO: definir os campos que este formulário aceitará: https://docs.djangoproject.com/en/2.1/topics/forms/modelforms/#selecting-the-fields-to-use
 
@@ -91,18 +96,32 @@ class NewsAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # defina os valores para os campos acima de acordo com o estado do modelo
-        self.initial['set_basic_info'] = not self.instance.has_basic_info
-        self.initial['fetch_archived_url'] = not self.instance.archived_news_url
-        self.initial['add_pdf_capture'] = not self.instance.has_pdf_capture
+        self.initial["set_basic_info"] = not self.instance.has_basic_info
+        self.initial["fetch_archived_url"] = not self.instance.archived_news_url
+        self.initial["add_pdf_capture"] = not self.instance.has_pdf_capture
 
         if self.instance.pk is None:
-            self.fields['set_basic_info'].label = 'Obter informações sobre essa notícia automaticamente'
-            self.fields['fetch_archived_url'].label = 'Procurar por uma versão arquivada dessa notícia no <a href="https://archive.org/">Internet Archive</a>'
-            self.fields['add_pdf_capture'].label = 'Fazer uma captura dessa notícia em formato PDF'
+            self.fields[
+                "set_basic_info"
+            ].label = "Obter informações sobre essa notícia automaticamente"
+            self.fields[
+                "fetch_archived_url"
+            ].label = 'Procurar por uma versão arquivada dessa notícia no <a href="https://archive.org/">Internet Archive</a>'
+            self.fields[
+                "add_pdf_capture"
+            ].label = "Fazer uma captura dessa notícia em formato PDF"
         else:
-            self.fields['set_basic_info'].label = 'Obter informações sobre essa notícia novamente'
-            self.fields['fetch_archived_url'].label = 'Procurar novamente por uma versão arquivada dessa notícia no Internet Archive'
-            self.fields['add_pdf_capture'].label = 'Adicionar uma nova captura de página dessa notícia em formato PDF'
+            self.fields[
+                "set_basic_info"
+            ].label = "Obter informações sobre essa notícia novamente"
+            self.fields[
+                "fetch_archived_url"
+            ].label = "Procurar novamente por uma versão arquivada dessa notícia no Internet Archive"
+            self.fields[
+                "add_pdf_capture"
+            ].label = (
+                "Adicionar uma nova captura de página dessa notícia em formato PDF"
+            )
 
     def clean(self):
         """
@@ -110,25 +129,25 @@ class NewsAdminForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
         # operações adicionais sobre o modelo
-        title = cleaned_data.get(
-            'title', None)
-        set_basic_info = cleaned_data.get(
-            'set_basic_info', False)
-        fetch_archived_url = cleaned_data.get(
-            'fetch_archived_url', False)
-        add_pdf_capture = cleaned_data.get(
-            'add_pdf_capture', False)
+        title = cleaned_data.get("title", None)
+        set_basic_info = cleaned_data.get("set_basic_info", False)
+        fetch_archived_url = cleaned_data.get("fetch_archived_url", False)
+        add_pdf_capture = cleaned_data.get("add_pdf_capture", False)
 
-        url = cleaned_data.get('url', None)
-        slug = cleaned_data.get('slug', None)
+        url = cleaned_data.get("url", None)
+        slug = cleaned_data.get("slug", None)
 
         if not set_basic_info:
             if not title:
                 self.add_error(
-                    'title', 'Se você optou por inserir os dados manualmente, é necessário informar ao menos um título')
+                    "title",
+                    "Se você optou por inserir os dados manualmente, é necessário informar ao menos um título",
+                )
             if not slug and self.instance.pk is None:
                 self.add_error(
-                    'slug', 'Se você optou por inserir os dados manualmente, é informar um endereço')
+                    "slug",
+                    "Se você optou por inserir os dados manualmente, é informar um endereço",
+                )
 
         # define em campos privados do modelo quais operações adicionais o método save() deve
         # realizar
@@ -145,9 +164,13 @@ class NewsAdminForm(forms.ModelForm):
                     raise ValueError()
             except ValueError:
                 self.add_error(
-                    'title', "Não foi possível determinar um título automaticamente, preencha ele manualmente.")
+                    "title",
+                    "Não foi possível determinar um título automaticamente, preencha ele manualmente.",
+                )
             except:
-                self.add_error(None,
-                               "Não foi possível determinar automaticamente informações sobre esta notícia no momento, por-favor insira os dados dela manualmente.")
+                self.add_error(
+                    None,
+                    "Não foi possível determinar automaticamente informações sobre esta notícia no momento, por-favor insira os dados dela manualmente.",
+                )
 
         return cleaned_data

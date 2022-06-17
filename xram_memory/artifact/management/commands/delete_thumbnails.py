@@ -12,18 +12,21 @@ def delete_thumbnails_for_model(model, field=None):
         else:
             thumbnailer = get_thumbnailer(instance.file)
         files_deleted += thumbnailer.delete_thumbnails()
-    return "{} miniaturas de {} excluídas.".format(files_deleted, model._meta.verbose_name.title())
+    return "{} miniaturas de {} excluídas.".format(
+        files_deleted, model._meta.verbose_name.title()
+    )
 
 
 class Command(BaseCommand):
-    help = 'Apaga os thumbnails criados para modelos do app Artifact'
+    help = "Apaga os thumbnails criados para modelos do app Artifact"
     SUPORTED_MODELS_AND_FIELDS = (
-        (NewsImageCapture, 'image_document'),
-        (NewsPDFCapture, 'pdf_document'),
-        (Document,)
+        (NewsImageCapture, "image_document"),
+        (NewsPDFCapture, "pdf_document"),
+        (Document,),
     )
 
     def handle(self, *args, **options):
         for model_and_field in self.SUPORTED_MODELS_AND_FIELDS:
-            self.stdout.write(self.style.SUCCESS(
-                delete_thumbnails_for_model(*model_and_field)))
+            self.stdout.write(
+                self.style.SUCCESS(delete_thumbnails_for_model(*model_and_field))
+            )

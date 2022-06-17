@@ -8,7 +8,6 @@ from xram_memory.utils import no_empty_html
 from pytest import raises
 
 
-
 def test_with_only_tags():
     """
     Testa o caso do texto com apenas tags, sem conteúdo entre elas

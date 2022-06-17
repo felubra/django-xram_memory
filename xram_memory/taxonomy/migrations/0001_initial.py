@@ -7,36 +7,81 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Keyword',
+            name="Keyword",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Criado em')),
-                ('modified_at', models.DateTimeField(auto_now=True, verbose_name='Modificado em')),
-                ('slug', models.SlugField(default='', editable=False, max_length=60, unique=True, verbose_name='Slug')),
-                ('name', models.CharField(max_length=60, verbose_name='Nome')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Criado em"),
+                ),
+                (
+                    "modified_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Modificado em"),
+                ),
+                (
+                    "slug",
+                    models.SlugField(
+                        default="",
+                        editable=False,
+                        max_length=60,
+                        unique=True,
+                        verbose_name="Slug",
+                    ),
+                ),
+                ("name", models.CharField(max_length=60, verbose_name="Nome")),
             ],
             options={
-                'verbose_name': 'Palavra-chave',
-                'verbose_name_plural': 'Palavras-chave',
+                "verbose_name": "Palavra-chave",
+                "verbose_name_plural": "Palavras-chave",
             },
         ),
         migrations.CreateModel(
-            name='Subject',
+            name="Subject",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Criado em')),
-                ('modified_at', models.DateTimeField(auto_now=True, verbose_name='Modificado em')),
-                ('slug', models.SlugField(default='', editable=False, max_length=60, unique=True, verbose_name='Slug')),
-                ('name', models.CharField(max_length=60, verbose_name='Nome')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Criado em"),
+                ),
+                (
+                    "modified_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Modificado em"),
+                ),
+                (
+                    "slug",
+                    models.SlugField(
+                        default="",
+                        editable=False,
+                        max_length=60,
+                        unique=True,
+                        verbose_name="Slug",
+                    ),
+                ),
+                ("name", models.CharField(max_length=60, verbose_name="Nome")),
             ],
             options={
-                'verbose_name': 'Assunto',
-                'verbose_name_plural': 'Assuntos',
+                "verbose_name": "Assunto",
+                "verbose_name_plural": "Assuntos",
             },
         ),
     ]

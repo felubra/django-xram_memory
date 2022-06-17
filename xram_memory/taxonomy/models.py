@@ -10,12 +10,9 @@ class TaxonomyItem(TraceableModel):
     """
     Um simples modelo para salvar uma palavra-chave
     """
+
     slug = models.SlugField(
-        verbose_name="Slug",
-        max_length=60,
-        unique=True,
-        editable=False,
-        default=''
+        verbose_name="Slug", max_length=60, unique=True, editable=False, default=""
     )
     name = models.CharField(
         verbose_name="Nome",
@@ -43,12 +40,13 @@ class Keyword(TaxonomyItem):
 class Subject(TaxonomyItem):
     description = models.TextField(
         verbose_name="Descrição",
-        help_text='Uma descrição detalhada para este Assunto',
-        blank=True)
+        help_text="Uma descrição detalhada para este Assunto",
+        blank=True,
+    )
     featured = models.BooleanField(
         verbose_name="Em destaque na página de assuntos",
-        help_text='Marque se quiser dar destaque a este assunto na página de assuntos.',
-        default=False
+        help_text="Marque se quiser dar destaque a este assunto na página de assuntos.",
+        default=False,
     )
 
     def cover(self):
@@ -58,7 +56,7 @@ class Subject(TaxonomyItem):
         if self.thumbnails:
             return choice(self.thumbnails)
         else:
-            return ''
+            return ""
 
     def big_cover(self):
         """
@@ -67,7 +65,7 @@ class Subject(TaxonomyItem):
         if self.image_captures:
             return choice(self.image_captures)
         else:
-            return ''
+            return ""
 
     @cachedproperty
     def thumbnails(self):
@@ -76,9 +74,11 @@ class Subject(TaxonomyItem):
         """
         images = []
         try:
-            for news in self.news.filter(image_capture__isnull=False).order_by('?')[0:3]:
+            for news in self.news.filter(image_capture__isnull=False).order_by("?")[
+                0:3
+            ]:
                 try:
-                    images.append(news.thumbnails['thumbnail'])
+                    images.append(news.thumbnails["thumbnail"])
                 except:
                     continue
             return images
@@ -92,9 +92,11 @@ class Subject(TaxonomyItem):
         """
         images = []
         try:
-            for news in self.news.filter(image_capture__isnull=False).order_by('?')[0:3]:
+            for news in self.news.filter(image_capture__isnull=False).order_by("?")[
+                0:3
+            ]:
                 try:
-                    images.append(news.thumbnails['image_capture'])
+                    images.append(news.thumbnails["image_capture"])
                 except:
                     continue
             return images
@@ -124,10 +126,10 @@ class Subject(TaxonomyItem):
 
     def save(self, *args, **kwargs):
         if not self.has_description:
-            self.description = ''
+            self.description = ""
         super().save(*args, **kwargs)
-        #FIXME: mais atributos precisam ter seu cache invalidado.
-        for attr_name in ['images', 'has_description']:
+        # FIXME: mais atributos precisam ter seu cache invalidado.
+        for attr_name in ["images", "has_description"]:
             try:
                 delattr(self, attr_name)
             except AttributeError:

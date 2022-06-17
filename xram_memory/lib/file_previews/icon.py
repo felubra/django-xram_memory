@@ -22,8 +22,11 @@ def icon_preview(source, exif_orientation=True, **options):
     # aqui é suficiente pegar o mimetype do arquivo usando a biblioteca embutida do python, já que o arquivo já foi
     # enviado e, portanto, teve seu mimetype validado.
     mimetype, _ = mimetypes.guess_type(source.path)
-    extension = mimetypes.guess_extension(
-        mimetype)[1:] if mimetypes.guess_extension(mimetype) is not None else 'blank'
+    extension = (
+        mimetypes.guess_extension(mimetype)[1:]
+        if mimetypes.guess_extension(mimetype) is not None
+        else "blank"
+    )
 
     svg_icon = get_file_icon(extension)
 

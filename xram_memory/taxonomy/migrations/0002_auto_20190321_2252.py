@@ -10,29 +10,57 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('taxonomy', '0001_initial'),
+        ("taxonomy", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subject',
-            name='created_by',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='subject_creator', to=settings.AUTH_USER_MODEL, verbose_name='Criado por'),
+            model_name="subject",
+            name="created_by",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="subject_creator",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Criado por",
+            ),
         ),
         migrations.AddField(
-            model_name='subject',
-            name='modified_by',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='subject_last_modifier', to=settings.AUTH_USER_MODEL, verbose_name='Modificado por'),
+            model_name="subject",
+            name="modified_by",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="subject_last_modifier",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Modificado por",
+            ),
         ),
         migrations.AddField(
-            model_name='keyword',
-            name='created_by',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='keyword_creator', to=settings.AUTH_USER_MODEL, verbose_name='Criado por'),
+            model_name="keyword",
+            name="created_by",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="keyword_creator",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Criado por",
+            ),
         ),
         migrations.AddField(
-            model_name='keyword',
-            name='modified_by',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='keyword_last_modifier', to=settings.AUTH_USER_MODEL, verbose_name='Modificado por'),
+            model_name="keyword",
+            name="modified_by",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="keyword_last_modifier",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Modificado por",
+            ),
         ),
     ]

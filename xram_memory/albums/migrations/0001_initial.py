@@ -9,16 +9,34 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('filer', '0010_auto_20180414_2058'),
+        ("filer", "0010_auto_20180414_2058"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Album',
+            name="Album",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('featured', models.BooleanField(verbose_name='Em destaque na página de álbums')),
-                ('folder', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='album', to='filer.Folder')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "featured",
+                    models.BooleanField(verbose_name="Em destaque na página de álbums"),
+                ),
+                (
+                    "folder",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="album",
+                        to="filer.Folder",
+                    ),
+                ),
             ],
         ),
     ]
